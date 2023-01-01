@@ -1,5 +1,5 @@
 use crate::utils::{get_create_name, GeneratorResult};
-use darling::ast::Data;
+use darling::ast::{Data, Fields};
 use darling::util::Ignored;
 use darling::{FromDeriveInput, FromField};
 use proc_macro2::TokenStream;
@@ -58,15 +58,65 @@ fn impl_resolve_ref(object: &Object) -> TokenStream {
     }
 }
 
+fn get_fields(object: &Object) -> GeneratorResult<&Fields<ObjectField>> {
+    match object.data {
+        Data::Struct(ref data) => Ok(data),
+        Data::Enum(_) => {
+            Err(syn::Error::new_spanned(&object.ident, "Object can't applied to enum").into())
+        }
+    }
+}
+
+fn get_field_ident(field: &ObjectField) -> GeneratorResult<&syn::Ident> {
+    let ident = field.ident.as_ref().ok_or_else(|| {
+        syn::Error::new_spanned(&field.ident, "Object can't applied to tuple fields")
+    })?;
+    Ok(ident)
+}
+
+fn impl_resolver(field: &ObjectField) -> GeneratorResult<TokenStream> {
+    // fn resolve_<field_name>(&self) -> &<field_type> { &self.<field_name> }
+    let field_ident = get_field_ident(field)?;
+    let name = field_ident.to_string();
+    let resolver_name = format!("resolve_{}", name);
+    let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());
+    let ty = &field.ty;
+    Ok(quote! {
+        fn #resolver_ident(&self) -> &#ty {
+            &self.#field_ident
+        }
+    })
+}
+
+fn impl_resolvers(object: &Object) -> GeneratorResult<TokenStream> {
+    let ident = &object.ident;
+    let struct_data = get_fields(object)?;
+    let fields = struct_data
+        .fields
+        .iter()
+        .map(|field| {
+            let resolver = impl_resolver(field)?;
+            Ok(resolver)
+        })
+        .collect::<GeneratorResult<Vec<TokenStream>>>()?;
+    Ok(quote! {
+        impl #ident {
+            #(#fields)*
+        }
+    })
+}
+
 impl Object {
     pub fn generate(&self) -> GeneratorResult<TokenStream> {
         let impl_object = impl_object(self);
         let impl_resolve_owned = impl_resolve_owned(self);
         let impl_resolve_ref = impl_resolve_ref(self);
+        let impl_resolvers = impl_resolvers(self)?;
         Ok(quote! {
             #impl_object
             #impl_resolve_owned
             #impl_resolve_ref
+            #impl_resolvers
         })
     }
 }
