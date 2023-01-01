@@ -1,9 +1,9 @@
-use crate::utils::get_create_name;
+use crate::utils::{get_create_name, GeneratorResult};
 use darling::ast::Data;
 use darling::util::Ignored;
 use darling::{FromDeriveInput, FromField};
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::quote;
 
 #[derive(FromField)]
 #[darling(attributes(arg))]
@@ -58,16 +58,15 @@ fn impl_resolve_ref(object: &Object) -> TokenStream {
     }
 }
 
-impl ToTokens for Object {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Object {
+    pub fn generate(&self) -> GeneratorResult<TokenStream> {
         let impl_object = impl_object(self);
         let impl_resolve_owned = impl_resolve_owned(self);
         let impl_resolve_ref = impl_resolve_ref(self);
-
-        tokens.extend(quote! {
+        Ok(quote! {
             #impl_object
             #impl_resolve_owned
             #impl_resolve_ref
-        });
+        })
     }
 }
