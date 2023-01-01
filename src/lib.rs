@@ -1,14 +1,8 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+mod registry;
+mod types;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub use async_graphql::dynamic;
+pub use registry::Registry;
+pub use types::{
+    Enum, ExpandObject, InputObject, Interface, Mutation, Object, Register, Scalar, Union,
+};
