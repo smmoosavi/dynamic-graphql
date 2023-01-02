@@ -16,7 +16,7 @@ thiserror = "1"
 
 [dev-dependencies]
 dynamic-graphql = { path = ".." }
-schema-utils = { path = "../schema-utils" }
+graphql-parser = "0.4"
 tokio = { version = "1", features = ["full"] }
 serde_json = "1"
 

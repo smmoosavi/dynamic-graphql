@@ -11,5 +11,4 @@ async-graphql = { path = "../async-graphql", features = ["dynamic-schema"] }
 [workspace]
 members = [
     "derive",
-    "schema-utils",
 ]
