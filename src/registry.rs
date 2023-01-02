@@ -37,10 +37,12 @@ struct PendingExpandObject {
 }
 
 impl Registry {
+    #[inline]
     pub fn set_root(mut self, name: &str) -> Self {
         self.root = Some(name.to_string());
         self
     }
+    #[inline]
     pub fn set_mutation(mut self, name: &str) -> Self {
         self.mutation = Some(name.to_string());
         self
@@ -78,6 +80,7 @@ impl Registry {
 }
 
 impl Registry {
+    #[inline]
     pub fn register<T: Register>(self) -> Self {
         T::register(self)
     }

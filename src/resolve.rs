@@ -19,6 +19,7 @@ impl<'a, T: ResolveOwned<'a>> ResolveOwned<'a> for Option<T> {
 }
 
 impl<'a, T: ResolveRef<'a>> ResolveRef<'a> for Option<T> {
+    #[inline]
     fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
         match self {
             None => Ok(None),
@@ -121,6 +122,7 @@ macro_rules! output_value {
                 }
             }
             impl <'a> ResolveRef<'a> for $ty {
+                #[inline]
                 fn resolve_ref(&'a self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
                     Ok(Some(FieldValue::value(self.to_owned())))
                 }
