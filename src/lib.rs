@@ -12,3 +12,5 @@ pub use types::{
     Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputObject, InputType,
     Interface, Mutation, Object, OutputType, Register, Scalar, Union,
 };
+
+pub use dynamic_graphql_derive::Object;
