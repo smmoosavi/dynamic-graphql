@@ -6,10 +6,13 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 #[derive(FromField)]
-#[darling(attributes(arg))]
+#[darling(attributes(graphql))]
 pub struct ObjectField {
     pub ident: Option<syn::Ident>,
     pub ty: syn::Type,
+
+    #[darling(default)]
+    pub skip: bool,
 }
 
 #[derive(FromDeriveInput)]
@@ -102,10 +105,8 @@ fn impl_resolvers(object: &Object) -> GeneratorResult<TokenStream> {
     let fields = struct_data
         .fields
         .iter()
-        .map(|field| {
-            let resolver = impl_resolver(field)?;
-            Ok(resolver)
-        })
+        .filter(|field| !field.skip)
+        .map(impl_resolver)
         .collect::<GeneratorResult<Vec<TokenStream>>>()?;
     Ok(quote! {
         impl #ident {
@@ -148,6 +149,7 @@ fn impl_register(object: &Object) -> GeneratorResult<TokenStream> {
     let define_fields = fields
         .fields
         .iter()
+        .filter(|field| !field.skip)
         .map(impl_define_field)
         .collect::<GeneratorResult<Vec<TokenStream>>>()?;
     Ok(quote! {
