@@ -1,34 +1,47 @@
 use crate::dynamic;
 use crate::registry::Registry;
+mod common;
 
 pub trait Register {
     fn register(registry: Registry) -> Registry;
 }
 
-pub trait Object {
+pub trait GraphqlType {
     const NAME: &'static str;
 }
 
-pub trait Enum {
-    const NAME: &'static str;
+pub trait OutputType: GraphqlType {
+    const NAME: &'static str = <Self as GraphqlType>::NAME;
 }
 
-pub trait Scalar {
-    const NAME: &'static str;
+pub trait InputType: GraphqlType {
+    const NAME: &'static str = <Self as GraphqlType>::NAME;
 }
 
-pub trait Union {
-    const NAME: &'static str;
+pub trait Object: OutputType {
+    const NAME: &'static str = <Self as OutputType>::NAME;
 }
 
-pub trait Interface {
-    const NAME: &'static str;
+pub trait Enum: OutputType {
+    const NAME: &'static str = <Self as OutputType>::NAME;
+}
+
+pub trait Scalar: OutputType {
+    const NAME: &'static str = <Self as OutputType>::NAME;
+}
+
+pub trait Union: OutputType {
+    const NAME: &'static str = <Self as OutputType>::NAME;
+}
+
+pub trait Interface: OutputType {
+    const NAME: &'static str = <Self as OutputType>::NAME;
 
     fn register_fields(interface: dynamic::Interface) -> dynamic::Interface;
 }
 
-pub trait InputObject {
-    const NAME: &'static str;
+pub trait InputObject: InputType {
+    const NAME: &'static str = <Self as InputType>::NAME;
 }
 
 pub trait Mutation: Object {}

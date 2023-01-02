@@ -22,15 +22,23 @@ pub struct Object {
     pub name: Option<String>,
 }
 
+fn get_type_name(object: &Object) -> String {
+    object
+        .name
+        .clone()
+        .unwrap_or_else(|| object.ident.to_string())
+}
+
 fn impl_object(object: &Object) -> TokenStream {
     let ident = &object.ident;
-    let struct_name = ident.to_string();
-    let name = object.name.as_ref().unwrap_or(&struct_name);
+    let name = get_type_name(object);
     let create_name = get_create_name();
     quote! {
-        impl #create_name::Object for #ident {
+        impl #create_name::GraphqlType for #ident {
             const NAME: &'static str = #name;
         }
+        impl #create_name::OutputType for #ident {}
+        impl #create_name::Object for #ident {}
     }
 }
 
