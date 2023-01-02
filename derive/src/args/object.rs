@@ -129,7 +129,7 @@ fn impl_define_field(field: &ObjectField) -> GeneratorResult<TokenStream> {
     let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());
     let create_name = get_create_name();
     Ok(quote! {
-        let field = #create_name::dynamic::Field::new(#name, #create_name::dynamic::TypeRef::named_nn(<#ty as #create_name::OutputType>::NAME), |ctx| {
+        let field = #create_name::dynamic::Field::new(#name, <#ty as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
             #create_name::dynamic::FieldFuture::new(async move {
                 let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
                 let value = Self::#resolver_ident(parent);
