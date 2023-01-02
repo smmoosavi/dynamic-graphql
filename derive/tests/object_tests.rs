@@ -1,4 +1,7 @@
+use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::FieldValue;
 use dynamic_graphql_derive::Object;
+use schema_utils::normalize_schema;
 
 #[test]
 fn test_impl_object() {
@@ -33,4 +36,55 @@ fn test_impl_resolvers() {
     };
     let s = example.resolve_string();
     assert_eq!(s, &"Hello".to_string());
+}
+
+#[test]
+fn test_schema() {
+    #[allow(dead_code)]
+    #[derive(Object)]
+    struct Query {
+        pub string: String,
+    }
+    let registry = dynamic_graphql::Registry::new();
+    let registry = registry.register::<Query>().set_root("Query");
+    let schema = registry.create_schema();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+            type Query {
+              string: String!
+            }
+            schema {
+              query: Query
+            }
+            "#
+        ),
+    );
+}
+
+#[tokio::test]
+async fn test_query() {
+    #[allow(dead_code)]
+    #[derive(Object)]
+    struct Query {
+        pub string: String,
+    }
+    let registry = dynamic_graphql::Registry::new();
+    let registry = registry.register::<Query>().set_root("Query");
+    let schema = registry.create_schema();
+    let query = r#"
+        query {
+            string
+        }
+    "#;
+    let root = Query {
+        string: "Hello".to_string(),
+    };
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(data, serde_json::json!({ "string": "Hello" }));
 }

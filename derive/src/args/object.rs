@@ -114,17 +114,68 @@ fn impl_resolvers(object: &Object) -> GeneratorResult<TokenStream> {
     })
 }
 
+fn impl_define_object(_object: &Object) -> GeneratorResult<TokenStream> {
+    let create_name = get_create_name();
+    Ok(quote! {
+        let object = #create_name::dynamic::Object::new(<Self as #create_name::Object>::NAME);
+    })
+}
+
+fn impl_define_field(field: &ObjectField) -> GeneratorResult<TokenStream> {
+    let field_ident = get_field_ident(field)?;
+    let name = field_ident.to_string();
+    let ty = &field.ty;
+    let resolver_name = format!("resolve_{}", name);
+    let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());
+    let create_name = get_create_name();
+    Ok(quote! {
+        let field = #create_name::dynamic::Field::new(#name, #create_name::dynamic::TypeRef::named_nn(<#ty as #create_name::OutputType>::NAME), |ctx| {
+            #create_name::dynamic::FieldFuture::new(async move {
+                let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
+                let value = Self::#resolver_ident(parent);
+                #create_name::ResolveRef::resolve_ref(value, &ctx)
+            })
+        });
+        let object = object.field(field);
+    })
+}
+
+fn impl_register(object: &Object) -> GeneratorResult<TokenStream> {
+    let create_name = get_create_name();
+    let ident = &object.ident;
+    let define_object = impl_define_object(object)?;
+    let fields = get_fields(object)?;
+    let define_fields = fields
+        .fields
+        .iter()
+        .map(impl_define_field)
+        .collect::<GeneratorResult<Vec<TokenStream>>>()?;
+    Ok(quote! {
+        impl #create_name::Register for #ident {
+            fn register(registry: #create_name::Registry) -> #create_name::Registry {
+                #define_object
+
+                #(#define_fields)*
+
+                registry.register_type(object)
+            }
+        }
+    })
+}
+
 impl Object {
     pub fn generate(&self) -> GeneratorResult<TokenStream> {
         let impl_object = impl_object(self);
         let impl_resolve_owned = impl_resolve_owned(self);
         let impl_resolve_ref = impl_resolve_ref(self);
         let impl_resolvers = impl_resolvers(self)?;
+        let impl_register = impl_register(self)?;
         Ok(quote! {
             #impl_object
             #impl_resolve_owned
             #impl_resolve_ref
             #impl_resolvers
+            #impl_register
         })
     }
 }

@@ -37,13 +37,16 @@ struct PendingExpandObject {
 }
 
 impl Registry {
-    pub fn set_root(&mut self, name: &str) {
+    pub fn set_root(mut self, name: &str) -> Self {
         self.root = Some(name.to_string());
+        self
     }
-    pub fn set_mutation(&mut self, name: &str) {
+    pub fn set_mutation(mut self, name: &str) -> Self {
         self.mutation = Some(name.to_string());
+        self
     }
-    pub fn register_type(mut self, ty: dynamic::Type) -> Self {
+    pub fn register_type(mut self, ty: impl Into<dynamic::Type>) -> Self {
+        let ty = ty.into();
         match ty {
             dynamic::Type::Object(object) => {
                 self.objects.insert(object.type_name().to_string(), object);
