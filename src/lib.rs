@@ -9,6 +9,6 @@ pub use async_graphql::{Context, Error, Request, Result, ID};
 pub use registry::Registry;
 pub use resolve::{ResolveOwned, ResolveRef};
 pub use types::{
-    Enum, ExpandObject, GraphqlType, InputObject, InputType, Interface, Mutation, Object,
-    OutputType, Register, Scalar, Union,
+    Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputObject, InputType,
+    Interface, Mutation, Object, OutputType, Register, Scalar, Union,
 };

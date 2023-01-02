@@ -1,5 +1,6 @@
 use crate::dynamic;
 use crate::registry::Registry;
+use async_graphql::dynamic::TypeRef;
 mod common;
 
 pub trait Register {
@@ -48,4 +49,11 @@ pub trait Mutation: Object {}
 
 pub trait ExpandObject {
     type Target: Object;
+}
+
+pub trait GetOutputTypeRef {
+    fn get_output_type_ref() -> TypeRef;
+}
+pub trait GetInputTypeRef {
+    fn get_input_type_ref() -> TypeRef;
 }
