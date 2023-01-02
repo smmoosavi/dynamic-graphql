@@ -13,6 +13,9 @@ pub struct ObjectField {
 
     #[darling(default)]
     pub skip: bool,
+
+    #[darling(default)]
+    pub name: Option<String>,
 }
 
 #[derive(FromDeriveInput)]
@@ -125,12 +128,16 @@ fn impl_define_object(_object: &Object) -> GeneratorResult<TokenStream> {
 fn impl_define_field(field: &ObjectField) -> GeneratorResult<TokenStream> {
     let field_ident = get_field_ident(field)?;
     let name = field_ident.to_string();
+    let field_name = field
+        .name
+        .clone()
+        .unwrap_or_else(|| field_ident.to_string());
     let ty = &field.ty;
     let resolver_name = format!("resolve_{}", name);
     let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());
     let create_name = get_create_name();
     Ok(quote! {
-        let field = #create_name::dynamic::Field::new(#name, <#ty as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
+        let field = #create_name::dynamic::Field::new(#field_name, <#ty as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
             #create_name::dynamic::FieldFuture::new(async move {
                 let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
                 let value = Self::#resolver_ident(parent);
