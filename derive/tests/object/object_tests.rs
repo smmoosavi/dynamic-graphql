@@ -164,6 +164,3 @@ async fn test_optional() {
 
     assert_eq!(data, serde_json::json!({ "maybe_string": null }));
 }
-
-mod list_tests;
-mod test_types;
