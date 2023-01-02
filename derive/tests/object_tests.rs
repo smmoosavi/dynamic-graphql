@@ -64,7 +64,6 @@ fn test_schema() {
     );
 }
 
-
 #[test]
 fn test_schema_with_rename() {
     #[allow(dead_code)]
@@ -167,3 +166,4 @@ async fn test_optional() {
 }
 
 mod list_tests;
+mod test_types;
