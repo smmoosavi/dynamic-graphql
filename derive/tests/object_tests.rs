@@ -64,6 +64,34 @@ fn test_schema() {
     );
 }
 
+
+#[test]
+fn test_schema_with_rename() {
+    #[allow(dead_code)]
+    #[derive(Object)]
+    #[graphql(name = "Other")]
+    struct Query {
+        pub string: String,
+    }
+    let registry = dynamic_graphql::Registry::new();
+    let registry = registry.register::<Query>().set_root("Other");
+    let schema = registry.create_schema();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+            type Other {
+              string: String!
+            }
+            schema {
+              query: Other
+            }
+            "#
+        ),
+    );
+}
+
 #[tokio::test]
 async fn test_query() {
     #[allow(dead_code)]
