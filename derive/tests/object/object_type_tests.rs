@@ -256,3 +256,60 @@ async fn test_optional_types() {
         })
     );
 }
+
+#[tokio::test]
+async fn test_object_output() {
+    #[derive(Object, Default)]
+    struct Foo {
+        pub value: String,
+    }
+
+    #[derive(Object, Default)]
+    struct Query {
+        pub foo: Foo,
+    }
+
+    let registry = dynamic_graphql::Registry::new();
+    let registry = registry
+        .register::<Query>()
+        .register::<Foo>()
+        .set_root("Query");
+    let schema = registry.create_schema();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+            type Foo {
+              value: String!
+            }
+
+            type Query {
+              foo: Foo!
+            }
+
+            schema {
+              query: Query
+            }
+        "#
+        ),
+    );
+
+    let query = r#"
+        query {
+            foo { value }
+        }
+    "#;
+
+    let root = Query {
+        foo: Foo {
+            value: "the foo".to_string(),
+        },
+    };
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(data, serde_json::json!({ "foo": { "value": "the foo" } }));
+}
