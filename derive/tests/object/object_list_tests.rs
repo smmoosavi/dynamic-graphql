@@ -53,7 +53,6 @@ async fn test_list() {
 }
 
 #[tokio::test]
-#[ignore]
 async fn test_optional_list() {
     #[allow(dead_code)]
     #[derive(Object)]
@@ -153,7 +152,6 @@ async fn test_list_of_optional() {
 }
 
 #[tokio::test]
-#[ignore]
 async fn test_optional_list_of_optional() {
     #[allow(dead_code)]
     #[derive(Object)]
