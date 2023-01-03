@@ -1,4 +1,5 @@
 use crate::utils::crate_name::get_create_name;
+use crate::utils::docs_utils::get_rustdoc;
 use crate::utils::error::GeneratorResult;
 use darling::ast::{Data, Fields};
 use darling::util::Ignored;
@@ -7,10 +8,11 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 #[derive(FromField)]
-#[darling(attributes(graphql))]
+#[darling(attributes(graphql), forward_attrs(doc))]
 pub struct ObjectField {
     pub ident: Option<syn::Ident>,
     pub ty: syn::Type,
+    pub attrs: Vec<syn::Attribute>,
 
     #[darling(default)]
     pub skip: bool,
@@ -20,10 +22,11 @@ pub struct ObjectField {
 }
 
 #[derive(FromDeriveInput)]
-#[darling(attributes(graphql))]
+#[darling(attributes(graphql), forward_attrs(doc))]
 pub struct Object {
     pub ident: syn::Ident,
     pub data: Data<Ignored, ObjectField>,
+    pub attrs: Vec<syn::Attribute>,
 
     #[darling(default)]
     pub name: Option<String>,
@@ -126,6 +129,18 @@ fn impl_define_object(_object: &Object) -> GeneratorResult<TokenStream> {
     })
 }
 
+fn field_description(field: &ObjectField) -> GeneratorResult<TokenStream> {
+    let doc = get_rustdoc(&field.attrs)?;
+    if let Some(doc) = doc {
+        Ok(quote! {
+            let field = field.description(#doc);
+        })
+    } else {
+        Ok(quote! {})
+    }
+}
+
+
 fn impl_define_field(field: &ObjectField) -> GeneratorResult<TokenStream> {
     let field_ident = get_field_ident(field)?;
     let name = field_ident.to_string();
@@ -137,6 +152,7 @@ fn impl_define_field(field: &ObjectField) -> GeneratorResult<TokenStream> {
     let resolver_name = format!("resolve_{}", name);
     let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());
     let create_name = get_create_name();
+    let description = field_description(field)?;
     Ok(quote! {
         let field = #create_name::dynamic::Field::new(#field_name, <#ty as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
             #create_name::dynamic::FieldFuture::new(async move {
@@ -145,14 +161,27 @@ fn impl_define_field(field: &ObjectField) -> GeneratorResult<TokenStream> {
                 #create_name::ResolveRef::resolve_ref(value, &ctx)
             })
         });
+        #description
         let object = object.field(field);
     })
+}
+
+fn object_description(object: &Object) -> GeneratorResult<TokenStream> {
+    let doc = get_rustdoc(&object.attrs)?;
+    if let Some(doc) = doc {
+        Ok(quote! {
+            let object = object.description(#doc);
+        })
+    } else {
+        Ok(quote! {})
+    }
 }
 
 fn impl_register(object: &Object) -> GeneratorResult<TokenStream> {
     let create_name = get_create_name();
     let ident = &object.ident;
     let define_object = impl_define_object(object)?;
+    let description = object_description(object)?;
     let fields = get_fields(object)?;
     let define_fields = fields
         .fields
@@ -164,6 +193,8 @@ fn impl_register(object: &Object) -> GeneratorResult<TokenStream> {
         impl #create_name::Register for #ident {
             fn register(registry: #create_name::Registry) -> #create_name::Registry {
                 #define_object
+
+                #description
 
                 #(#define_fields)*
 

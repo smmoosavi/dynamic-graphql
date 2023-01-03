@@ -219,3 +219,37 @@ async fn test_optional() {
 
     assert_eq!(data, serde_json::json!({ "maybe_string": null }));
 }
+
+#[test]
+fn test_schema_with_doc() {
+    /// this is the query object
+    #[allow(dead_code)]
+    #[derive(Object)]
+    struct Query {
+        /// this is the string field
+        pub string: String,
+    }
+    let registry = dynamic_graphql::Registry::new();
+    let registry = registry.register::<Query>().set_root("Query");
+    let schema = registry.create_schema();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+            """
+              this is the query object
+            """
+            type Query {
+              """
+                this is the string field
+              """
+              string: String!
+            }
+            schema {
+              query: Query
+            }
+            "#
+        ),
+    );
+}
