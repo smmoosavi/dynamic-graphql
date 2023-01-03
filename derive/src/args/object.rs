@@ -1,4 +1,5 @@
-use crate::utils::{get_create_name, GeneratorResult};
+use crate::utils::crate_name::get_create_name;
+use crate::utils::error::GeneratorResult;
 use darling::ast::{Data, Fields};
 use darling::util::Ignored;
 use darling::{FromDeriveInput, FromField};
