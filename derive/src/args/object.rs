@@ -1,4 +1,5 @@
 use crate::utils::crate_name::get_create_name;
+use crate::utils::deprecation::Deprecation;
 use crate::utils::docs_utils::get_rustdoc;
 use crate::utils::error::GeneratorResult;
 use darling::ast::{Data, Fields};
@@ -19,6 +20,9 @@ pub struct ObjectField {
 
     #[darling(default)]
     pub name: Option<String>,
+
+    #[darling(default)]
+    pub deprecation: Deprecation,
 }
 
 #[derive(FromDeriveInput)]
@@ -140,6 +144,19 @@ fn field_description(field: &ObjectField) -> GeneratorResult<TokenStream> {
     }
 }
 
+fn field_deprecation(field: &ObjectField) -> GeneratorResult<TokenStream> {
+    match field.deprecation {
+        Deprecation::NoDeprecated => Ok(quote! {}),
+        Deprecation::Deprecated { reason: None } => Ok(quote! {
+            let field = field.deprecation(None);
+        }),
+        Deprecation::Deprecated {
+            reason: Some(ref reason),
+        } => Ok(quote! {
+            let field = field.deprecation(Some(#reason));
+        }),
+    }
+}
 
 fn impl_define_field(field: &ObjectField) -> GeneratorResult<TokenStream> {
     let field_ident = get_field_ident(field)?;
@@ -153,6 +170,7 @@ fn impl_define_field(field: &ObjectField) -> GeneratorResult<TokenStream> {
     let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());
     let create_name = get_create_name();
     let description = field_description(field)?;
+    let deprecation = field_deprecation(field)?;
     Ok(quote! {
         let field = #create_name::dynamic::Field::new(#field_name, <#ty as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
             #create_name::dynamic::FieldFuture::new(async move {
@@ -162,6 +180,7 @@ fn impl_define_field(field: &ObjectField) -> GeneratorResult<TokenStream> {
             })
         });
         #description
+        #deprecation
         let object = object.field(field);
     })
 }

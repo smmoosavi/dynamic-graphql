@@ -253,3 +253,34 @@ fn test_schema_with_doc() {
         ),
     );
 }
+
+#[test]
+fn test_schema_with_deprecation() {
+    #[allow(dead_code)]
+    #[derive(Object)]
+    struct Query {
+        #[graphql(deprecation)]
+        pub deprecated: String,
+        #[graphql(deprecation = "this is the old one")]
+        pub with_reason: String,
+    }
+    let registry = dynamic_graphql::Registry::new();
+    let registry = registry.register::<Query>().set_root("Query");
+    let schema = registry.create_schema();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+                type Query {
+                  deprecated: String! @deprecated
+                  with_reason: String! @deprecated(reason: "this is the old one")
+                }
+
+                schema {
+                  query: Query
+                }
+            "#
+        ),
+    );
+}
