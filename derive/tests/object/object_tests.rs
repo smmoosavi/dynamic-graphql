@@ -47,7 +47,7 @@ fn test_schema() {
     }
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -74,7 +74,7 @@ fn test_schema_with_rename() {
     }
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<Query>().set_root("Other");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -102,7 +102,7 @@ fn test_schema_with_skip() {
     }
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -129,7 +129,7 @@ fn test_schema_with_rename_field() {
     }
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -155,7 +155,7 @@ async fn test_query() {
     }
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
     let query = r#"
         query {
             string
@@ -180,7 +180,7 @@ async fn test_optional() {
     }
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -231,7 +231,7 @@ fn test_schema_with_doc() {
     }
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -266,7 +266,7 @@ fn test_schema_with_deprecation() {
     }
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),

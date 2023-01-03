@@ -27,7 +27,7 @@ async fn test_types() {
     }
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -132,7 +132,7 @@ async fn test_optional_types() {
     }
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -274,7 +274,7 @@ async fn test_object_output() {
         .register::<Query>()
         .register::<Foo>()
         .set_root("Query");
-    let schema = registry.create_schema();
+    let schema = registry.create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(

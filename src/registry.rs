@@ -116,7 +116,7 @@ impl Registry {
             }
         }
     }
-    pub fn create_schema(mut self) -> dynamic::Schema {
+    pub fn create_schema(mut self) -> dynamic::SchemaBuilder {
         self.apply_pending_objects();
         let Some(ref root) = self.root else {
             panic!("No root object defined");
@@ -126,10 +126,8 @@ impl Registry {
             .objects
             .into_iter()
             .fold(schema, |schema, (_, object)| schema.register(object));
-        let schema = self
-            .types
+        self.types
             .into_iter()
-            .fold(schema, |schema, object| schema.register(object));
-        schema.finish().unwrap()
+            .fold(schema, |schema, object| schema.register(object))
     }
 }
