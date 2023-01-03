@@ -2,6 +2,7 @@ use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::docs_utils::get_rustdoc;
 use crate::utils::error::GeneratorResult;
+use crate::utils::rename_rule::{calc_field_name, calc_type_name, RenameRule};
 use darling::ast::{Data, Fields};
 use darling::util::Ignored;
 use darling::{FromDeriveInput, FromField};
@@ -34,18 +35,14 @@ pub struct Object {
 
     #[darling(default)]
     pub name: Option<String>,
-}
 
-fn get_type_name(object: &Object) -> String {
-    object
-        .name
-        .clone()
-        .unwrap_or_else(|| object.ident.to_string())
+    #[darling(default)]
+    pub rename_fields: Option<RenameRule>,
 }
 
 fn impl_object(object: &Object) -> TokenStream {
     let ident = &object.ident;
-    let name = get_type_name(object);
+    let name = calc_type_name(&object.name, &object.ident);
     let create_name = get_create_name();
     quote! {
         impl #create_name::GraphqlType for #ident {
@@ -158,13 +155,10 @@ fn field_deprecation(field: &ObjectField) -> GeneratorResult<TokenStream> {
     }
 }
 
-fn impl_define_field(field: &ObjectField) -> GeneratorResult<TokenStream> {
+fn impl_define_field(object: &Object, field: &ObjectField) -> GeneratorResult<TokenStream> {
     let field_ident = get_field_ident(field)?;
     let name = field_ident.to_string();
-    let field_name = field
-        .name
-        .clone()
-        .unwrap_or_else(|| field_ident.to_string());
+    let field_name = calc_field_name(&field.name, field_ident, &object.rename_fields);
     let ty = &field.ty;
     let resolver_name = format!("resolve_{}", name);
     let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());
@@ -206,7 +200,7 @@ fn impl_register(object: &Object) -> GeneratorResult<TokenStream> {
         .fields
         .iter()
         .filter(|field| !field.skip)
-        .map(impl_define_field)
+        .map(|field| impl_define_field(object, field))
         .collect::<GeneratorResult<Vec<TokenStream>>>()?;
     Ok(quote! {
         impl #create_name::Register for #ident {

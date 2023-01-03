@@ -69,7 +69,7 @@ async fn test_optional_list() {
         normalize_schema(
             r#"
             type Query {
-              maybe_list_of_strings: [String!]
+              maybeListOfStrings: [String!]
             }
             schema {
               query: Query
@@ -80,7 +80,7 @@ async fn test_optional_list() {
 
     let query = r#"
         query {
-            maybe_list_of_strings
+            maybeListOfStrings
         }
     "#;
 
@@ -93,7 +93,7 @@ async fn test_optional_list() {
 
     assert_eq!(
         data,
-        serde_json::json!({ "maybe_list_of_strings": [ "Hello" ] })
+        serde_json::json!({ "maybeListOfStrings": [ "Hello" ] })
     );
 
     let root = Query {
@@ -103,7 +103,7 @@ async fn test_optional_list() {
     let res = schema.execute(req).await;
     let data = res.data.into_json().unwrap();
 
-    assert_eq!(data, serde_json::json!({ "maybe_list_of_strings": null }));
+    assert_eq!(data, serde_json::json!({ "maybeListOfStrings": null }));
 }
 
 #[tokio::test]
@@ -123,7 +123,7 @@ async fn test_list_of_optional() {
         normalize_schema(
             r#"
             type Query {
-              list_of_maybe_strings: [String]!
+              listOfMaybeStrings: [String]!
             }
             schema {
               query: Query
@@ -134,7 +134,7 @@ async fn test_list_of_optional() {
 
     let query = r#"
         query {
-            list_of_maybe_strings
+            listOfMaybeStrings
         }
     "#;
 
@@ -147,7 +147,7 @@ async fn test_list_of_optional() {
 
     assert_eq!(
         data,
-        serde_json::json!({ "list_of_maybe_strings": [ "Hello", null ] })
+        serde_json::json!({ "listOfMaybeStrings": [ "Hello", null ] })
     );
 }
 
@@ -168,7 +168,7 @@ async fn test_optional_list_of_optional() {
         normalize_schema(
             r#"
             type Query {
-              maybe_list_of_maybe_strings: [String]
+              maybeListOfMaybeStrings: [String]
             }
             schema {
               query: Query
@@ -179,7 +179,7 @@ async fn test_optional_list_of_optional() {
 
     let query = r#"
         query {
-            maybe_list_of_maybe_strings
+            maybeListOfMaybeStrings
         }
     "#;
 
@@ -192,7 +192,7 @@ async fn test_optional_list_of_optional() {
 
     assert_eq!(
         data,
-        serde_json::json!({ "maybe_list_of_maybe_strings": [ "Hello", null ] })
+        serde_json::json!({ "maybeListOfMaybeStrings": [ "Hello", null ] })
     );
 
     let root = Query {
@@ -202,8 +202,5 @@ async fn test_optional_list_of_optional() {
     let res = schema.execute(req).await;
     let data = res.data.into_json().unwrap();
 
-    assert_eq!(
-        data,
-        serde_json::json!({ "maybe_list_of_maybe_strings": null })
-    );
+    assert_eq!(data, serde_json::json!({ "maybeListOfMaybeStrings": null }));
 }
