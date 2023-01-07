@@ -43,7 +43,7 @@ pub struct Object {
 
 fn impl_object(object: &Object) -> TokenStream {
     let ident = &object.ident;
-    let name = calc_type_name(&object.name, &object.ident);
+    let name = calc_type_name(&object.name, &object.ident.to_string());
     let create_name = get_create_name();
     quote! {
         impl #create_name::GraphqlType for #ident {
@@ -161,7 +161,7 @@ fn field_deprecation(field: &ObjectField) -> GeneratorResult<TokenStream> {
 fn impl_define_field(object: &Object, field: &ObjectField) -> GeneratorResult<TokenStream> {
     let field_ident = get_field_ident(field).with_span(&object.ident)?;
     let name = field_ident.to_string();
-    let field_name = calc_field_name(&field.name, field_ident, &object.rename_fields);
+    let field_name = calc_field_name(&field.name, &field_ident.to_string(), &object.rename_fields);
     let ty = &field.ty;
     let resolver_name = format!("resolve_{}", name);
     let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());

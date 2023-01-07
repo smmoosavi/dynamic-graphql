@@ -64,23 +64,29 @@ impl RenameRuleExt for Option<RenameRule> {
     }
 }
 
+/// Calculate the name of a field.
+/// @arg name: The name of the field, specified by the user.
+/// @arg ident_name: The name of the field, extracted from the code.
 pub fn calc_field_name(
     name: &Option<String>,
-    ident: &syn::Ident,
+    ident_name: &String,
     rename_rule: &Option<RenameRule>,
 ) -> String {
     match name {
         Some(name) => name.to_owned(),
         None => match rename_rule {
-            Some(rename_fields) => rename_fields.rename(ident.to_string()),
-            None => RenameTarget::Field.rename(ident.to_string()),
+            Some(rename_fields) => rename_fields.rename(ident_name),
+            None => RenameTarget::Field.rename(ident_name),
         },
     }
 }
 
-pub fn calc_type_name(name: &Option<String>, ident: &syn::Ident) -> String {
+/// Calculate the name of a type.
+/// @arg name: The name of the type, specified by the user.
+/// @arg type_name: The name of the type, extracted from the code.
+pub fn calc_type_name(name: &Option<String>, type_name: &String) -> String {
     match name {
         Some(name) => name.to_owned(),
-        None => RenameTarget::Type.rename(ident.to_string()),
+        None => RenameTarget::Type.rename(type_name),
     }
 }
