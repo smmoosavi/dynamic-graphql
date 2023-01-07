@@ -1,10 +1,11 @@
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::docs_utils::get_rustdoc;
-use crate::utils::error::GeneratorResult;
+use crate::utils::error::{GeneratorResult, IntoTokenStream, WithSpan};
 use crate::utils::rename_rule::{calc_field_name, calc_type_name, RenameRule};
 use darling::ast::{Data, Fields};
 use darling::util::Ignored;
+use darling::ToTokens;
 use darling::{FromDeriveInput, FromField};
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -80,16 +81,17 @@ fn impl_resolve_ref(object: &Object) -> TokenStream {
 fn get_fields(object: &Object) -> GeneratorResult<&Fields<ObjectField>> {
     match object.data {
         Data::Struct(ref data) => Ok(data),
-        Data::Enum(_) => {
-            Err(syn::Error::new_spanned(&object.ident, "Object can't applied to enum").into())
-        }
+        Data::Enum(_) => Err(darling::Error::custom("Object can't applied to enum")
+            .with_span(&object.ident)
+            .into()),
     }
 }
 
 fn get_field_ident(field: &ObjectField) -> GeneratorResult<&syn::Ident> {
-    let ident = field.ident.as_ref().ok_or_else(|| {
-        syn::Error::new_spanned(&field.ident, "Object can't applied to tuple fields")
-    })?;
+    let ident = field
+        .ident
+        .as_ref()
+        .ok_or_else(|| darling::Error::custom("Object can't applied to tuple fields"))?;
     Ok(ident)
 }
 
@@ -115,7 +117,8 @@ fn impl_resolvers(object: &Object) -> GeneratorResult<TokenStream> {
         .iter()
         .filter(|field| !field.skip)
         .map(impl_resolver)
-        .collect::<GeneratorResult<Vec<TokenStream>>>()?;
+        .collect::<GeneratorResult<Vec<TokenStream>>>()
+        .with_span(&object.ident)?;
     Ok(quote! {
         impl #ident {
             #(#fields)*
@@ -156,7 +159,7 @@ fn field_deprecation(field: &ObjectField) -> GeneratorResult<TokenStream> {
 }
 
 fn impl_define_field(object: &Object, field: &ObjectField) -> GeneratorResult<TokenStream> {
-    let field_ident = get_field_ident(field)?;
+    let field_ident = get_field_ident(field).with_span(&object.ident)?;
     let name = field_ident.to_string();
     let field_name = calc_field_name(&field.name, field_ident, &object.rename_fields);
     let ty = &field.ty;
@@ -217,14 +220,14 @@ fn impl_register(object: &Object) -> GeneratorResult<TokenStream> {
     })
 }
 
-impl Object {
-    pub fn generate(&self) -> GeneratorResult<TokenStream> {
+impl ToTokens for Object {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let impl_object = impl_object(self);
         let impl_resolve_owned = impl_resolve_owned(self);
         let impl_resolve_ref = impl_resolve_ref(self);
-        let impl_resolvers = impl_resolvers(self)?;
-        let impl_register = impl_register(self)?;
-        Ok(quote! {
+        let impl_resolvers = impl_resolvers(self).into_token_stream();
+        let impl_register = impl_register(self).into_token_stream();
+        tokens.extend(quote! {
             #impl_object
             #impl_resolve_owned
             #impl_resolve_ref
