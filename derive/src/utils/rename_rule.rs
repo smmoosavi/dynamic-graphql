@@ -68,7 +68,7 @@ impl RenameRuleExt for Option<RenameRule> {
 /// @arg name: The name of the field, specified by the user.
 /// @arg ident_name: The name of the field, extracted from the code.
 pub fn calc_field_name(
-    name: &Option<String>,
+    name: Option<&String>,
     ident_name: &String,
     rename_rule: &Option<RenameRule>,
 ) -> String {

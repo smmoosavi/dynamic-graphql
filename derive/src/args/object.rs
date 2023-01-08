@@ -1,11 +1,14 @@
+use crate::args::common::{
+    field_deprecation, impl_define_object, impl_object, impl_resolve_owned, impl_resolve_ref,
+};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
-use crate::utils::docs_utils::get_rustdoc;
+use crate::utils::docs_utils::Doc;
 use crate::utils::error::{GeneratorResult, IntoTokenStream, WithSpan};
-use crate::utils::rename_rule::{calc_field_name, calc_type_name, RenameRule};
+use crate::utils::rename_rule::{calc_field_name, RenameRule};
 use darling::ast::{Data, Fields};
 use darling::util::Ignored;
-use darling::ToTokens;
+use darling::{FromAttributes, ToTokens};
 use darling::{FromDeriveInput, FromField};
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -41,49 +44,14 @@ pub struct Object {
     pub rename_fields: Option<RenameRule>,
 }
 
-fn impl_object(object: &Object) -> TokenStream {
-    let ident = &object.ident;
-    let name = calc_type_name(&object.name, &object.ident.to_string());
-    let create_name = get_create_name();
-    quote! {
-        impl #create_name::GraphqlType for #ident {
-            const NAME: &'static str = #name;
-        }
-        impl #create_name::OutputType for #ident {}
-        impl #create_name::Object for #ident {}
-    }
-}
-
-fn impl_resolve_owned(object: &Object) -> TokenStream {
-    let ident = &object.ident;
-    let create_name = get_create_name();
-    quote! {
-        impl<'a> #create_name::ResolveOwned<'a> for #ident {
-            fn resolve_owned(self, _ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
-                Ok(Some(#create_name::FieldValue::owned_any(self)))
-            }
-        }
-    }
-}
-
-fn impl_resolve_ref(object: &Object) -> TokenStream {
-    let ident = &object.ident;
-    let create_name = get_create_name();
-    quote! {
-        impl<'a> #create_name::ResolveRef<'a> for #ident {
-            fn resolve_ref(&'a self, _ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
-                Ok(Some(#create_name::FieldValue::borrowed_any(self)))
-            }
-        }
-    }
-}
-
 fn get_fields(object: &Object) -> GeneratorResult<&Fields<ObjectField>> {
     match object.data {
         Data::Struct(ref data) => Ok(data),
-        Data::Enum(_) => Err(darling::Error::custom("Object can't applied to enum")
-            .with_span(&object.ident)
-            .into()),
+        Data::Enum(_) => Err(
+            darling::Error::custom("derive Object can't applied to enum")
+                .with_span(&object.ident)
+                .into(),
+        ),
     }
 }
 
@@ -91,15 +59,19 @@ fn get_field_ident(field: &ObjectField) -> GeneratorResult<&syn::Ident> {
     let ident = field
         .ident
         .as_ref()
-        .ok_or_else(|| darling::Error::custom("Object can't applied to tuple fields"))?;
+        .ok_or_else(|| darling::Error::custom("derive Object can't applied to tuple struct"))?;
     Ok(ident)
+}
+
+fn get_resolver_name(name: &str) -> String {
+    format!("__resolve_{}", name)
 }
 
 fn impl_resolver(field: &ObjectField) -> GeneratorResult<TokenStream> {
     // fn resolve_<field_name>(&self) -> &<field_type> { &self.<field_name> }
     let field_ident = get_field_ident(field)?;
     let name = field_ident.to_string();
-    let resolver_name = format!("resolve_{}", name);
+    let resolver_name = get_resolver_name(&name);
     let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());
     let ty = &field.ty;
     Ok(quote! {
@@ -117,8 +89,8 @@ fn impl_resolvers(object: &Object) -> GeneratorResult<TokenStream> {
         .iter()
         .filter(|field| !field.skip)
         .map(impl_resolver)
-        .collect::<GeneratorResult<Vec<TokenStream>>>()
-        .with_span(&object.ident)?;
+        .map(|r| r.with_span(&object.ident).into_token_stream())
+        .collect::<Vec<TokenStream>>();
     Ok(quote! {
         impl #ident {
             #(#fields)*
@@ -126,48 +98,31 @@ fn impl_resolvers(object: &Object) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn impl_define_object(_object: &Object) -> GeneratorResult<TokenStream> {
-    let create_name = get_create_name();
-    Ok(quote! {
-        let object = #create_name::dynamic::Object::new(<Self as #create_name::Object>::NAME);
-    })
-}
-
-fn field_description(field: &ObjectField) -> GeneratorResult<TokenStream> {
-    let doc = get_rustdoc(&field.attrs)?;
+fn field_description(doc: &Option<String>) -> TokenStream {
     if let Some(doc) = doc {
-        Ok(quote! {
+        quote! {
             let field = field.description(#doc);
-        })
+        }
     } else {
-        Ok(quote! {})
-    }
-}
-
-fn field_deprecation(field: &ObjectField) -> GeneratorResult<TokenStream> {
-    match field.deprecation {
-        Deprecation::NoDeprecated => Ok(quote! {}),
-        Deprecation::Deprecated { reason: None } => Ok(quote! {
-            let field = field.deprecation(None);
-        }),
-        Deprecation::Deprecated {
-            reason: Some(ref reason),
-        } => Ok(quote! {
-            let field = field.deprecation(Some(#reason));
-        }),
+        quote! {}
     }
 }
 
 fn impl_define_field(object: &Object, field: &ObjectField) -> GeneratorResult<TokenStream> {
     let field_ident = get_field_ident(field).with_span(&object.ident)?;
     let name = field_ident.to_string();
-    let field_name = calc_field_name(&field.name, &field_ident.to_string(), &object.rename_fields);
+    let field_name = calc_field_name(
+        field.name.as_ref(),
+        &field_ident.to_string(),
+        &object.rename_fields,
+    );
     let ty = &field.ty;
-    let resolver_name = format!("resolve_{}", name);
+    let resolver_name = get_resolver_name(&name);
     let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());
     let create_name = get_create_name();
-    let description = field_description(field)?;
-    let deprecation = field_deprecation(field)?;
+    let doc = Doc::from_attributes(&field.attrs)?;
+    let description = field_description(&doc);
+    let deprecation = field_deprecation(&field.deprecation);
     Ok(quote! {
         let field = #create_name::dynamic::Field::new(#field_name, <#ty as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
             #create_name::dynamic::FieldFuture::new(async move {
@@ -182,8 +137,7 @@ fn impl_define_field(object: &Object, field: &ObjectField) -> GeneratorResult<To
     })
 }
 
-fn object_description(object: &Object) -> GeneratorResult<TokenStream> {
-    let doc = get_rustdoc(&object.attrs)?;
+fn object_description(doc: &Option<String>) -> GeneratorResult<TokenStream> {
     if let Some(doc) = doc {
         Ok(quote! {
             let object = object.description(#doc);
@@ -196,8 +150,9 @@ fn object_description(object: &Object) -> GeneratorResult<TokenStream> {
 fn impl_register(object: &Object) -> GeneratorResult<TokenStream> {
     let create_name = get_create_name();
     let ident = &object.ident;
-    let define_object = impl_define_object(object)?;
-    let description = object_description(object)?;
+    let define_object = impl_define_object();
+    let doc = Doc::from_attributes(&object.attrs)?;
+    let description = object_description(&doc)?;
     let fields = get_fields(object)?;
     let define_fields = fields
         .fields
@@ -222,9 +177,9 @@ fn impl_register(object: &Object) -> GeneratorResult<TokenStream> {
 
 impl ToTokens for Object {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let impl_object = impl_object(self);
-        let impl_resolve_owned = impl_resolve_owned(self);
-        let impl_resolve_ref = impl_resolve_ref(self);
+        let impl_object = impl_object(&self.name, &self.ident);
+        let impl_resolve_owned = impl_resolve_owned(&self.ident);
+        let impl_resolve_ref = impl_resolve_ref(&self.ident);
         let impl_resolvers = impl_resolvers(self).into_token_stream();
         let impl_register = impl_register(self).into_token_stream();
         tokens.extend(quote! {

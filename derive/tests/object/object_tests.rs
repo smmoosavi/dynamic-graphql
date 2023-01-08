@@ -34,7 +34,7 @@ fn test_impl_resolvers() {
     let example = Example {
         string: "Hello".to_string(),
     };
-    let s = example.resolve_string();
+    let s = example.__resolve_string();
     assert_eq!(s, &"Hello".to_string());
 }
 

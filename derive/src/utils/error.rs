@@ -32,6 +32,14 @@ impl IntoTokenStream for GeneratorResult<TokenStream> {
         }
     }
 }
+impl IntoTokenStream for darling::Result<TokenStream> {
+    fn into_token_stream(self) -> TokenStream {
+        match self {
+            Ok(tokens) => tokens,
+            Err(err) => err.write_errors(),
+        }
+    }
+}
 
 pub trait WithSpan {
     fn with_span<T: Spanned>(self, node: &T) -> Self;
