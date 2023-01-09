@@ -1,12 +1,12 @@
 use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::FieldValue;
-use dynamic_graphql::Object;
+use dynamic_graphql::SimpleObject;
 
 #[tokio::test]
 async fn test_list() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         pub strings: Vec<String>,
     }
@@ -55,7 +55,7 @@ async fn test_list() {
 #[tokio::test]
 async fn test_optional_list() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         pub maybe_list_of_strings: Option<Vec<String>>,
     }
@@ -109,7 +109,7 @@ async fn test_optional_list() {
 #[tokio::test]
 async fn test_list_of_optional() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         pub list_of_maybe_strings: Vec<Option<String>>,
     }
@@ -154,7 +154,7 @@ async fn test_list_of_optional() {
 #[tokio::test]
 async fn test_optional_list_of_optional() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         pub maybe_list_of_maybe_strings: Option<Vec<Option<String>>>,
     }

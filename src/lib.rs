@@ -13,4 +13,4 @@ pub use types::{
     InputType, Interface, Mutation, Object, OutputType, Register, Scalar, Union,
 };
 
-pub use dynamic_graphql_derive::{Object, ResolvedObject, ResolvedObjectFields};
+pub use dynamic_graphql_derive::{ResolvedObject, ResolvedObjectFields, SimpleObject};

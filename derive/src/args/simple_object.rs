@@ -32,7 +32,7 @@ pub struct ObjectField {
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(graphql), forward_attrs(doc))]
-pub struct Object {
+pub struct SimpleObject {
     pub ident: syn::Ident,
     pub data: Data<Ignored, ObjectField>,
     pub attrs: Vec<syn::Attribute>,
@@ -44,7 +44,7 @@ pub struct Object {
     pub rename_fields: Option<RenameRule>,
 }
 
-fn get_fields(object: &Object) -> GeneratorResult<&Fields<ObjectField>> {
+fn get_fields(object: &SimpleObject) -> GeneratorResult<&Fields<ObjectField>> {
     match object.data {
         Data::Struct(ref data) => Ok(data),
         Data::Enum(_) => Err(
@@ -81,7 +81,7 @@ fn impl_resolver(field: &ObjectField) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn impl_resolvers(object: &Object) -> GeneratorResult<TokenStream> {
+fn impl_resolvers(object: &SimpleObject) -> GeneratorResult<TokenStream> {
     let ident = &object.ident;
     let struct_data = get_fields(object)?;
     let fields = struct_data
@@ -108,7 +108,7 @@ fn field_description(doc: &Option<String>) -> TokenStream {
     }
 }
 
-fn impl_define_field(object: &Object, field: &ObjectField) -> GeneratorResult<TokenStream> {
+fn impl_define_field(object: &SimpleObject, field: &ObjectField) -> GeneratorResult<TokenStream> {
     let field_ident = get_field_ident(field).with_span(&object.ident)?;
     let name = field_ident.to_string();
     let field_name = calc_field_name(
@@ -147,7 +147,7 @@ fn object_description(doc: &Option<String>) -> GeneratorResult<TokenStream> {
     }
 }
 
-fn impl_register(object: &Object) -> GeneratorResult<TokenStream> {
+fn impl_register(object: &SimpleObject) -> GeneratorResult<TokenStream> {
     let create_name = get_create_name();
     let ident = &object.ident;
     let define_object = impl_define_object();
@@ -175,7 +175,7 @@ fn impl_register(object: &Object) -> GeneratorResult<TokenStream> {
     })
 }
 
-impl ToTokens for Object {
+impl ToTokens for SimpleObject {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let impl_object = impl_object(&self.name, &self.ident);
         let impl_resolve_owned = impl_resolve_owned(&self.ident);

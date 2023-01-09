@@ -1,12 +1,12 @@
 use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::FieldValue;
-use dynamic_graphql::Object;
+use dynamic_graphql::SimpleObject;
 
 #[tokio::test]
 async fn test_types() {
     #[allow(dead_code)]
-    #[derive(Object, Default)]
+    #[derive(SimpleObject, Default)]
     struct Query {
         pub string: String,
         pub str: &'static str,
@@ -111,7 +111,7 @@ async fn test_types() {
 #[tokio::test]
 async fn test_optional_types() {
     #[allow(dead_code)]
-    #[derive(Object, Default)]
+    #[derive(SimpleObject, Default)]
     struct Query {
         pub string: Option<String>,
         pub str: Option<&'static str>,
@@ -259,12 +259,12 @@ async fn test_optional_types() {
 
 #[tokio::test]
 async fn test_object_output() {
-    #[derive(Object, Default)]
+    #[derive(SimpleObject, Default)]
     struct Foo {
         pub value: String,
     }
 
-    #[derive(Object, Default)]
+    #[derive(SimpleObject, Default)]
     struct Query {
         pub foo: Foo,
     }

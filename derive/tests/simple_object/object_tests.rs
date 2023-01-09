@@ -1,12 +1,12 @@
 use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::FieldValue;
-use dynamic_graphql::Object;
+use dynamic_graphql::SimpleObject;
 
 #[test]
 fn test_impl_object() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Example {
         pub string: String,
     }
@@ -16,7 +16,7 @@ fn test_impl_object() {
 #[test]
 fn test_impl_object_with_name() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     #[graphql(name = "Other")]
     struct Example {
         pub string: String,
@@ -27,7 +27,7 @@ fn test_impl_object_with_name() {
 #[test]
 fn test_impl_resolvers() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Example {
         pub string: String,
     }
@@ -41,7 +41,7 @@ fn test_impl_resolvers() {
 #[test]
 fn test_schema() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         pub string: String,
     }
@@ -67,7 +67,7 @@ fn test_schema() {
 #[test]
 fn test_schema_with_rename() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     #[graphql(name = "Other")]
     struct Query {
         pub string: String,
@@ -94,7 +94,7 @@ fn test_schema_with_rename() {
 #[test]
 fn test_schema_with_skip() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         pub string: String,
         #[graphql(skip)]
@@ -122,7 +122,7 @@ fn test_schema_with_skip() {
 #[test]
 fn test_schema_with_rename_field() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         #[graphql(name = "other")]
         pub string: String,
@@ -149,7 +149,7 @@ fn test_schema_with_rename_field() {
 #[tokio::test]
 async fn test_query() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         pub string: String,
     }
@@ -174,7 +174,7 @@ async fn test_query() {
 #[tokio::test]
 async fn test_optional() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         pub maybe_string: Option<String>,
     }
@@ -224,7 +224,7 @@ async fn test_optional() {
 fn test_schema_with_doc() {
     /// this is the query object
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         /// this is the string field
         pub string: String,
@@ -257,7 +257,7 @@ fn test_schema_with_doc() {
 #[test]
 fn test_schema_with_deprecation() {
     #[allow(dead_code)]
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     struct Query {
         #[graphql(deprecation)]
         pub deprecated: String,
@@ -287,13 +287,13 @@ fn test_schema_with_deprecation() {
 
 #[test]
 fn test_rename_fields() {
-    #[derive(Object)]
+    #[derive(SimpleObject)]
     #[graphql(rename_fields = "snake_case")]
     #[allow(non_camel_case_types)]
     struct the_query {
         pub the_string: String,
     }
-    assert_eq!(<the_query as Object>::NAME, "TheQuery");
+    assert_eq!(<the_query as dynamic_graphql::Object>::NAME, "TheQuery");
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<the_query>().set_root("TheQuery");
     let schema = registry.create_schema().finish().unwrap();

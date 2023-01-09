@@ -1,6 +1,6 @@
 mod common;
-mod object;
 mod resolved_object;
+mod simple_object;
 
-pub use object::Object;
 pub use resolved_object::{ResolvedObject, ResolvedObjectFields};
+pub use simple_object::SimpleObject;

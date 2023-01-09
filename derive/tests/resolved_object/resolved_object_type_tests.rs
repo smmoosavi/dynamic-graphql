@@ -1,7 +1,7 @@
 use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::FieldValue;
-use dynamic_graphql::{Object, ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql::{ResolvedObject, ResolvedObjectFields, SimpleObject};
 
 #[tokio::test]
 async fn test_types() {
@@ -365,7 +365,7 @@ async fn test_optional_types() {
 
 #[tokio::test]
 async fn test_object_output() {
-    #[derive(Object, Default)]
+    #[derive(SimpleObject, Default)]
     struct Foo {
         pub value: String,
     }
