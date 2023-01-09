@@ -5,7 +5,7 @@ mod types;
 
 pub use async_graphql::dynamic;
 pub use async_graphql::dynamic::FieldValue;
-pub use async_graphql::{Context, Error, Request, Result, ID};
+pub use async_graphql::{Context, Error, Request, Result, Variables, ID};
 
 pub use from_value::FromValue;
 pub use registry::Registry;
@@ -15,4 +15,4 @@ pub use types::{
     InputType, Interface, Mutation, Object, OutputType, Register, Scalar, Union,
 };
 
-pub use dynamic_graphql_derive::{ResolvedObject, ResolvedObjectFields, SimpleObject};
+pub use dynamic_graphql_derive::{InputObject, ResolvedObject, ResolvedObjectFields, SimpleObject};

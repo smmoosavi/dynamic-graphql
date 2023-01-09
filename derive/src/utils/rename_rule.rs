@@ -87,6 +87,20 @@ pub fn calc_field_name(
     }
 }
 
+pub fn calc_input_field_name(
+    name: Option<&str>,
+    ident_name: &str,
+    rename_rule: Option<&RenameRule>,
+) -> String {
+    match name {
+        Some(name) => name.to_owned(),
+        None => match rename_rule {
+            Some(rename_fields) => rename_fields.rename(ident_name),
+            None => RenameTarget::Argument.rename(ident_name),
+        },
+    }
+}
+
 /// Calculate the name of a type.
 /// @arg name: The name of the type, specified by the user.
 /// @arg type_name: The name of the type, extracted from the code.

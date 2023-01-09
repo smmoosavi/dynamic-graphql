@@ -4,7 +4,10 @@ pub use self::with_parent::WithParent;
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::GeneratorResult;
-use crate::utils::rename_rule::{calc_field_name, calc_type_name, RenameRule};
+use crate::utils::rename_rule::{
+    calc_field_name, calc_input_field_name, calc_type_name, RenameRule,
+};
+use crate::utils::type_utils::get_owned_type;
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -61,6 +64,20 @@ pub fn impl_object(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
     })
 }
 
+pub fn impl_input_object(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
+    let name = obj.get_name();
+    let object_ident = obj.get_ident();
+    let name = calc_type_name(name, &object_ident.to_string());
+    let create_name = get_create_name();
+    Ok(quote! {
+        impl #create_name::GraphqlType for #object_ident {
+            const NAME: &'static str = #name;
+        }
+        impl #create_name::InputType for #object_ident {}
+        impl #create_name::InputObject for #object_ident {}
+    })
+}
+
 pub fn impl_graphql_doc(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
     let doc = obj.get_doc()?;
     let object_ident = obj.get_ident();
@@ -110,6 +127,14 @@ pub fn impl_define_object() -> TokenStream {
     }
 }
 
+pub fn impl_define_input_object() -> TokenStream {
+    // todo get "object" from input
+    let create_name = get_create_name();
+    quote! {
+        let object = #create_name::dynamic::InputObject::new(<Self as #create_name::InputObject>::NAME);
+    }
+}
+
 pub fn register_object_code() -> TokenStream {
     quote!(registry.register_type(object))
 }
@@ -151,6 +176,33 @@ pub fn object_description(doc: Option<&str>) -> GeneratorResult<TokenStream> {
     } else {
         Ok(quote! {})
     }
+}
+
+pub fn get_input_field_name(field: &impl CommonField) -> GeneratorResult<String> {
+    Ok(calc_input_field_name(
+        field.get_name(),
+        &field.get_ident()?.to_string(),
+        field.get_field_rename_rule(),
+    ))
+}
+
+pub fn get_input_type_ref_code(field: &impl CommonField) -> GeneratorResult<TokenStream> {
+    let create_name = get_create_name();
+    let field_type = get_owned_type(field.get_type()?);
+    Ok(quote! {
+        <#field_type as #create_name::GetInputTypeRef>::get_input_type_ref()
+    })
+}
+
+pub fn get_new_input_value_code(field: &impl CommonField) -> GeneratorResult<TokenStream> {
+    // todo get "field" from input
+    let create_name = get_create_name();
+    let field_name = get_input_field_name(field)?;
+    let get_input_type_ref_code = get_input_type_ref_code(field)?;
+
+    Ok(quote! {
+        let field = #create_name::dynamic::InputValue::new(#field_name, #get_input_type_ref_code);
+    })
 }
 
 pub fn get_field_name(field: &impl CommonField) -> GeneratorResult<String> {
