@@ -11,7 +11,7 @@ use crate::utils::impl_block::{
     BaseFnArg, BaseItemImpl, BaseMethod, FromFnArg, FromItemImpl, FromMethod, TypedArg,
 };
 use crate::utils::rename_rule::{calc_arg_name, calc_field_name, RenameRule};
-use crate::utils::type_utils::{get_owned_type, is_type_ref, is_type_str};
+use crate::utils::type_utils::{get_owned_type, get_value_type, is_type_ref, is_type_str};
 use darling::{FromAttributes, FromDeriveInput};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -185,15 +185,14 @@ fn get_arg_definition(
             } else {
                 let arg_name =
                     calc_arg_name(&arg.attrs.name, &typed.ident.to_string(), rename_rule);
-                let is_str = is_type_str(&typed.ty);
-                if is_str {
-                    Ok(quote! {
-                        let #arg_ident: String = ctx.args.try_get(#arg_name)?.deserialize()?;
-                    })
-                } else {
-                    Ok(quote! {
+                let value_type = get_value_type(&typed.ty);
+                match value_type {
+                    None => Ok(quote! {
                         let #arg_ident = ctx.args.try_get(#arg_name)?.deserialize()?;
-                    })
+                    }),
+                    Some(ty) => Ok(quote! {
+                        let #arg_ident: #ty = ctx.args.try_get(#arg_name)?.deserialize()?;
+                    }),
                 }
             }
         }
@@ -214,15 +213,15 @@ fn get_arg_usage(index: usize, arg: &ResolvedObjectFieldsArg) -> TokenStream {
     let arg_ident = get_arg_ident(index, arg);
     match arg.base {
         BaseFnArg::Receiver(_) => {
-            quote! (#arg_ident,)
+            quote!(#arg_ident,)
         }
         BaseFnArg::Typed(ref typed) => {
             let is_ctx = is_arg_ctx(arg);
             let is_owned = !is_type_ref(&typed.ty);
             if is_ctx || is_owned {
-                quote! (#arg_ident,)
+                quote!(#arg_ident,)
             } else {
-                quote! (&#arg_ident,)
+                quote!(&#arg_ident,)
             }
         }
     }

@@ -1,3 +1,6 @@
+use proc_macro2::TokenStream;
+use quote::quote;
+
 #[allow(dead_code)]
 pub fn is_type_ref(ty: &syn::Type) -> bool {
     matches!(ty, syn::Type::Reference(_))
@@ -25,7 +28,20 @@ pub fn is_type_str(ty: &syn::Type) -> bool {
     }
 }
 
+/// check if the type is a `&[SomeType]`
+pub fn is_type_slice(ty: &syn::Type) -> bool {
+    match ty {
+        syn::Type::Reference(ref r) => {
+            matches!(*r.elem, syn::Type::Slice(_))
+        }
+        _ => false,
+    }
+}
+
 pub fn get_owned_type(ty: &syn::Type) -> &syn::Type {
+    if is_type_slice(ty) {
+        return ty;
+    }
     if is_type_str(ty) {
         return ty;
     }
@@ -33,4 +49,14 @@ pub fn get_owned_type(ty: &syn::Type) -> &syn::Type {
         syn::Type::Reference(ref r) => &r.elem,
         _ => ty,
     }
+}
+
+pub fn get_value_type(ty: &syn::Type) -> Option<TokenStream> {
+    if is_type_slice(ty) {
+        return Some(quote!(Vec<_>));
+    }
+    if is_type_str(ty) {
+        return Some(quote!(String));
+    }
+    None
 }

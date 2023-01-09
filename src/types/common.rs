@@ -114,6 +114,34 @@ impl<T: OutputType> GetOutputTypeRef for Option<Vec<Option<T>>> {
     }
 }
 
+impl<T: OutputType> GetOutputTypeRef for &[T] {
+    #[inline]
+    fn get_output_type_ref() -> TypeRef {
+        TypeRef::named_nn_list_nn(<T as OutputType>::NAME)
+    }
+}
+
+impl<T: OutputType> GetOutputTypeRef for Option<&[T]> {
+    #[inline]
+    fn get_output_type_ref() -> TypeRef {
+        TypeRef::named_nn_list(<T as OutputType>::NAME)
+    }
+}
+
+impl<T: OutputType> GetOutputTypeRef for &[Option<T>] {
+    #[inline]
+    fn get_output_type_ref() -> TypeRef {
+        TypeRef::named_list_nn(<T as OutputType>::NAME)
+    }
+}
+
+impl<T: OutputType> GetOutputTypeRef for Option<&[Option<T>]> {
+    #[inline]
+    fn get_output_type_ref() -> TypeRef {
+        TypeRef::named_list(<T as OutputType>::NAME)
+    }
+}
+
 impl<T: InputType> GetInputTypeRef for T {
     #[inline]
     fn get_input_type_ref() -> TypeRef {
@@ -156,6 +184,34 @@ impl<T: InputType> GetInputTypeRef for Option<Vec<Option<T>>> {
     }
 }
 
+impl<T: InputType> GetInputTypeRef for &[T] {
+    #[inline]
+    fn get_input_type_ref() -> TypeRef {
+        TypeRef::named_nn_list_nn(<T as InputType>::NAME)
+    }
+}
+
+impl<T: InputType> GetInputTypeRef for Option<&[T]> {
+    #[inline]
+    fn get_input_type_ref() -> TypeRef {
+        TypeRef::named_nn_list(<T as InputType>::NAME)
+    }
+}
+
+impl<T: InputType> GetInputTypeRef for &[Option<T>] {
+    #[inline]
+    fn get_input_type_ref() -> TypeRef {
+        TypeRef::named_list_nn(<T as InputType>::NAME)
+    }
+}
+
+impl<T: InputType> GetInputTypeRef for Option<&[Option<T>]> {
+    #[inline]
+    fn get_input_type_ref() -> TypeRef {
+        TypeRef::named_list(<T as InputType>::NAME)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -186,6 +242,22 @@ mod tests {
             <Option<Vec<Option<String>>> as GetOutputTypeRef>::get_output_type_ref().to_string(),
             "[String]"
         );
+        assert_eq!(
+            <&[String] as GetOutputTypeRef>::get_output_type_ref().to_string(),
+            "[String!]!"
+        );
+        assert_eq!(
+            <Option<&[String]> as GetOutputTypeRef>::get_output_type_ref().to_string(),
+            "[String!]"
+        );
+        assert_eq!(
+            <&[Option<String>] as GetOutputTypeRef>::get_output_type_ref().to_string(),
+            "[String]!"
+        );
+        assert_eq!(
+            <Option<&[Option<String>]> as GetOutputTypeRef>::get_output_type_ref().to_string(),
+            "[String]"
+        );
     }
 
     #[test]
@@ -212,6 +284,22 @@ mod tests {
         );
         assert_eq!(
             <Option<Vec<Option<String>>> as GetInputTypeRef>::get_input_type_ref().to_string(),
+            "[String]"
+        );
+        assert_eq!(
+            <&[String] as GetInputTypeRef>::get_input_type_ref().to_string(),
+            "[String!]!"
+        );
+        assert_eq!(
+            <Option<&[String]> as GetInputTypeRef>::get_input_type_ref().to_string(),
+            "[String!]"
+        );
+        assert_eq!(
+            <&[Option<String>] as GetInputTypeRef>::get_input_type_ref().to_string(),
+            "[String]!"
+        );
+        assert_eq!(
+            <Option<&[Option<String>]> as GetInputTypeRef>::get_input_type_ref().to_string(),
             "[String]"
         );
     }
