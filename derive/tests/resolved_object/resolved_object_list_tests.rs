@@ -17,6 +17,9 @@ async fn test_list() {
         fn new_strings(&self) -> Vec<String> {
             self.strings.clone()
         }
+        fn strings_ref(&self) -> &[String] {
+            &self.strings
+        }
     }
 
     let registry = dynamic_graphql::Registry::new();
@@ -31,6 +34,7 @@ async fn test_list() {
             type Query {
               strings: [String!]!
               newStrings: [String!]!
+              stringsRef: [String!]!
             }
             schema {
               query: Query
@@ -43,6 +47,7 @@ async fn test_list() {
         query {
             strings
             newStrings
+            stringsRef
         }
     "#;
 
@@ -55,7 +60,7 @@ async fn test_list() {
 
     assert_eq!(
         data,
-        serde_json::json!({ "strings": [ "Hello" ], "newStrings": [ "Hello" ] })
+        serde_json::json!({ "strings": [ "Hello" ], "newStrings": [ "Hello" ], "stringsRef": [ "Hello" ] })
     );
 
     let root = Query { strings: vec![] };
@@ -63,7 +68,10 @@ async fn test_list() {
     let res = schema.execute(req).await;
     let data = res.data.into_json().unwrap();
 
-    assert_eq!(data, serde_json::json!({ "strings": [], "newStrings": [] }));
+    assert_eq!(
+        data,
+        serde_json::json!({ "strings": [], "newStrings": [], "stringsRef": [] })
+    );
 }
 
 #[tokio::test]
@@ -152,6 +160,9 @@ async fn test_list_of_optional() {
         fn new_list_of_maybe_strings(&self) -> Vec<Option<String>> {
             self.list_of_maybe_strings.clone()
         }
+        fn list_of_maybe_strings_ref(&self) -> &[Option<String>] {
+            &self.list_of_maybe_strings
+        }
     }
 
     let registry = dynamic_graphql::Registry::new();
@@ -166,6 +177,7 @@ async fn test_list_of_optional() {
             type Query {
               listOfMaybeStrings: [String]!
               newListOfMaybeStrings: [String]!
+              listOfMaybeStringsRef: [String]!
             }
             schema {
               query: Query
@@ -178,6 +190,7 @@ async fn test_list_of_optional() {
         query {
             listOfMaybeStrings
             newListOfMaybeStrings
+            listOfMaybeStringsRef
         }
     "#;
 
@@ -190,7 +203,11 @@ async fn test_list_of_optional() {
 
     assert_eq!(
         data,
-        serde_json::json!({ "listOfMaybeStrings": [ "Hello", null ], "newListOfMaybeStrings": [ "Hello", null ] })
+        serde_json::json!({
+            "listOfMaybeStrings": [ "Hello", null ],
+            "newListOfMaybeStrings": [ "Hello", null ],
+            "listOfMaybeStringsRef": [ "Hello", null ]
+        })
     );
 }
 

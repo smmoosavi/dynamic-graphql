@@ -11,7 +11,9 @@ use crate::utils::impl_block::{
     BaseFnArg, BaseItemImpl, BaseMethod, FromFnArg, FromItemImpl, FromMethod, TypedArg,
 };
 use crate::utils::rename_rule::{calc_arg_name, calc_field_name, RenameRule};
-use crate::utils::type_utils::{get_owned_type, get_value_type, is_type_ref, is_type_str};
+use crate::utils::type_utils::{
+    get_owned_type, get_value_type, is_type_ref, is_type_slice, is_type_str,
+};
 use darling::{FromAttributes, FromDeriveInput};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
@@ -279,6 +281,7 @@ fn define_fields(
     let create_name = get_create_name();
 
     let is_str = is_type_str(ty);
+    let is_slice = is_type_slice(ty);
     let is_ref = is_type_ref(ty);
     let is_owned = !is_ref;
     let owned_type = get_owned_type(ty);
@@ -289,7 +292,7 @@ fn define_fields(
     let resolve_owned = quote! {
         #create_name::ResolveOwned::resolve_owned(value, &ctx)
     };
-    let resolve = if is_owned || is_str {
+    let resolve = if is_owned || is_str || is_slice {
         resolve_owned
     } else {
         resolve_ref

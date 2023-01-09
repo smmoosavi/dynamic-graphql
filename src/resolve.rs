@@ -84,6 +84,34 @@ impl<'a, T: ResolveRef<'a>> ResolveRef<'a> for Vec<T> {
     }
 }
 
+impl<'a, T: ResolveRef<'a>> ResolveOwned<'a> for &'a [T] {
+    fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+        let iter = self.iter();
+        let items = iter.enumerate().map(|(index, item)| {
+            let ctx_idx = ctx.with_index(index);
+            match item.resolve_ref(&ctx_idx) {
+                Ok(Some(value)) => value,
+                _ => FieldValue::NULL,
+            }
+        });
+        Ok(Some(FieldValue::list(items)))
+    }
+}
+
+impl<'a, T: ResolveRef<'a>> ResolveRef<'a> for &'a [T] {
+    fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+        let iter = self.iter();
+        let items = iter.enumerate().map(|(index, item)| {
+            let ctx_idx = ctx.with_index(index);
+            match item.resolve_ref(&ctx_idx) {
+                Ok(Some(value)) => value,
+                _ => FieldValue::NULL,
+            }
+        });
+        Ok(Some(FieldValue::list(items)))
+    }
+}
+
 impl<'a> ResolveOwned<'a> for ID {
     #[inline]
     fn resolve_owned(self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
