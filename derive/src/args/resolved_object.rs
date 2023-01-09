@@ -8,13 +8,14 @@ use crate::utils::deprecation::Deprecation;
 use crate::utils::docs_utils::Doc;
 use crate::utils::error::{GeneratorResult, IntoTokenStream};
 use crate::utils::impl_block::{
-    BaseFnArg, BaseItemImpl, BaseMethod, FromFnArg, FromItemImpl, FromMethod,
+    BaseFnArg, BaseItemImpl, BaseMethod, FromFnArg, FromItemImpl, FromMethod, TypedArg,
 };
-use crate::utils::rename_rule::{calc_field_name, RenameRule};
+use crate::utils::rename_rule::{calc_arg_name, calc_field_name, RenameRule};
 use crate::utils::type_utils::{get_owned_type, is_type_ref, is_type_str};
 use darling::{FromAttributes, FromDeriveInput};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
+use syn::spanned::Spanned;
 use syn::FnArg;
 
 #[derive(FromDeriveInput)]
@@ -32,6 +33,9 @@ pub struct ResolvedObject {
 pub struct ResolvedObjectFieldsArgAttrs {
     #[darling(default)]
     pub name: Option<String>,
+
+    #[darling(default)]
+    pub ctx: bool,
 }
 
 impl Attributes for ResolvedObjectFieldsArgAttrs {
@@ -151,6 +155,115 @@ fn field_description(doc: &Doc) -> GeneratorResult<TokenStream> {
         Ok(quote! {})
     }
 }
+
+fn get_arg_ident(index: usize, arg: &ResolvedObjectFieldsArg) -> syn::Ident {
+    syn::Ident::new(&format!("arg{}", index), arg.base.span())
+}
+
+fn is_arg_ctx(arg: &ResolvedObjectFieldsArg) -> bool {
+    arg.attrs.ctx
+        || matches!(arg.base, BaseFnArg::Typed(TypedArg{ref ident, ..}) if ident == "ctx" || ident == "_ctx")
+}
+
+fn get_arg_definition(
+    index: usize,
+    arg: &ResolvedObjectFieldsArg,
+    rename_rule: Option<&RenameRule>,
+) -> GeneratorResult<TokenStream> {
+    let arg_ident = get_arg_ident(index, arg);
+
+    match &arg.base {
+        BaseFnArg::Receiver(_) => Ok(quote! {
+            let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
+            let #arg_ident = parent;
+        }),
+        BaseFnArg::Typed(typed) => {
+            if is_arg_ctx(arg) {
+                Ok(quote! {
+                    let #arg_ident = &ctx;
+                })
+            } else {
+                let arg_name =
+                    calc_arg_name(&arg.attrs.name, &typed.ident.to_string(), rename_rule);
+                let is_str = is_type_str(&typed.ty);
+                if is_str {
+                    Ok(quote! {
+                        let #arg_ident: String = ctx.args.try_get(#arg_name)?.deserialize()?;
+                    })
+                } else {
+                    Ok(quote! {
+                        let #arg_ident = ctx.args.try_get(#arg_name)?.deserialize()?;
+                    })
+                }
+            }
+        }
+    }
+}
+
+fn get_args_definition(
+    args: &[ResolvedObjectFieldsArg],
+    rename_rule: Option<&RenameRule>,
+) -> GeneratorResult<TokenStream> {
+    args.iter()
+        .enumerate()
+        .map(|(index, arg)| get_arg_definition(index, arg, rename_rule))
+        .collect()
+}
+
+fn get_arg_usage(index: usize, arg: &ResolvedObjectFieldsArg) -> TokenStream {
+    let arg_ident = get_arg_ident(index, arg);
+    match arg.base {
+        BaseFnArg::Receiver(_) => {
+            quote! (#arg_ident,)
+        }
+        BaseFnArg::Typed(ref typed) => {
+            let is_ctx = is_arg_ctx(arg);
+            let is_owned = !is_type_ref(&typed.ty);
+            if is_ctx || is_owned {
+                quote! (#arg_ident,)
+            } else {
+                quote! (&#arg_ident,)
+            }
+        }
+    }
+}
+
+fn get_args_usage(args: &[ResolvedObjectFieldsArg]) -> TokenStream {
+    args.iter()
+        .enumerate()
+        .map(|(index, arg)| get_arg_usage(index, arg))
+        .collect()
+}
+
+fn get_argument_definition(
+    arg: &ResolvedObjectFieldsArg,
+    rename_rule: Option<&RenameRule>,
+) -> TokenStream {
+    if is_arg_ctx(arg) {
+        return quote!();
+    }
+    let BaseFnArg::Typed(typed) = &arg.base else {
+        return quote!();
+    };
+    let create_name = get_create_name();
+    let arg_name = calc_arg_name(&arg.attrs.name, &typed.ident.to_string(), rename_rule);
+    let arg_type = get_owned_type(&typed.ty);
+
+    quote! {
+        let arg = #create_name::dynamic::InputValue::new(#arg_name, <#arg_type as #create_name::GetInputTypeRef>::get_input_type_ref());
+        let field = field.argument(arg);
+    }
+}
+
+fn get_argument_definitions(
+    args: &[ResolvedObjectFieldsArg],
+    rename_rule: Option<&RenameRule>,
+) -> TokenStream {
+    args.iter()
+        .map(|arg| get_argument_definition(arg, rename_rule))
+        .collect()
+}
+
 fn define_fields(
     object: &ResolvedObjectFields,
     method: &ResolvedObjectFieldsMethod,
@@ -182,29 +295,37 @@ fn define_fields(
     } else {
         resolve_ref
     };
+    let rename_rule = method
+        .attrs
+        .rename_args
+        .as_ref()
+        .or(object.attrs.rename_args.as_ref());
+    let args_definition = get_args_definition(&method.base.args, rename_rule)?;
+    let args = get_args_usage(&method.base.args);
 
     let execute = if method.base.asyncness {
         quote! {
-            let value = Self::#field_ident(parent).await;
+            let value = Self::#field_ident(#args).await;
         }
     } else {
         quote! {
-            let value = Self::#field_ident(parent);
+            let value = Self::#field_ident(#args);
         }
     };
+    let argument_definitions = get_argument_definitions(&method.base.args, rename_rule);
 
     let description = field_description(&method.doc)?;
     let deprecation = field_deprecation(&method.attrs.deprecation);
 
-    // todo args
     Ok(quote! {
         let field = #create_name::dynamic::Field::new(#field_name, <#owned_type as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
             #create_name::dynamic::FieldFuture::new(async move {
-                let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
+                #args_definition
                 #execute
                 #resolve
             })
         });
+        #argument_definitions
         #description
         #deprecation
         let object = object.field(field);

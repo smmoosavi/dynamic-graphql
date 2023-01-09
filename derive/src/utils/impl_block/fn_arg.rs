@@ -10,6 +10,7 @@ pub trait FromFnArg: Sized {
 pub struct SelfArg {
     pub is_mut: bool,
     pub is_ref: bool,
+    pub span: proc_macro2::Span,
 }
 
 #[derive(Debug, Clone)]
@@ -40,12 +41,22 @@ impl BaseFnArg {
     }
 }
 
+impl Spanned for BaseFnArg {
+    fn span(&self) -> proc_macro2::Span {
+        match self {
+            Self::Receiver(r) => r.span,
+            Self::Typed(t) => t.ident.span(),
+        }
+    }
+}
+
 impl FromFnArg for BaseFnArg {
     fn from_fn_arg(arg: &mut syn::FnArg) -> GeneratorResult<Self> {
         match arg {
             syn::FnArg::Receiver(receiver) => Ok(Self::Receiver(SelfArg {
                 is_mut: receiver.mutability.is_some(),
                 is_ref: receiver.reference.is_some(),
+                span: receiver.span(),
             })),
             syn::FnArg::Typed(typed) => Ok({
                 let ident = match *typed.pat {

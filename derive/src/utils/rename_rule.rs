@@ -64,6 +64,12 @@ impl RenameRuleExt for Option<RenameRule> {
     }
 }
 
+impl RenameRuleExt for Option<&RenameRule> {
+    fn rename(&self, name: impl AsRef<str>, target: RenameTarget) -> String {
+        self.unwrap_or(&target.rule()).rename(name)
+    }
+}
+
 /// Calculate the name of a field.
 /// @arg name: The name of the field, specified by the user.
 /// @arg ident_name: The name of the field, extracted from the code.
@@ -88,5 +94,19 @@ pub fn calc_type_name(name: &Option<String>, type_name: &String) -> String {
     match name {
         Some(name) => name.to_owned(),
         None => RenameTarget::Type.rename(type_name),
+    }
+}
+
+pub fn calc_arg_name(
+    name: &Option<String>,
+    ident_name: &String,
+    rename_rule: Option<&RenameRule>,
+) -> String {
+    match name {
+        Some(name) => name.to_owned(),
+        None => {
+            let ident_name = ident_name.strip_prefix('_').unwrap_or(ident_name);
+            rename_rule.rename(ident_name, RenameTarget::Argument)
+        }
     }
 }
