@@ -72,6 +72,15 @@ macro_rules! int_output_value {
 
 int_output_value!(i8, i16, i32, i64, isize, u8, u16, u32, u64, usize);
 
+impl<T, E> GetOutputTypeRef for Result<T, E>
+where
+    T: GetOutputTypeRef,
+{
+    fn get_output_type_ref() -> TypeRef {
+        T::get_output_type_ref()
+    }
+}
+
 impl<T: OutputType> GetOutputTypeRef for T {
     #[inline]
     fn get_output_type_ref() -> TypeRef {
@@ -132,6 +141,15 @@ impl<T: OutputType> GetOutputTypeRef for &[Option<T>] {
     #[inline]
     fn get_output_type_ref() -> TypeRef {
         TypeRef::named_list_nn(<T as OutputType>::NAME)
+    }
+}
+
+impl<T, E> GetInputTypeRef for Result<T, E>
+where
+    T: GetInputTypeRef,
+{
+    fn get_input_type_ref() -> TypeRef {
+        T::get_input_type_ref()
     }
 }
 
