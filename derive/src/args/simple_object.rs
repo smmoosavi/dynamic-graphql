@@ -98,7 +98,7 @@ fn impl_resolvers(object: &SimpleObject) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn field_description(doc: &Option<String>) -> TokenStream {
+fn field_description(doc: Option<&str>) -> TokenStream {
     if let Some(doc) = doc {
         quote! {
             let field = field.description(#doc);
@@ -112,16 +112,16 @@ fn impl_define_field(object: &SimpleObject, field: &ObjectField) -> GeneratorRes
     let field_ident = get_field_ident(field).with_span(&object.ident)?;
     let name = field_ident.to_string();
     let field_name = calc_field_name(
-        field.name.as_ref(),
+        field.name.as_deref(),
         &field_ident.to_string(),
-        &object.rename_fields,
+        object.rename_fields.as_ref(),
     );
     let ty = &field.ty;
     let resolver_name = get_resolver_name(&name);
     let resolver_ident = syn::Ident::new(&resolver_name, field_ident.span());
     let create_name = get_create_name();
     let doc = Doc::from_attributes(&field.attrs)?;
-    let description = field_description(&doc);
+    let description = field_description(doc.as_deref());
     let deprecation = field_deprecation(&field.deprecation);
     Ok(quote! {
         let field = #create_name::dynamic::Field::new(#field_name, <#ty as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
@@ -137,7 +137,7 @@ fn impl_define_field(object: &SimpleObject, field: &ObjectField) -> GeneratorRes
     })
 }
 
-fn object_description(doc: &Option<String>) -> GeneratorResult<TokenStream> {
+fn object_description(doc: Option<&str>) -> GeneratorResult<TokenStream> {
     if let Some(doc) = doc {
         Ok(quote! {
             let object = object.description(#doc);
@@ -152,7 +152,7 @@ fn impl_register(object: &SimpleObject) -> GeneratorResult<TokenStream> {
     let ident = &object.ident;
     let define_object = impl_define_object();
     let doc = Doc::from_attributes(&object.attrs)?;
-    let description = object_description(&doc)?;
+    let description = object_description(doc.as_deref())?;
     let fields = get_fields(object)?;
     let define_fields = fields
         .fields
@@ -177,7 +177,7 @@ fn impl_register(object: &SimpleObject) -> GeneratorResult<TokenStream> {
 
 impl ToTokens for SimpleObject {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let impl_object = impl_object(&self.name, &self.ident);
+        let impl_object = impl_object(self.name.as_deref(), &self.ident);
         let impl_resolve_owned = impl_resolve_owned(&self.ident);
         let impl_resolve_ref = impl_resolve_ref(&self.ident);
         let impl_resolvers = impl_resolvers(self).into_token_stream();

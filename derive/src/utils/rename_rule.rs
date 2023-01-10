@@ -74,9 +74,9 @@ impl RenameRuleExt for Option<&RenameRule> {
 /// @arg name: The name of the field, specified by the user.
 /// @arg ident_name: The name of the field, extracted from the code.
 pub fn calc_field_name(
-    name: Option<&String>,
-    ident_name: &String,
-    rename_rule: &Option<RenameRule>,
+    name: Option<&str>,
+    ident_name: &str,
+    rename_rule: Option<&RenameRule>,
 ) -> String {
     match name {
         Some(name) => name.to_owned(),
@@ -90,7 +90,7 @@ pub fn calc_field_name(
 /// Calculate the name of a type.
 /// @arg name: The name of the type, specified by the user.
 /// @arg type_name: The name of the type, extracted from the code.
-pub fn calc_type_name(name: &Option<String>, type_name: &String) -> String {
+pub fn calc_type_name(name: Option<&str>, type_name: &str) -> String {
     match name {
         Some(name) => name.to_owned(),
         None => RenameTarget::Type.rename(type_name),
@@ -98,8 +98,8 @@ pub fn calc_type_name(name: &Option<String>, type_name: &String) -> String {
 }
 
 pub fn calc_arg_name(
-    name: &Option<String>,
-    ident_name: &String,
+    name: Option<&str>,
+    ident_name: &str,
     rename_rule: Option<&RenameRule>,
 ) -> String {
     match name {

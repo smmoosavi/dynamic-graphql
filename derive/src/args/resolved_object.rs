@@ -132,11 +132,11 @@ impl FromItemImpl for ResolvedObjectFields {
 
 impl ToTokens for ResolvedObject {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let impl_object = impl_object(&self.name, &self.ident).into_token_stream();
+        let impl_object = impl_object(self.name.as_deref(), &self.ident).into_token_stream();
         let impl_resolve_owned = impl_resolve_owned(&self.ident);
         let impl_resolve_ref = impl_resolve_ref(&self.ident);
         let impl_graphql_doc = Doc::from_attributes(&self.attrs)
-            .map(|doc| impl_graphql_doc(&self.ident, &doc))
+            .map(|doc| impl_graphql_doc(&self.ident, doc.as_deref()))
             .into_token_stream();
 
         tokens.extend(quote! {
@@ -185,8 +185,11 @@ fn get_arg_definition(
                     let #arg_ident = &ctx;
                 })
             } else {
-                let arg_name =
-                    calc_arg_name(&arg.attrs.name, &typed.ident.to_string(), rename_rule);
+                let arg_name = calc_arg_name(
+                    arg.attrs.name.as_deref(),
+                    &typed.ident.to_string(),
+                    rename_rule,
+                );
                 let value_type = get_value_type(&typed.ty);
                 match value_type {
                     None => Ok(quote! {
@@ -247,7 +250,11 @@ fn get_argument_definition(
         return quote!();
     };
     let create_name = get_create_name();
-    let arg_name = calc_arg_name(&arg.attrs.name, &typed.ident.to_string(), rename_rule);
+    let arg_name = calc_arg_name(
+        arg.attrs.name.as_deref(),
+        &typed.ident.to_string(),
+        rename_rule,
+    );
     let arg_type = get_owned_type(&typed.ty);
 
     quote! {
@@ -271,9 +278,9 @@ fn define_fields(
 ) -> GeneratorResult<TokenStream> {
     let field_ident = &method.base.ident;
     let field_name = calc_field_name(
-        method.attrs.name.as_ref(),
+        method.attrs.name.as_deref(),
         &field_ident.to_string(),
-        &object.attrs.rename_fields,
+        object.attrs.rename_fields.as_ref(),
     );
     let ty = method.base.output_type.as_ref().ok_or_else(|| {
         darling::Error::custom("Field must have return type").with_span(&method.base.ident)

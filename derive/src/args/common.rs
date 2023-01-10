@@ -1,11 +1,10 @@
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
-use crate::utils::docs_utils::Doc;
 use crate::utils::rename_rule::calc_type_name;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-pub fn impl_object(name: &Option<String>, object_ident: &syn::Ident) -> TokenStream {
+pub fn impl_object(name: Option<&str>, object_ident: &syn::Ident) -> TokenStream {
     let name = calc_type_name(name, &object_ident.to_string());
     let create_name = get_create_name();
     quote! {
@@ -17,9 +16,9 @@ pub fn impl_object(name: &Option<String>, object_ident: &syn::Ident) -> TokenStr
     }
 }
 
-pub fn impl_graphql_doc(object_ident: &syn::Ident, doc: &Doc) -> TokenStream {
+pub fn impl_graphql_doc(object_ident: &syn::Ident, doc: Option<&str>) -> TokenStream {
     let create_name = get_create_name();
-    let doc = match doc.doc {
+    let doc = match doc {
         None => quote!(None),
         Some(ref doc) => quote! (Some(#doc)),
     };
