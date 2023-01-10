@@ -80,15 +80,6 @@ impl CommonField for InputObjectField {
     }
 }
 
-impl InputObjectField {
-    fn with_parent<'f, 'p>(
-        &'f self,
-        parent: &'p InputObject,
-    ) -> WithParent<'f, 'p, Self, InputObject> {
-        WithParent::new(self, parent)
-    }
-}
-
 fn get_define_field(
     object: &InputObject,
     field: &InputObjectField,

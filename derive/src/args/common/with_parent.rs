@@ -3,21 +3,38 @@ use crate::utils::deprecation::Deprecation;
 use crate::utils::error::{GeneratorResult, WithSpan};
 use crate::utils::rename_rule::RenameRule;
 
-pub struct WithParent<'f, 'p, F, P> {
-    inner: &'f F,
-    parent: &'p P,
+pub trait WithParent<'i, 'p, P>
+where
+    Self: 'i,
+    P: 'p,
+{
+    type Output;
+    fn with_parent(&'i self, parent: &'p P) -> Self::Output;
 }
 
-impl<'f, 'p, F, P> WithParent<'f, 'p, F, P> {
-    pub fn new(field: &'f F, parent: &'p P) -> Self {
-        Self {
-            inner: field,
+impl<'i, 'p, I, P> WithParent<'i, 'p, P> for I
+where
+    I: 'i,
+    P: 'p,
+    I: CommonField,
+    P: CommonObject,
+{
+    type Output = WithParentInner<'i, 'p, I, P>;
+
+    fn with_parent(&'i self, parent: &'p P) -> Self::Output {
+        WithParentInner {
+            inner: self,
             parent,
         }
     }
 }
 
-impl<'f, F, P> CommonField for WithParent<'f, '_, F, P>
+pub struct WithParentInner<'i, 'p, I, P> {
+    inner: &'i I,
+    parent: &'p P,
+}
+
+impl<'f, F, P> CommonField for WithParentInner<'f, '_, F, P>
 where
     F: CommonField,
     P: CommonObject,
@@ -58,7 +75,7 @@ where
     }
 }
 
-impl<'f, F, P> CommonArg for WithParent<'f, '_, F, P>
+impl<'f, F, P> CommonArg for WithParentInner<'f, '_, F, P>
 where
     F: CommonArg,
     P: CommonField,

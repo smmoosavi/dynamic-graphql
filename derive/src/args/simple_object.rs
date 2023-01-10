@@ -87,15 +87,6 @@ impl CommonField for ObjectField {
     }
 }
 
-impl ObjectField {
-    fn with_parent<'f, 'p>(
-        &'f self,
-        parent: &'p SimpleObject,
-    ) -> WithParent<'f, 'p, Self, SimpleObject> {
-        WithParent::new(self, parent)
-    }
-}
-
 fn get_fields(object: &SimpleObject) -> GeneratorResult<&Fields<ObjectField>> {
     match object.data {
         Data::Struct(ref data) => Ok(data),
