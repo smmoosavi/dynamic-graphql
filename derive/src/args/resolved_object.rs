@@ -1,7 +1,5 @@
-use crate::args::common::{
-    field_deprecation, impl_define_object, impl_graphql_doc, impl_object, impl_resolve_owned,
-    impl_resolve_ref,
-};
+use crate::args::common;
+use crate::args::common::{CommonField, CommonObject};
 use crate::utils::attributes::{Attributes, CleanAttributes};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
@@ -15,10 +13,9 @@ use crate::utils::type_utils::{
     get_owned_type, get_value_type, is_type_ref, is_type_slice, is_type_str,
 };
 use darling::{FromAttributes, FromDeriveInput};
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
 use syn::spanned::Spanned;
-use syn::FnArg;
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(graphql), forward_attrs(doc))]
@@ -28,6 +25,20 @@ pub struct ResolvedObject {
 
     #[darling(default)]
     pub name: Option<String>,
+}
+
+impl CommonObject for ResolvedObject {
+    fn get_name(&self) -> Option<&str> {
+        self.name.as_deref()
+    }
+
+    fn get_ident(&self) -> &syn::Ident {
+        &self.ident
+    }
+
+    fn get_doc(&self) -> GeneratorResult<Option<String>> {
+        Ok(Doc::from_attributes(&self.attrs)?.doc)
+    }
 }
 
 #[derive(FromAttributes, Debug, Clone)]
@@ -51,7 +62,7 @@ pub struct ResolvedObjectFieldsArg {
 }
 
 impl FromFnArg for ResolvedObjectFieldsArg {
-    fn from_fn_arg(arg: &mut FnArg) -> GeneratorResult<Self> {
+    fn from_fn_arg(arg: &mut syn::FnArg) -> GeneratorResult<Self> {
         let base = BaseFnArg::from_fn_arg(arg)?;
         let base_attrs = BaseFnArg::get_attrs_mut(arg);
         let attrs = ResolvedObjectFieldsArgAttrs::from_attributes(base_attrs)?;
@@ -132,12 +143,10 @@ impl FromItemImpl for ResolvedObjectFields {
 
 impl ToTokens for ResolvedObject {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let impl_object = impl_object(self.name.as_deref(), &self.ident).into_token_stream();
-        let impl_resolve_owned = impl_resolve_owned(&self.ident);
-        let impl_resolve_ref = impl_resolve_ref(&self.ident);
-        let impl_graphql_doc = Doc::from_attributes(&self.attrs)
-            .map(|doc| impl_graphql_doc(&self.ident, doc.as_deref()))
-            .into_token_stream();
+        let impl_object = common::impl_object(self).into_token_stream();
+        let impl_resolve_owned = common::impl_resolve_owned(self).into_token_stream();
+        let impl_resolve_ref = common::impl_resolve_ref(self).into_token_stream();
+        let impl_graphql_doc = common::impl_graphql_doc(self).into_token_stream();
 
         tokens.extend(quote! {
             #impl_object
@@ -148,13 +157,32 @@ impl ToTokens for ResolvedObject {
     }
 }
 
-fn field_description(doc: &Doc) -> GeneratorResult<TokenStream> {
-    if let Some(doc) = &doc.doc {
-        Ok(quote! {
-            let field = field.description(#doc);
+impl CommonField for ResolvedObjectFieldsMethod {
+    fn get_name(&self) -> Option<&str> {
+        self.attrs.name.as_deref()
+    }
+
+    fn get_ident(&self) -> GeneratorResult<&Ident> {
+        Ok(&self.base.ident)
+    }
+
+    fn get_type(&self) -> GeneratorResult<&syn::Type> {
+        self.base.output_type.as_ref().ok_or_else(|| {
+            darling::Error::custom("Field must have return type")
+                .with_span(&self.base.ident)
+                .into()
         })
-    } else {
-        Ok(quote! {})
+    }
+
+    fn get_skip(&self) -> bool {
+        self.attrs.skip
+    }
+
+    fn get_doc(&self) -> GeneratorResult<Option<String>> {
+        Ok(self.doc.doc.clone())
+    }
+    fn get_deprecation(&self) -> GeneratorResult<Deprecation> {
+        Ok(self.attrs.deprecation.clone())
     }
 }
 
@@ -172,6 +200,7 @@ fn get_arg_definition(
     arg: &ResolvedObjectFieldsArg,
     rename_rule: Option<&RenameRule>,
 ) -> GeneratorResult<TokenStream> {
+    let create_name = get_create_name();
     let arg_ident = get_arg_ident(index, arg);
 
     match &arg.base {
@@ -193,10 +222,10 @@ fn get_arg_definition(
                 let value_type = get_value_type(&typed.ty);
                 match value_type {
                     None => Ok(quote! {
-                        let #arg_ident = ctx.args.try_get(#arg_name)?.deserialize()?;
+                        let #arg_ident = #create_name::FromValue::from_value(ctx.args.try_get(#arg_name)?)?;
                     }),
                     Some(ty) => Ok(quote! {
-                        let #arg_ident: #ty = ctx.args.try_get(#arg_name)?.deserialize()?;
+                        let #arg_ident: #ty = #create_name::FromValue::from_value(ctx.args.try_get(#arg_name)?)?;
                     }),
                 }
             }
@@ -323,8 +352,8 @@ fn define_fields(
     };
     let argument_definitions = get_argument_definitions(&method.base.args, rename_rule);
 
-    let description = field_description(&method.doc)?;
-    let deprecation = field_deprecation(&method.attrs.deprecation);
+    let description = common::field_description(method)?;
+    let deprecation = common::field_deprecation_code(method)?;
 
     Ok(quote! {
         let field = #create_name::dynamic::Field::new(#field_name, <#owned_type as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
@@ -351,29 +380,34 @@ fn impl_object_description() -> TokenStream {
     }
 }
 
-fn impl_register(object: &ResolvedObjectFields) -> GeneratorResult<TokenStream> {
-    let create_name = get_create_name();
-    let ty = &object.base.ty;
-    let define_object = impl_define_object();
-    let description = impl_object_description();
-    let define_fields = object
+fn get_define_fields_code(object: &ResolvedObjectFields) -> TokenStream {
+    object
         .base
         .methods
         .iter()
-        .filter(|method| !method.attrs.skip)
+        .filter(|method| !method.get_skip())
         .map(|method| define_fields(object, method).into_token_stream())
-        .collect::<Vec<_>>();
+        .collect()
+}
+
+fn impl_register(object: &ResolvedObjectFields) -> GeneratorResult<TokenStream> {
+    let create_name = get_create_name();
+    let ty = &object.base.ty;
+    let define_object = common::impl_define_object();
+    let description = impl_object_description();
+    let define_fields = get_define_fields_code(object);
+    let register_object_code = common::register_object_code();
 
     Ok(quote! {
         impl #create_name::Register for #ty {
             fn register(registry: #create_name::Registry) -> #create_name::Registry {
                 #define_object
 
-                #(#define_fields)*
+                #define_fields
 
                 #description
 
-                registry.register_type(object)
+                #register_object_code
             }
         }
     })
