@@ -16,5 +16,5 @@ pub use types::{
 };
 
 pub use dynamic_graphql_derive::{
-    Enum, InputObject, ResolvedObject, ResolvedObjectFields, SimpleObject,
+    App, Enum, InputObject, ResolvedObject, ResolvedObjectFields, SimpleObject,
 };

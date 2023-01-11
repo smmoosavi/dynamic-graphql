@@ -59,3 +59,11 @@ pub fn drive_enum(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         Err(err) => err.write_errors().into(),
     }
 }
+
+#[proc_macro_derive(App, attributes(graphql))]
+pub fn drive_app(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match args::App::from_derive_input(&parse_macro_input!(input as DeriveInput)) {
+        Ok(object_args) => object_args.into_token_stream().into(),
+        Err(err) => err.write_errors().into(),
+    }
+}
