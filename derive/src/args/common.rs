@@ -2,7 +2,9 @@ use crate::utils::common::{CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::GeneratorResult;
-use crate::utils::rename_rule::{calc_field_name, calc_input_field_name, calc_type_name};
+use crate::utils::rename_rule::{
+    calc_enum_item_name, calc_field_name, calc_input_field_name, calc_type_name,
+};
 use crate::utils::type_utils::get_owned_type;
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -74,6 +76,31 @@ pub fn impl_resolve_ref(obj: &impl CommonObject) -> GeneratorResult<TokenStream>
     })
 }
 
+pub fn impl_resolve_owned_by_value(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
+    let create_name = get_create_name();
+    let object_ident = obj.get_ident();
+
+    Ok(quote! {
+        impl<'a> #create_name::ResolveOwned<'a> for #object_ident {
+            fn resolve_owned(self, _ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
+                Ok(Some(#create_name::FieldValue::value(&self)))
+            }
+        }
+    })
+}
+
+pub fn impl_resolve_ref_by_value(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
+    let create_name = get_create_name();
+    let object_ident = obj.get_ident();
+    Ok(quote! {
+        impl<'a> #create_name::ResolveRef<'a> for #object_ident {
+            fn resolve_ref(&'a self, _ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
+                Ok(Some(#create_name::FieldValue::value(self)))
+            }
+        }
+    })
+}
+
 pub fn impl_define_object() -> TokenStream {
     // todo get "object" from input
     let create_name = get_create_name();
@@ -137,6 +164,13 @@ pub fn get_type_name(obj: &impl CommonObject) -> GeneratorResult<String> {
     let name = obj.get_name();
     let object_ident = obj.get_ident();
     let name = calc_type_name(name, &object_ident.to_string());
+    Ok(name)
+}
+
+pub fn get_enum_item_name(item: &impl CommonField) -> GeneratorResult<String> {
+    let name = item.get_name();
+    let item_ident = item.get_ident()?;
+    let name = calc_enum_item_name(name, &item_ident.to_string(), item.get_field_rename_rule());
     Ok(name)
 }
 

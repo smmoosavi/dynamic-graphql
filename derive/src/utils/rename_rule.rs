@@ -111,6 +111,20 @@ pub fn calc_type_name(name: Option<&str>, type_name: &str) -> String {
     }
 }
 
+pub fn calc_enum_item_name(
+    name: Option<&str>,
+    item_name: &str,
+    rename_rule: Option<&RenameRule>,
+) -> String {
+    match name {
+        Some(name) => name.to_owned(),
+        None => match rename_rule {
+            Some(rename_items) => rename_items.rename(item_name),
+            None => RenameTarget::EnumItem.rename(item_name),
+        },
+    }
+}
+
 pub fn calc_arg_name(
     name: Option<&str>,
     ident_name: &str,
