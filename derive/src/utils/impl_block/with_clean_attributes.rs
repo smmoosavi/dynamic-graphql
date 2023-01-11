@@ -5,6 +5,7 @@ use darling::FromAttributes;
 use std::ops::Deref;
 use syn::{FnArg, ImplItemMethod, ItemImpl};
 
+#[derive(Debug, Clone)]
 pub struct WithCleanAttributes<A: FromAttributes + Attributes, D> {
     pub attrs: A,
     pub inner: D,

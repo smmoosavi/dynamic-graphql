@@ -1,7 +1,9 @@
+use crate::utils::attributes::Attributes;
 use crate::utils::docs_utils::get_rustdoc;
 use darling::FromAttributes;
 use std::ops::Deref;
 
+#[derive(Debug, Clone)]
 pub struct WithDoc<D> {
     pub doc: Option<String>,
     pub inner: D,
@@ -27,4 +29,8 @@ impl<D: FromAttributes> FromAttributes for WithDoc<D> {
         let inner = D::from_attributes(items)?;
         Ok(WithDoc { doc, inner })
     }
+}
+
+impl<A: Attributes> Attributes for WithDoc<A> {
+    const ATTRIBUTES: &'static [&'static str] = A::ATTRIBUTES;
 }
