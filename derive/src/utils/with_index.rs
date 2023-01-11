@@ -3,6 +3,16 @@ use crate::utils::impl_block::FromFnArg;
 use std::ops::Deref;
 use syn::FnArg;
 
+pub trait SetIndex: Sized {
+    fn with_index(self, index: usize) -> Self;
+}
+
+impl<T: SetIndex, E> SetIndex for Result<T, E> {
+    fn with_index(self, index: usize) -> Self {
+        self.map(|t| T::with_index(t, index))
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct WithIndex<D> {
     pub index: usize,
@@ -23,9 +33,21 @@ impl<D> AsRef<D> for WithIndex<D> {
     }
 }
 
+impl<A> SetIndex for WithIndex<A> {
+    fn with_index(self, index: usize) -> Self {
+        WithIndex {
+            index,
+            inner: self.inner,
+        }
+    }
+}
+
 impl<A: FromFnArg> FromFnArg for WithIndex<A> {
-    fn from_fn_arg(arg: &mut FnArg, index: usize) -> GeneratorResult<Self> {
-        let inner = A::from_fn_arg(arg, index)?;
-        Ok(WithIndex { index, inner })
+    fn from_fn_arg(arg: &mut FnArg) -> GeneratorResult<Self> {
+        let inner = A::from_fn_arg(arg)?;
+        Ok(WithIndex {
+            index: usize::MAX,
+            inner,
+        })
     }
 }

@@ -1,6 +1,7 @@
 use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::fn_arg::BaseFnArg;
 use crate::utils::impl_block::fn_arg::FromFnArg;
+use crate::utils::with_index::SetIndex;
 use darling::util::Ignored;
 use std::ops::Deref;
 
@@ -31,7 +32,7 @@ impl<MethodArg> Deref for Args<MethodArg> {
     }
 }
 
-impl<MethodArg: FromFnArg> FromMethod for BaseMethod<MethodArg> {
+impl<MethodArg: FromFnArg + SetIndex> FromMethod for BaseMethod<MethodArg> {
     fn from_method(method: &mut syn::ImplItemMethod) -> GeneratorResult<Self> {
         Ok(BaseMethod {
             vis: method.vis.clone(),
@@ -44,7 +45,7 @@ impl<MethodArg: FromFnArg> FromMethod for BaseMethod<MethodArg> {
                     .inputs
                     .iter_mut()
                     .enumerate()
-                    .map(|(index, arg)| MethodArg::from_fn_arg(arg, index))
+                    .map(|(index, arg)| MethodArg::from_fn_arg(arg).with_index(index))
                     .collect::<GeneratorResult<Vec<_>>>()?,
             },
             output_type: match &method.sig.output {

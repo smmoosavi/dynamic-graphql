@@ -1,9 +1,10 @@
 use crate::utils::error::GeneratorResult;
+use crate::utils::with_index::SetIndex;
 use darling::util::Ignored;
 use syn::spanned::Spanned;
 
 pub trait FromFnArg: Sized {
-    fn from_fn_arg(arg: &mut syn::FnArg, index: usize) -> GeneratorResult<Self>;
+    fn from_fn_arg(arg: &mut syn::FnArg) -> GeneratorResult<Self>;
 }
 
 #[derive(Debug, Clone)]
@@ -50,8 +51,14 @@ impl Spanned for BaseFnArg {
     }
 }
 
+impl SetIndex for BaseFnArg {
+    fn with_index(self, _index: usize) -> Self {
+        self
+    }
+}
+
 impl FromFnArg for BaseFnArg {
-    fn from_fn_arg(arg: &mut syn::FnArg, _index: usize) -> GeneratorResult<Self> {
+    fn from_fn_arg(arg: &mut syn::FnArg) -> GeneratorResult<Self> {
         match arg {
             syn::FnArg::Receiver(receiver) => Ok(Self::Receiver(SelfArg {
                 is_mut: receiver.mutability.is_some(),
@@ -79,7 +86,7 @@ impl FromFnArg for BaseFnArg {
 }
 
 impl FromFnArg for Ignored {
-    fn from_fn_arg(_arg: &mut syn::FnArg, _index: usize) -> GeneratorResult<Self> {
+    fn from_fn_arg(_arg: &mut syn::FnArg) -> GeneratorResult<Self> {
         Ok(Ignored)
     }
 }

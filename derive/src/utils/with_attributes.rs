@@ -1,6 +1,7 @@
 use crate::utils::attributes::{Attributes, CleanAttributes};
 use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::{BaseFnArg, FromFnArg, FromMethod};
+use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
 use darling::{FromAttributes, FromDeriveInput, FromField, FromVariant};
 use std::ops::Deref;
@@ -46,8 +47,8 @@ impl<A: FromAttributes, D: FromVariant> FromVariant for WithAttributes<A, D> {
 }
 
 impl<A: FromAttributes + Attributes, D: FromFnArg> FromFnArg for WithAttributes<A, D> {
-    fn from_fn_arg(arg: &mut FnArg, index: usize) -> GeneratorResult<Self> {
-        let inner = D::from_fn_arg(arg, index)?;
+    fn from_fn_arg(arg: &mut FnArg) -> GeneratorResult<Self> {
+        let inner = D::from_fn_arg(arg)?;
         let base_attrs = BaseFnArg::get_attrs_mut(arg);
         let attrs = A::from_attributes(base_attrs)?;
         A::clean_attributes(base_attrs);
@@ -68,5 +69,14 @@ impl<A: FromAttributes + Attributes, D: FromItemImpl> FromItemImpl for WithAttri
         let attrs = A::from_attributes(&item_impl.attrs)?;
         A::clean_attributes(&mut item_impl.attrs);
         Ok(WithAttributes { attrs, inner })
+    }
+}
+
+impl<A: FromAttributes, D: SetIndex> SetIndex for WithAttributes<A, D> {
+    fn with_index(self, index: usize) -> Self {
+        WithAttributes {
+            attrs: self.attrs,
+            inner: D::with_index(self.inner, index),
+        }
     }
 }

@@ -13,7 +13,7 @@ use crate::utils::type_utils::{
 };
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
-use crate::utils::with_index::WithIndex;
+use crate::utils::with_index::{SetIndex, WithIndex};
 use darling::FromAttributes;
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
@@ -48,8 +48,14 @@ impl Deref for ResolvedObjectFieldsArg {
 }
 
 impl FromFnArg for ResolvedObjectFieldsArg {
-    fn from_fn_arg(arg: &mut syn::FnArg, index: usize) -> GeneratorResult<Self> {
-        Ok(Self(FromFnArg::from_fn_arg(arg, index)?))
+    fn from_fn_arg(arg: &mut syn::FnArg) -> GeneratorResult<Self> {
+        Ok(Self(FromFnArg::from_fn_arg(arg)?))
+    }
+}
+
+impl SetIndex for ResolvedObjectFieldsArg {
+    fn with_index(self, index: usize) -> Self {
+        Self(SetIndex::with_index(self.0, index))
     }
 }
 
