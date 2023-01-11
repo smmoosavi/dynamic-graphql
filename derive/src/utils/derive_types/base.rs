@@ -1,9 +1,10 @@
 use darling::ast::Data;
-use darling::{FromDeriveInput, FromField, FromVariant};
+use darling::{FromDeriveInput, FromField, FromGenerics, FromVariant};
 
 #[derive(FromDeriveInput)]
-pub struct Base<V: FromVariant, F: FromField> {
+pub struct Base<V: FromVariant, F: FromField, G: FromGenerics> {
     pub ident: syn::Ident,
+    pub generics: G,
     pub data: Data<V, F>,
 }
 

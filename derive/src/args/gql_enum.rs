@@ -9,9 +9,11 @@ use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_doc::WithDoc;
 use crate::utils::with_parent::WithParent;
 use darling::util::SpannedValue;
-use darling::{FromAttributes, ToTokens};
+use darling::{FromAttributes, FromDeriveInput, FromVariant, ToTokens};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
+use std::ops::Deref;
+use syn::Variant;
 
 #[derive(FromAttributes)]
 #[darling(attributes(graphql))]
@@ -23,7 +25,20 @@ pub struct EnumVariantAttributes {
     deprecation: Deprecation,
 }
 
-pub type EnumVariant = WithAttributes<WithDoc<EnumVariantAttributes>, UnitVariant>;
+pub struct EnumVariant(WithAttributes<WithDoc<EnumVariantAttributes>, UnitVariant>);
+
+impl Deref for EnumVariant {
+    type Target = WithAttributes<WithDoc<EnumVariantAttributes>, UnitVariant>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl FromVariant for EnumVariant {
+    fn from_variant(variant: &Variant) -> darling::Result<Self> {
+        Ok(EnumVariant(FromVariant::from_variant(variant)?))
+    }
+}
 
 #[derive(FromAttributes)]
 #[darling(attributes(graphql))]
@@ -38,7 +53,19 @@ pub struct EnumAttributes {
     pub remote: Option<SpannedValue<String>>,
 }
 
-pub type Enum = WithAttributes<WithDoc<EnumAttributes>, BaseEnum<EnumVariant>>;
+pub struct Enum(WithAttributes<WithDoc<EnumAttributes>, BaseEnum<EnumVariant>>);
+impl Deref for Enum {
+    type Target = WithAttributes<WithDoc<EnumAttributes>, BaseEnum<EnumVariant>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl FromDeriveInput for Enum {
+    fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
+        Ok(Enum(FromDeriveInput::from_derive_input(input)?))
+    }
+}
 
 impl CommonObject for Enum {
     fn get_name(&self) -> Option<&str> {

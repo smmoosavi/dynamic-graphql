@@ -5,6 +5,7 @@ mod base_enum;
 mod named_enum;
 mod newtype_enum;
 mod tuple_enum;
+mod unit_enum;
 
 mod base_struct;
 mod named_struct;
@@ -32,6 +33,7 @@ pub use newtype_variant::NewtypeVariant;
 pub use tuple_enum::TupleEnum;
 pub use tuple_field::TupleField;
 pub use tuple_struct::TupleStruct;
+pub use unit_enum::UnitEnum;
 pub use unit_struct::UnitStruct;
 pub use unit_variant::UnitVariant;
 pub use with_attributes::WithAttributes;

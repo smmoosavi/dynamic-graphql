@@ -4,7 +4,7 @@ use darling::ToTokens;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-pub type App = BaseStruct<TupleField>;
+pub type App = BaseStruct<TupleField, ()>;
 
 fn impl_register(app: &App) -> TokenStream {
     let create_name = get_create_name();
