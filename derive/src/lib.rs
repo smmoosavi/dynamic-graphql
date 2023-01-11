@@ -25,6 +25,14 @@ pub fn drive_resolved_object(input: proc_macro::TokenStream) -> proc_macro::Toke
     }
 }
 
+#[proc_macro_derive(ExpandObject, attributes(graphql))]
+pub fn drive_expand_object(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match args::ExpandObject::from_derive_input(&parse_macro_input!(input as DeriveInput)) {
+        Ok(object_args) => object_args.into_token_stream().into(),
+        Err(err) => err.write_errors().into(),
+    }
+}
+
 #[proc_macro_attribute]
 #[allow(non_snake_case)]
 pub fn ResolvedObjectFields(
