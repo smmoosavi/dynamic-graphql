@@ -20,8 +20,8 @@ impl<A: FromAttributes + Attributes, D> Deref for WithCleanAttributes<A, D> {
 }
 
 impl<A: FromAttributes + Attributes, D: FromFnArg> FromFnArg for WithCleanAttributes<A, D> {
-    fn from_fn_arg(arg: &mut FnArg) -> GeneratorResult<Self> {
-        let inner = D::from_fn_arg(arg)?;
+    fn from_fn_arg(arg: &mut FnArg, index: usize) -> GeneratorResult<Self> {
+        let inner = D::from_fn_arg(arg, index)?;
         let base_attrs = BaseFnArg::get_attrs_mut(arg);
         let attrs = A::from_attributes(base_attrs)?;
         A::clean_attributes(base_attrs);

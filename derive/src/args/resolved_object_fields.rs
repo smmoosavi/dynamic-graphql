@@ -45,8 +45,8 @@ impl Deref for ResolvedObjectFieldsArg {
 }
 
 impl FromFnArg for ResolvedObjectFieldsArg {
-    fn from_fn_arg(arg: &mut syn::FnArg) -> GeneratorResult<Self> {
-        Ok(Self(FromFnArg::from_fn_arg(arg)?))
+    fn from_fn_arg(arg: &mut syn::FnArg, index: usize) -> GeneratorResult<Self> {
+        Ok(Self(FromFnArg::from_fn_arg(arg, index)?))
     }
 }
 

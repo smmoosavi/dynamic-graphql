@@ -43,7 +43,8 @@ impl<MethodArg: FromFnArg> FromMethod for BaseMethod<MethodArg> {
                     .sig
                     .inputs
                     .iter_mut()
-                    .map(|arg| MethodArg::from_fn_arg(arg))
+                    .enumerate()
+                    .map(|(index, arg)| MethodArg::from_fn_arg(arg, index))
                     .collect::<GeneratorResult<Vec<_>>>()?,
             },
             output_type: match &method.sig.output {
