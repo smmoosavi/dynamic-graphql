@@ -1,7 +1,8 @@
-use crate::args::common::{CommonArg, CommonField, CommonObject};
+use crate::utils::common::{CommonArg, CommonField, CommonObject};
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::{GeneratorResult, WithSpan};
 use crate::utils::rename_rule::RenameRule;
+use std::ops::Deref;
 
 pub trait WithParent<'i, 'p, P>
 where
@@ -32,6 +33,18 @@ where
 pub struct WithParentInner<'i, 'p, I, P> {
     inner: &'i I,
     parent: &'p P,
+}
+
+impl<'i, 'p, I, P> Deref for WithParentInner<'i, 'p, I, P>
+where
+    I: 'i,
+    P: 'p,
+{
+    type Target = I;
+
+    fn deref(&self) -> &Self::Target {
+        self.inner
+    }
 }
 
 impl<'f, F, P> CommonField for WithParentInner<'f, '_, F, P>

@@ -1,6 +1,6 @@
 use crate::args::common;
-use crate::args::common::{CommonField, CommonObject};
 use crate::utils::attributes::{Attributes, CleanAttributes};
+use crate::utils::common::{CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::docs_utils::Doc;

@@ -1,59 +1,15 @@
-mod with_parent;
-
-pub use self::with_parent::WithParent;
+use crate::utils::common::{CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::GeneratorResult;
-use crate::utils::rename_rule::{
-    calc_field_name, calc_input_field_name, calc_type_name, RenameRule,
-};
+use crate::utils::rename_rule::{calc_field_name, calc_input_field_name, calc_type_name};
 use crate::utils::type_utils::get_owned_type;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-pub trait CommonObject {
-    /// user defined name
-    fn get_name(&self) -> Option<&str>;
-    fn get_ident(&self) -> &syn::Ident;
-    fn get_doc(&self) -> GeneratorResult<Option<String>>;
-    fn get_fields_rename_rule(&self) -> Option<&RenameRule> {
-        None
-    }
-    fn get_args_rename_rule(&self) -> Option<&RenameRule> {
-        None
-    }
-}
-
-pub trait CommonField {
-    /// user defined name
-    fn get_name(&self) -> Option<&str>;
-    fn get_ident(&self) -> GeneratorResult<&syn::Ident>;
-    fn get_type(&self) -> GeneratorResult<&syn::Type>;
-    fn get_skip(&self) -> bool;
-    fn get_doc(&self) -> GeneratorResult<Option<String>>;
-    fn get_deprecation(&self) -> GeneratorResult<Deprecation> {
-        Ok(Deprecation::NoDeprecated)
-    }
-    fn get_field_rename_rule(&self) -> Option<&RenameRule> {
-        None
-    }
-    fn get_args_rename_rule(&self) -> Option<&RenameRule> {
-        None
-    }
-}
-
-pub trait CommonArg {
-    /// user defined name
-    fn get_name(&self) -> Option<&str>;
-    fn get_arg_rename_rule(&self) -> Option<&RenameRule> {
-        None
-    }
-}
-
 pub fn impl_object(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
-    let name = obj.get_name();
     let object_ident = obj.get_ident();
-    let name = calc_type_name(name, &object_ident.to_string());
+    let name = get_type_name(obj)?;
     let create_name = get_create_name();
     Ok(quote! {
         impl #create_name::GraphqlType for #object_ident {
@@ -65,9 +21,8 @@ pub fn impl_object(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
 }
 
 pub fn impl_input_object(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
-    let name = obj.get_name();
     let object_ident = obj.get_ident();
-    let name = calc_type_name(name, &object_ident.to_string());
+    let name = get_type_name(obj)?;
     let create_name = get_create_name();
     Ok(quote! {
         impl #create_name::GraphqlType for #object_ident {
@@ -176,6 +131,13 @@ pub fn object_description(doc: Option<&str>) -> GeneratorResult<TokenStream> {
     } else {
         Ok(quote! {})
     }
+}
+
+pub fn get_type_name(obj: &impl CommonObject) -> GeneratorResult<String> {
+    let name = obj.get_name();
+    let object_ident = obj.get_ident();
+    let name = calc_type_name(name, &object_ident.to_string());
+    Ok(name)
 }
 
 pub fn get_input_field_name(field: &impl CommonField) -> GeneratorResult<String> {
