@@ -6,12 +6,12 @@ use crate::utils::deprecation::Deprecation;
 use crate::utils::error::{GeneratorResult, IntoTokenStream};
 use crate::utils::impl_block::{
     BaseFnArg, BaseItemImpl, BaseMethod, FromFnArg, FromItemImpl, FromMethod, TypedArg,
-    WithCleanAttributes,
 };
 use crate::utils::rename_rule::{calc_arg_name, calc_field_name, RenameRule};
 use crate::utils::type_utils::{
     get_owned_type, get_value_type, is_type_ref, is_type_slice, is_type_str,
 };
+use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
 use darling::FromAttributes;
 use proc_macro2::{Ident, TokenStream};
@@ -34,10 +34,10 @@ impl Attributes for ResolvedObjectFieldsArgAttrs {
 }
 
 #[derive(Debug, Clone)]
-pub struct ResolvedObjectFieldsArg(WithCleanAttributes<ResolvedObjectFieldsArgAttrs, BaseFnArg>);
+pub struct ResolvedObjectFieldsArg(WithAttributes<ResolvedObjectFieldsArgAttrs, BaseFnArg>);
 
 impl Deref for ResolvedObjectFieldsArg {
-    type Target = WithCleanAttributes<ResolvedObjectFieldsArgAttrs, BaseFnArg>;
+    type Target = WithAttributes<ResolvedObjectFieldsArgAttrs, BaseFnArg>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -72,14 +72,11 @@ impl Attributes for ResolvedObjectFieldsMethodAttrs {
 
 #[derive(Debug, Clone)]
 pub struct ResolvedObjectFieldsMethod(
-    WithCleanAttributes<
-        WithDoc<ResolvedObjectFieldsMethodAttrs>,
-        BaseMethod<ResolvedObjectFieldsArg>,
-    >,
+    WithAttributes<WithDoc<ResolvedObjectFieldsMethodAttrs>, BaseMethod<ResolvedObjectFieldsArg>>,
 );
 
 impl Deref for ResolvedObjectFieldsMethod {
-    type Target = WithCleanAttributes<
+    type Target = WithAttributes<
         WithDoc<ResolvedObjectFieldsMethodAttrs>,
         BaseMethod<ResolvedObjectFieldsArg>,
     >;
@@ -111,14 +108,11 @@ impl Attributes for ResolvedObjectFieldsAttrs {
 
 #[derive(Debug, Clone)]
 pub struct ResolvedObjectFields(
-    WithCleanAttributes<
-        WithDoc<ResolvedObjectFieldsAttrs>,
-        BaseItemImpl<ResolvedObjectFieldsMethod>,
-    >,
+    WithAttributes<WithDoc<ResolvedObjectFieldsAttrs>, BaseItemImpl<ResolvedObjectFieldsMethod>>,
 );
 
 impl Deref for ResolvedObjectFields {
-    type Target = WithCleanAttributes<
+    type Target = WithAttributes<
         WithDoc<ResolvedObjectFieldsAttrs>,
         BaseItemImpl<ResolvedObjectFieldsMethod>,
     >;

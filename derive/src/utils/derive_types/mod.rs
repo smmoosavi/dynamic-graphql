@@ -1,5 +1,4 @@
 mod base;
-mod with_attributes;
 
 mod base_enum;
 mod named_enum;
@@ -36,4 +35,3 @@ pub use tuple_struct::TupleStruct;
 pub use unit_enum::UnitEnum;
 pub use unit_struct::UnitStruct;
 pub use unit_variant::UnitVariant;
-pub use with_attributes::WithAttributes;

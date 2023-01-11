@@ -3,9 +3,10 @@ use crate::args::common::{field_deprecation_code, get_enum_item_name, get_type_n
 use crate::utils::common::{CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
-use crate::utils::derive_types::{BaseEnum, UnitVariant, WithAttributes};
+use crate::utils::derive_types::{BaseEnum, UnitVariant};
 use crate::utils::error::{GeneratorResult, IntoTokenStream};
 use crate::utils::rename_rule::RenameRule;
+use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
 use crate::utils::with_parent::WithParent;
 use darling::util::SpannedValue;
