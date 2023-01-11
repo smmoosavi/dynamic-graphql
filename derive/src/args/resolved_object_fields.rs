@@ -1,6 +1,6 @@
 use crate::args::common;
 use crate::utils::attributes::Attributes;
-use crate::utils::common::CommonField;
+use crate::utils::common::{CommonArg, CommonField};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::{GeneratorResult, IntoTokenStream};
@@ -13,6 +13,7 @@ use crate::utils::type_utils::{
 };
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
+use crate::utils::with_index::WithIndex;
 use darling::FromAttributes;
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
@@ -34,10 +35,12 @@ impl Attributes for ResolvedObjectFieldsArgAttrs {
 }
 
 #[derive(Debug, Clone)]
-pub struct ResolvedObjectFieldsArg(WithAttributes<ResolvedObjectFieldsArgAttrs, BaseFnArg>);
+pub struct ResolvedObjectFieldsArg(
+    WithAttributes<ResolvedObjectFieldsArgAttrs, WithIndex<BaseFnArg>>,
+);
 
 impl Deref for ResolvedObjectFieldsArg {
-    type Target = WithAttributes<ResolvedObjectFieldsArgAttrs, BaseFnArg>;
+    type Target = WithAttributes<ResolvedObjectFieldsArgAttrs, WithIndex<BaseFnArg>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -157,13 +160,27 @@ impl CommonField for ResolvedObjectFieldsMethod {
     }
 }
 
+impl CommonArg for ResolvedObjectFieldsArg {
+    fn get_name(&self) -> Option<&str> {
+        self.attrs.name.as_deref()
+    }
+
+    fn get_index(&self) -> usize {
+        self.index
+    }
+
+    fn get_arg(&self) -> &BaseFnArg {
+        self
+    }
+}
+
 fn get_arg_ident(index: usize, arg: &ResolvedObjectFieldsArg) -> syn::Ident {
     syn::Ident::new(&format!("arg{}", index), arg.span())
 }
 
 fn is_arg_ctx(arg: &ResolvedObjectFieldsArg) -> bool {
     arg.attrs.ctx
-        || matches!(arg.inner, BaseFnArg::Typed(TypedArg{ref ident, ..}) if ident == "ctx" || ident == "_ctx")
+        || matches!(arg.get_arg(), BaseFnArg::Typed(TypedArg{ref ident, ..}) if ident == "ctx" || ident == "_ctx")
 }
 
 fn get_arg_definition(
@@ -174,7 +191,7 @@ fn get_arg_definition(
     let create_name = get_create_name();
     let arg_ident = get_arg_ident(index, arg);
 
-    match &arg.inner {
+    match &arg.get_arg() {
         BaseFnArg::Receiver(_) => Ok(quote! {
             let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
             let #arg_ident = parent;
@@ -216,7 +233,7 @@ fn get_args_definition(
 
 fn get_arg_usage(index: usize, arg: &ResolvedObjectFieldsArg) -> TokenStream {
     let arg_ident = get_arg_ident(index, arg);
-    match arg.inner {
+    match arg.get_arg() {
         BaseFnArg::Receiver(_) => {
             quote!(#arg_ident,)
         }
@@ -246,7 +263,7 @@ fn get_argument_definition(
     if is_arg_ctx(arg) {
         return quote!();
     }
-    let BaseFnArg::Typed(typed) = &arg.inner else {
+    let BaseFnArg::Typed(typed) = arg.get_arg() else {
         return quote!();
     };
     let create_name = get_create_name();

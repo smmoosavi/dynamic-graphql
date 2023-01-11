@@ -74,7 +74,7 @@ impl CommonObject for Enum {
     }
 
     fn get_ident(&self) -> &syn::Ident {
-        &self.inner.ident
+        &self.ident
     }
 
     fn get_doc(&self) -> GeneratorResult<Option<String>> {
@@ -92,12 +92,12 @@ impl CommonField for EnumVariant {
     }
 
     fn get_ident(&self) -> GeneratorResult<&Ident> {
-        Ok(&self.inner.ident)
+        Ok(&self.ident)
     }
 
     fn get_type(&self) -> GeneratorResult<&syn::Type> {
         Err(darling::Error::custom("Enum variant has no type")
-            .with_span(&self.inner.ident)
+            .with_span(&self.ident)
             .into())
     }
 

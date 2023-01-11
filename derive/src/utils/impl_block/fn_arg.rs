@@ -8,7 +8,6 @@ pub trait FromFnArg: Sized {
 
 #[derive(Debug, Clone)]
 pub struct SelfArg {
-    pub index: usize,
     pub is_mut: bool,
     pub is_ref: bool,
     pub span: proc_macro2::Span,
@@ -16,7 +15,6 @@ pub struct SelfArg {
 
 #[derive(Debug, Clone)]
 pub struct TypedArg {
-    pub index: usize,
     pub ident: syn::Ident,
     pub ty: syn::Type,
 }
@@ -41,14 +39,6 @@ impl BaseFnArg {
             syn::FnArg::Typed(t) => &mut t.attrs,
         }
     }
-
-    #[allow(dead_code)]
-    pub fn get_index(&self) -> usize {
-        match self {
-            BaseFnArg::Receiver(r) => r.index,
-            BaseFnArg::Typed(t) => t.index,
-        }
-    }
 }
 
 impl Spanned for BaseFnArg {
@@ -61,10 +51,9 @@ impl Spanned for BaseFnArg {
 }
 
 impl FromFnArg for BaseFnArg {
-    fn from_fn_arg(arg: &mut syn::FnArg, index: usize) -> GeneratorResult<Self> {
+    fn from_fn_arg(arg: &mut syn::FnArg, _index: usize) -> GeneratorResult<Self> {
         match arg {
             syn::FnArg::Receiver(receiver) => Ok(Self::Receiver(SelfArg {
-                index,
                 is_mut: receiver.mutability.is_some(),
                 is_ref: receiver.reference.is_some(),
                 span: receiver.span(),
@@ -81,7 +70,6 @@ impl FromFnArg for BaseFnArg {
                     }
                 };
                 Self::Typed(TypedArg {
-                    index,
                     ident,
                     ty: typed.ty.as_ref().clone(),
                 })

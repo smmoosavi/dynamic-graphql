@@ -1,5 +1,6 @@
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::GeneratorResult;
+use crate::utils::impl_block::BaseFnArg;
 use crate::utils::rename_rule::RenameRule;
 
 pub trait CommonObject {
@@ -36,6 +37,8 @@ pub trait CommonField {
 pub trait CommonArg {
     /// user defined name
     fn get_name(&self) -> Option<&str>;
+    fn get_index(&self) -> usize;
+    fn get_arg(&self) -> &BaseFnArg;
     fn get_arg_rename_rule(&self) -> Option<&RenameRule> {
         None
     }

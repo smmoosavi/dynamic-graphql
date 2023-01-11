@@ -1,6 +1,7 @@
 use crate::utils::common::{CommonArg, CommonField, CommonObject};
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::{GeneratorResult, WithSpan};
+use crate::utils::impl_block::BaseFnArg;
 use crate::utils::rename_rule::RenameRule;
 use std::ops::Deref;
 
@@ -95,6 +96,14 @@ where
 {
     fn get_name(&self) -> Option<&str> {
         self.inner.get_name()
+    }
+
+    fn get_index(&self) -> usize {
+        self.inner.get_index()
+    }
+
+    fn get_arg(&self) -> &BaseFnArg {
+        self.inner.get_arg()
     }
 
     fn get_arg_rename_rule(&self) -> Option<&RenameRule> {
