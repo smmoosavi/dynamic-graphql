@@ -15,7 +15,7 @@ use quote::quote;
 
 #[derive(FromField)]
 #[darling(attributes(graphql), forward_attrs(doc))]
-pub struct ObjectField {
+pub struct SimpleObjectField {
     pub ident: Option<syn::Ident>,
     pub ty: syn::Type,
     pub attrs: Vec<syn::Attribute>,
@@ -34,7 +34,7 @@ pub struct ObjectField {
 #[darling(attributes(graphql), forward_attrs(doc))]
 pub struct SimpleObject {
     pub ident: syn::Ident,
-    pub data: Data<Ignored, ObjectField>,
+    pub data: Data<Ignored, SimpleObjectField>,
     pub attrs: Vec<syn::Attribute>,
 
     #[darling(default)]
@@ -61,7 +61,7 @@ impl CommonObject for SimpleObject {
     }
 }
 
-impl CommonField for ObjectField {
+impl CommonField for SimpleObjectField {
     fn get_name(&self) -> Option<&str> {
         self.name.as_deref()
     }
@@ -88,7 +88,7 @@ impl CommonField for ObjectField {
     }
 }
 
-fn get_fields(object: &SimpleObject) -> GeneratorResult<&Fields<ObjectField>> {
+fn get_fields(object: &SimpleObject) -> GeneratorResult<&Fields<SimpleObjectField>> {
     match object.data {
         Data::Struct(ref data) => Ok(data),
         Data::Enum(_) => Err(
@@ -135,7 +135,7 @@ fn impl_resolvers(object: &SimpleObject) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn impl_define_field(object: &SimpleObject, field: &ObjectField) -> GeneratorResult<TokenStream> {
+fn impl_define_field(object: &SimpleObject, field: &SimpleObjectField) -> GeneratorResult<TokenStream> {
     let field = field.with_parent(object);
     let field_name = common::get_field_name(&field)?;
     let ty = field.get_type()?;
