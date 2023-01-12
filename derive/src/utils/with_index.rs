@@ -1,5 +1,6 @@
 use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::FromFnArg;
+use crate::utils::with_context::SetContext;
 use std::ops::Deref;
 use syn::FnArg;
 
@@ -49,5 +50,13 @@ impl<A: FromFnArg> FromFnArg for WithIndex<A> {
             index: usize::MAX,
             inner,
         })
+    }
+}
+
+impl<T: SetContext> SetContext for WithIndex<T> {
+    type Context = T::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.inner.set_context(context);
     }
 }

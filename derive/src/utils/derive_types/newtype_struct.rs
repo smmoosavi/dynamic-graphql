@@ -1,4 +1,5 @@
 use super::{BaseStruct, TupleField};
+use crate::utils::with_context::SetContext;
 use darling::{FromDeriveInput, FromField, FromGenerics};
 
 pub struct NewtypeStruct<F: FromField = TupleField, G: FromGenerics = ()> {
@@ -21,5 +22,17 @@ impl<F: FromField, G: FromGenerics> FromDeriveInput for NewtypeStruct<F, G> {
             generics: base.generics,
             data: field,
         })
+    }
+}
+
+impl<F, G> SetContext for NewtypeStruct<F, G>
+where
+    F: FromField + SetContext,
+    G: FromGenerics,
+{
+    type Context = F::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.data.set_context(context);
     }
 }

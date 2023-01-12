@@ -1,4 +1,6 @@
 use super::BaseField;
+use crate::utils::with_context::SetContext;
+use darling::util::Ignored;
 use darling::FromField;
 
 pub struct TupleField {
@@ -13,4 +15,10 @@ impl FromField for TupleField {
         }
         Ok(TupleField { ty: base.ty })
     }
+}
+
+impl SetContext for TupleField {
+    type Context = Ignored;
+
+    fn set_context(&mut self, _: Self::Context) {}
 }

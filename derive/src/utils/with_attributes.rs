@@ -1,6 +1,7 @@
 use crate::utils::attributes::{Attributes, CleanAttributes};
 use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::{BaseFnArg, FromFnArg, FromMethod};
+use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
 use darling::{FromAttributes, FromDeriveInput, FromField, FromVariant};
@@ -78,5 +79,13 @@ impl<A: FromAttributes, D: SetIndex> SetIndex for WithAttributes<A, D> {
             attrs: self.attrs,
             inner: D::with_index(self.inner, index),
         }
+    }
+}
+
+impl<A: FromAttributes, D: SetContext> SetContext for WithAttributes<A, D> {
+    type Context = D::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.inner.set_context(context)
     }
 }

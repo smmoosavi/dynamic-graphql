@@ -1,4 +1,6 @@
 use super::BaseVariant;
+use crate::utils::with_context::SetContext;
+use darling::util::Ignored;
 use darling::FromVariant;
 
 pub struct UnitVariant {
@@ -15,4 +17,10 @@ impl FromVariant for UnitVariant {
         }
         Ok(UnitVariant { ident: base.ident })
     }
+}
+
+impl SetContext for UnitVariant {
+    type Context = Ignored;
+
+    fn set_context(&mut self, _: Self::Context) {}
 }

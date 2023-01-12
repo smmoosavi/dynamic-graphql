@@ -1,4 +1,6 @@
 use super::BaseStruct;
+use crate::utils::with_context::SetContext;
+use darling::util::Ignored;
 use darling::FromDeriveInput;
 
 pub struct UnitStruct {
@@ -13,4 +15,10 @@ impl FromDeriveInput for UnitStruct {
         }
         Ok(UnitStruct { ident: base.ident })
     }
+}
+
+impl SetContext for UnitStruct {
+    type Context = Ignored;
+
+    fn set_context(&mut self, _: Self::Context) {}
 }

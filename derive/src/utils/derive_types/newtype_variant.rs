@@ -1,4 +1,5 @@
 use super::{BaseVariant, TupleField};
+use crate::utils::with_context::SetContext;
 use darling::{FromField, FromVariant};
 
 pub struct NewtypeVariant<F: FromField = TupleField> {
@@ -19,5 +20,16 @@ impl<F: FromField> FromVariant for NewtypeVariant<F> {
             ident: base.ident,
             fields: field,
         })
+    }
+}
+
+impl<F> SetContext for NewtypeVariant<F>
+where
+    F: FromField + SetContext,
+{
+    type Context = F::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.fields.set_context(context);
     }
 }

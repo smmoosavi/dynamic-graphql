@@ -1,4 +1,5 @@
 use super::Base;
+use crate::utils::with_context::SetContext;
 use darling::{FromDeriveInput, FromGenerics, FromVariant};
 use syn::DeriveInput;
 
@@ -21,5 +22,17 @@ impl<V: FromVariant, G: FromGenerics> FromDeriveInput for BaseEnum<V, G> {
                 Err(darling::Error::unsupported_shape("struct").with_span(&base.ident))
             }
         }
+    }
+}
+
+impl<V, G> SetContext for BaseEnum<V, G>
+where
+    V: FromVariant + SetContext,
+    G: FromGenerics,
+{
+    type Context = V::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.data.set_context(context);
     }
 }

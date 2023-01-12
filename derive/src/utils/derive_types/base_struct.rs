@@ -1,4 +1,5 @@
 use super::Base;
+use crate::utils::with_context::SetContext;
 use darling::{FromDeriveInput, FromField, FromGenerics};
 use syn::DeriveInput;
 
@@ -8,7 +9,11 @@ pub struct BaseStruct<F: FromField, G: FromGenerics = ()> {
     pub data: darling::ast::Fields<F>,
 }
 
-impl<F: FromField, G: FromGenerics> FromDeriveInput for BaseStruct<F, G> {
+impl<F, G> FromDeriveInput for BaseStruct<F, G>
+where
+    F: FromField,
+    G: FromGenerics,
+{
     fn from_derive_input(input: &DeriveInput) -> darling::Result<Self> {
         let base: Base<(), F, G> = FromDeriveInput::from_derive_input(input)?;
         match base.data {
@@ -21,5 +26,17 @@ impl<F: FromField, G: FromGenerics> FromDeriveInput for BaseStruct<F, G> {
                 data,
             }),
         }
+    }
+}
+
+impl<F, G> SetContext for BaseStruct<F, G>
+where
+    F: FromField + SetContext,
+    G: FromGenerics,
+{
+    type Context = F::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.data.set_context(context);
     }
 }

@@ -1,4 +1,6 @@
 use super::BaseField;
+use crate::utils::with_context::SetContext;
+use darling::util::Ignored;
 use darling::FromField;
 use syn::Field;
 
@@ -18,4 +20,10 @@ impl FromField for NamedField {
             ty: base.ty,
         })
     }
+}
+
+impl SetContext for NamedField {
+    type Context = Ignored;
+
+    fn set_context(&mut self, _: Self::Context) {}
 }

@@ -1,4 +1,5 @@
 use crate::utils::error::GeneratorResult;
+use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use darling::util::Ignored;
 use syn::spanned::Spanned;
@@ -55,6 +56,12 @@ impl SetIndex for BaseFnArg {
     fn with_index(self, _index: usize) -> Self {
         self
     }
+}
+
+impl SetContext for BaseFnArg {
+    type Context = Ignored;
+
+    fn set_context(&mut self, _: Self::Context) {}
 }
 
 impl FromFnArg for BaseFnArg {

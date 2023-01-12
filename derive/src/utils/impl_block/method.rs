@@ -1,6 +1,7 @@
 use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::fn_arg::BaseFnArg;
 use crate::utils::impl_block::fn_arg::FromFnArg;
+use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use darling::util::Ignored;
 use std::ops::Deref;
@@ -29,6 +30,14 @@ impl<MethodArg> Deref for Args<MethodArg> {
 
     fn deref(&self) -> &Self::Target {
         &self.args
+    }
+}
+
+impl<MethodArg: SetContext> SetContext for Args<MethodArg> {
+    type Context = MethodArg::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.args.set_context(context);
     }
 }
 
