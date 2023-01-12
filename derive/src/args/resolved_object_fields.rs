@@ -13,7 +13,7 @@ use crate::utils::type_utils::{
 };
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
-use crate::utils::with_index::{SetIndex, WithIndex};
+use crate::utils::with_index::{SetIndex, SetIndexBuilder, WithIndex};
 use darling::FromAttributes;
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
@@ -54,9 +54,13 @@ impl FromFnArg for ResolvedObjectFieldsArg {
 }
 
 impl SetIndex for ResolvedObjectFieldsArg {
+    type Output = Self;
     fn with_index(self, index: usize) -> Self {
         Self(SetIndex::with_index(self.0, index))
     }
+}
+impl SetIndexBuilder for ResolvedObjectFieldsArg {
+    type Builder = Self;
 }
 
 #[derive(FromAttributes, Debug, Clone)]

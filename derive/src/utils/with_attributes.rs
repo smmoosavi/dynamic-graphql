@@ -73,7 +73,8 @@ impl<A: FromAttributes + Attributes, D: FromItemImpl> FromItemImpl for WithAttri
 }
 
 impl<A: FromAttributes, D: SetIndex> SetIndex for WithAttributes<A, D> {
-    fn with_index(self, index: usize) -> Self {
+    type Output = WithAttributes<A, D::Output>;
+    fn with_index(self, index: usize) -> Self::Output {
         WithAttributes {
             attrs: self.attrs,
             inner: D::with_index(self.inner, index),

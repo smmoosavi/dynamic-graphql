@@ -52,6 +52,7 @@ impl Spanned for BaseFnArg {
 }
 
 impl SetIndex for BaseFnArg {
+    type Output = Self;
     fn with_index(self, _index: usize) -> Self {
         self
     }
