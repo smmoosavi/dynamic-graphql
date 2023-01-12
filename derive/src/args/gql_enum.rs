@@ -7,6 +7,7 @@ use crate::utils::derive_types::{BaseEnum, UnitVariant};
 use crate::utils::error::{GeneratorResult, IntoTokenStream};
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
+use crate::utils::with_context::{MakeContext, SetContext, WithContext};
 use crate::utils::with_doc::WithDoc;
 use darling::util::SpannedValue;
 use darling::{FromAttributes, FromDeriveInput, FromVariant, ToTokens};
@@ -25,15 +26,34 @@ pub struct EnumVariantAttributes {
     deprecation: Deprecation,
 }
 
-pub struct EnumVariant(WithAttributes<WithDoc<EnumVariantAttributes>, UnitVariant>);
+#[derive(Default, Debug, Clone)]
+pub struct EnumVariantContext {
+    pub rename_items: Option<RenameRule>,
+}
+
+pub struct EnumVariant(
+    WithAttributes<WithDoc<EnumVariantAttributes>, WithContext<EnumVariantContext, UnitVariant>>,
+);
 
 impl Deref for EnumVariant {
-    type Target = WithAttributes<WithDoc<EnumVariantAttributes>, UnitVariant>;
+    type Target = WithAttributes<
+        WithDoc<EnumVariantAttributes>,
+        WithContext<EnumVariantContext, UnitVariant>,
+    >;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
+
+impl SetContext for EnumVariant {
+    type Context = <<Self as Deref>::Target as SetContext>::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.0.set_context(context);
+    }
+}
+
 impl FromVariant for EnumVariant {
     fn from_variant(variant: &Variant) -> darling::Result<Self> {
         Ok(EnumVariant(FromVariant::from_variant(variant)?))
@@ -63,7 +83,17 @@ impl Deref for Enum {
 }
 impl FromDeriveInput for Enum {
     fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
-        Ok(Enum(FromDeriveInput::from_derive_input(input)?))
+        let mut object = Self(FromDeriveInput::from_derive_input(input)?);
+        object.0.set_context(object.make_context());
+        Ok(object)
+    }
+}
+
+impl MakeContext<EnumVariantContext> for Enum {
+    fn make_context(&self) -> EnumVariantContext {
+        EnumVariantContext {
+            rename_items: self.attrs.rename_items,
+        }
     }
 }
 
@@ -110,6 +140,10 @@ impl CommonField for EnumVariant {
 
     fn get_deprecation(&self) -> GeneratorResult<Deprecation> {
         Ok(self.attrs.deprecation.clone())
+    }
+
+    fn get_field_rename_rule(&self) -> Option<&RenameRule> {
+        self.ctx.rename_items.as_ref()
     }
 }
 

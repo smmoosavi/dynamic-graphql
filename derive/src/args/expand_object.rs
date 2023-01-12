@@ -1,6 +1,7 @@
 use crate::utils::crate_name::get_create_name;
 use crate::utils::derive_types::{NewtypeStruct, TupleField};
 use crate::utils::type_utils::get_owned_type;
+use crate::utils::with_context::{MakeContext, SetContext};
 use darling::{FromDeriveInput, ToTokens};
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -18,8 +19,9 @@ impl Deref for ExpandObject {
 
 impl FromDeriveInput for ExpandObject {
     fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
-        let base = FromDeriveInput::from_derive_input(input)?;
-        Ok(ExpandObject(base))
+        let mut object = Self(FromDeriveInput::from_derive_input(input)?);
+        object.0.set_context(object.make_context());
+        Ok(object)
     }
 }
 

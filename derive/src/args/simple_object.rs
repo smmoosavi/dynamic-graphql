@@ -6,6 +6,7 @@ use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::{GeneratorResult, IntoTokenStream, WithSpan};
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
+use crate::utils::with_context::{MakeContext, SetContext, WithContext};
 use crate::utils::with_doc::WithDoc;
 use darling::ast::Fields;
 use darling::{FromAttributes, ToTokens};
@@ -28,7 +29,17 @@ pub struct SimpleObjectFieldAttrs {
     pub deprecation: Deprecation,
 }
 
-pub struct SimpleObjectField(WithAttributes<WithDoc<SimpleObjectFieldAttrs>, NamedField>);
+#[derive(Default, Debug, Clone)]
+pub struct SimpleObjectFieldContext {
+    pub rename_fields: Option<RenameRule>,
+}
+
+pub struct SimpleObjectField(
+    WithAttributes<
+        WithDoc<SimpleObjectFieldAttrs>,
+        WithContext<SimpleObjectFieldContext, NamedField>,
+    >,
+);
 
 impl FromField for SimpleObjectField {
     fn from_field(field: &Field) -> darling::Result<Self> {
@@ -37,10 +48,21 @@ impl FromField for SimpleObjectField {
 }
 
 impl Deref for SimpleObjectField {
-    type Target = WithAttributes<WithDoc<SimpleObjectFieldAttrs>, NamedField>;
+    type Target = WithAttributes<
+        WithDoc<SimpleObjectFieldAttrs>,
+        WithContext<SimpleObjectFieldContext, NamedField>,
+    >;
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl SetContext for SimpleObjectField {
+    type Context = <<Self as Deref>::Target as SetContext>::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.0.set_context(context);
     }
 }
 
@@ -66,7 +88,17 @@ impl Deref for SimpleObject {
 
 impl FromDeriveInput for SimpleObject {
     fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
-        Ok(Self(FromDeriveInput::from_derive_input(input)?))
+        let mut object = Self(FromDeriveInput::from_derive_input(input)?);
+        object.0.set_context(object.make_context());
+        Ok(object)
+    }
+}
+
+impl MakeContext<SimpleObjectFieldContext> for SimpleObject {
+    fn make_context(&self) -> SimpleObjectFieldContext {
+        SimpleObjectFieldContext {
+            rename_fields: self.attrs.rename_fields,
+        }
     }
 }
 
@@ -109,6 +141,9 @@ impl CommonField for SimpleObjectField {
     }
     fn get_deprecation(&self) -> GeneratorResult<Deprecation> {
         Ok(self.attrs.deprecation.clone())
+    }
+    fn get_field_rename_rule(&self) -> Option<&RenameRule> {
+        self.ctx.rename_fields.as_ref()
     }
 }
 

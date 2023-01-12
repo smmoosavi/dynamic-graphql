@@ -5,6 +5,7 @@ use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::{GeneratorResult, IntoTokenStream, WithSpan};
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
+use crate::utils::with_context::{MakeContext, SetContext, WithContext};
 use crate::utils::with_doc::WithDoc;
 use darling::{FromAttributes, ToTokens};
 use darling::{FromDeriveInput, FromField};
@@ -23,10 +24,23 @@ pub struct InputObjectFieldAttrs {
     pub name: Option<String>,
 }
 
-pub struct InputObjectField(WithAttributes<WithDoc<InputObjectFieldAttrs>, NamedField>);
+#[derive(Default, Debug, Clone)]
+pub struct InputObjectFieldContext {
+    pub rename_fields: Option<RenameRule>,
+}
+
+pub struct InputObjectField(
+    WithAttributes<
+        WithDoc<InputObjectFieldAttrs>,
+        WithContext<InputObjectFieldContext, NamedField>,
+    >,
+);
 
 impl Deref for InputObjectField {
-    type Target = WithAttributes<WithDoc<InputObjectFieldAttrs>, NamedField>;
+    type Target = WithAttributes<
+        WithDoc<InputObjectFieldAttrs>,
+        WithContext<InputObjectFieldContext, NamedField>,
+    >;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -36,6 +50,14 @@ impl Deref for InputObjectField {
 impl FromField for InputObjectField {
     fn from_field(field: &syn::Field) -> darling::Result<Self> {
         Ok(Self(FromField::from_field(field)?))
+    }
+}
+
+impl SetContext for InputObjectField {
+    type Context = <<Self as Deref>::Target as SetContext>::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.0.set_context(context);
     }
 }
 
@@ -61,7 +83,17 @@ impl Deref for InputObject {
 
 impl FromDeriveInput for InputObject {
     fn from_derive_input(input: &DeriveInput) -> darling::Result<Self> {
-        Ok(Self(FromDeriveInput::from_derive_input(input)?))
+        let mut object = Self(FromDeriveInput::from_derive_input(input)?);
+        object.0.set_context(object.make_context());
+        Ok(object)
+    }
+}
+
+impl MakeContext<InputObjectFieldContext> for InputObject {
+    fn make_context(&self) -> InputObjectFieldContext {
+        InputObjectFieldContext {
+            rename_fields: self.attrs.rename_fields,
+        }
     }
 }
 
@@ -101,6 +133,10 @@ impl CommonField for InputObjectField {
 
     fn get_doc(&self) -> GeneratorResult<Option<String>> {
         Ok(self.attrs.doc.clone())
+    }
+
+    fn get_field_rename_rule(&self) -> Option<&RenameRule> {
+        self.ctx.rename_fields.as_ref()
     }
 }
 

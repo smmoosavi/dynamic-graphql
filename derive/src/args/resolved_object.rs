@@ -3,6 +3,7 @@ use crate::utils::common::CommonObject;
 use crate::utils::derive_types::BaseStruct;
 use crate::utils::error::{GeneratorResult, IntoTokenStream};
 use crate::utils::with_attributes::WithAttributes;
+use crate::utils::with_context::{MakeContext, SetContext};
 use crate::utils::with_doc::WithDoc;
 use darling::FromAttributes;
 use darling::FromDeriveInput;
@@ -30,7 +31,9 @@ impl Deref for ResolvedObject {
 
 impl FromDeriveInput for ResolvedObject {
     fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
-        Ok(Self(FromDeriveInput::from_derive_input(input)?))
+        let mut object = Self(FromDeriveInput::from_derive_input(input)?);
+        object.0.set_context(object.make_context());
+        Ok(object)
     }
 }
 
