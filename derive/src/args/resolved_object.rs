@@ -1,26 +1,42 @@
 use crate::args::common;
 use crate::utils::common::CommonObject;
-use crate::utils::docs_utils::Doc;
+use crate::utils::derive_types::BaseStruct;
 use crate::utils::error::{GeneratorResult, IntoTokenStream};
+use crate::utils::with_attributes::WithAttributes;
+use crate::utils::with_doc::WithDoc;
 use darling::FromAttributes;
 use darling::FromDeriveInput;
 use proc_macro2::TokenStream;
 use quote::quote;
 use quote::ToTokens;
+use std::ops::Deref;
 
-#[derive(FromDeriveInput)]
-#[darling(attributes(graphql), forward_attrs(doc))]
-pub struct ResolvedObject {
-    pub ident: syn::Ident,
-    pub attrs: Vec<syn::Attribute>,
-
+#[derive(FromAttributes, Debug, Clone)]
+#[darling(attributes(graphql))]
+pub struct ResolvedObjectAttrs {
     #[darling(default)]
     pub name: Option<String>,
 }
 
+pub struct ResolvedObject(WithAttributes<WithDoc<ResolvedObjectAttrs>, BaseStruct<()>>);
+
+impl Deref for ResolvedObject {
+    type Target = WithAttributes<WithDoc<ResolvedObjectAttrs>, BaseStruct<()>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl FromDeriveInput for ResolvedObject {
+    fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
+        Ok(Self(FromDeriveInput::from_derive_input(input)?))
+    }
+}
+
 impl CommonObject for ResolvedObject {
     fn get_name(&self) -> Option<&str> {
-        self.name.as_deref()
+        self.attrs.name.as_deref()
     }
 
     fn get_ident(&self) -> &syn::Ident {
@@ -28,7 +44,7 @@ impl CommonObject for ResolvedObject {
     }
 
     fn get_doc(&self) -> GeneratorResult<Option<String>> {
-        Ok(Doc::from_attributes(&self.attrs)?.doc)
+        Ok(self.attrs.doc.clone())
     }
 }
 
