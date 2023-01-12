@@ -1,24 +1,22 @@
 use crate::args::common;
 use crate::utils::common::{CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
-use crate::utils::docs_utils::Doc;
+use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::{GeneratorResult, IntoTokenStream, WithSpan};
 use crate::utils::rename_rule::RenameRule;
+use crate::utils::with_attributes::WithAttributes;
+use crate::utils::with_doc::WithDoc;
 use crate::utils::with_parent::WithParent;
-use darling::ast::Data;
-use darling::util::Ignored;
 use darling::{FromAttributes, ToTokens};
 use darling::{FromDeriveInput, FromField};
 use proc_macro2::TokenStream;
 use quote::quote;
+use std::ops::Deref;
+use syn::DeriveInput;
 
-#[derive(FromField)]
-#[darling(attributes(graphql), forward_attrs(doc))]
-pub struct InputObjectField {
-    pub ident: Option<syn::Ident>,
-    pub ty: syn::Type,
-    pub attrs: Vec<syn::Attribute>,
-
+#[derive(FromAttributes)]
+#[darling(attributes(graphql))]
+pub struct InputObjectFieldAttrs {
     #[darling(default)]
     pub skip: bool,
 
@@ -26,13 +24,25 @@ pub struct InputObjectField {
     pub name: Option<String>,
 }
 
-#[derive(FromDeriveInput)]
-#[darling(attributes(graphql), forward_attrs(doc))]
-pub struct InputObject {
-    pub ident: syn::Ident,
-    pub data: Data<Ignored, InputObjectField>,
-    pub attrs: Vec<syn::Attribute>,
+pub struct InputObjectField(WithAttributes<WithDoc<InputObjectFieldAttrs>, NamedField>);
 
+impl Deref for InputObjectField {
+    type Target = WithAttributes<WithDoc<InputObjectFieldAttrs>, NamedField>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl FromField for InputObjectField {
+    fn from_field(field: &syn::Field) -> darling::Result<Self> {
+        Ok(Self(FromField::from_field(field)?))
+    }
+}
+
+#[derive(FromAttributes)]
+#[darling(attributes(graphql))]
+pub struct InputObjectAttrs {
     #[darling(default)]
     pub name: Option<String>,
 
@@ -40,9 +50,25 @@ pub struct InputObject {
     pub rename_fields: Option<RenameRule>,
 }
 
+pub struct InputObject(WithAttributes<WithDoc<InputObjectAttrs>, BaseStruct<InputObjectField>>);
+
+impl Deref for InputObject {
+    type Target = WithAttributes<WithDoc<InputObjectAttrs>, BaseStruct<InputObjectField>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl FromDeriveInput for InputObject {
+    fn from_derive_input(input: &DeriveInput) -> darling::Result<Self> {
+        Ok(Self(FromDeriveInput::from_derive_input(input)?))
+    }
+}
+
 impl CommonObject for InputObject {
     fn get_name(&self) -> Option<&str> {
-        self.name.as_deref()
+        self.attrs.name.as_deref()
     }
 
     fn get_ident(&self) -> &syn::Ident {
@@ -50,22 +76,20 @@ impl CommonObject for InputObject {
     }
 
     fn get_doc(&self) -> GeneratorResult<Option<String>> {
-        Ok(Doc::from_attributes(&self.attrs)?.doc)
+        Ok(self.attrs.doc.clone())
     }
     fn get_fields_rename_rule(&self) -> Option<&RenameRule> {
-        self.rename_fields.as_ref()
+        self.attrs.rename_fields.as_ref()
     }
 }
 
 impl CommonField for InputObjectField {
     fn get_name(&self) -> Option<&str> {
-        self.name.as_deref()
+        self.attrs.name.as_deref()
     }
 
     fn get_ident(&self) -> GeneratorResult<&syn::Ident> {
-        self.ident.as_ref().ok_or_else(|| {
-            darling::Error::custom("derive InputObject can't applied to tuple struct").into()
-        })
+        Ok(&self.ident)
     }
 
     fn get_type(&self) -> GeneratorResult<&syn::Type> {
@@ -73,11 +97,11 @@ impl CommonField for InputObjectField {
     }
 
     fn get_skip(&self) -> bool {
-        self.skip
+        self.attrs.skip
     }
 
     fn get_doc(&self) -> GeneratorResult<Option<String>> {
-        Ok(Doc::from_attributes(&self.attrs)?.doc)
+        Ok(self.attrs.doc.clone())
     }
 }
 
@@ -96,17 +120,13 @@ fn get_define_field(
 }
 
 fn get_define_fields(object: &InputObject) -> TokenStream {
-    match &object.data {
-        Data::Enum(_) => {
-            quote! {}
-        }
-        Data::Struct(data) => data
-            .fields
-            .iter()
-            .filter(|field| !field.get_skip())
-            .map(|field| get_define_field(object, field).into_token_stream())
-            .collect(),
-    }
+    object
+        .data
+        .fields
+        .iter()
+        .filter(|field| !field.get_skip())
+        .map(|field| get_define_field(object, field).into_token_stream())
+        .collect()
 }
 
 fn impl_register(object: &InputObject) -> GeneratorResult<TokenStream> {
@@ -114,8 +134,7 @@ fn impl_register(object: &InputObject) -> GeneratorResult<TokenStream> {
     let ident = &object.ident;
     let define_object = common::impl_define_input_object();
     let define_fields = get_define_fields(object);
-    let doc = Doc::from_attributes(&object.attrs)?;
-    let description = common::object_description(doc.as_deref())?;
+    let description = common::object_description(object.get_doc()?.as_deref())?;
     let register_object_code = common::register_object_code();
     Ok(quote! {
         impl #create_name::Register for #ident {
@@ -157,17 +176,13 @@ fn get_field_value(
 }
 
 fn get_fields_value(object: &InputObject) -> TokenStream {
-    match &object.data {
-        Data::Enum(_) => {
-            quote! {}
-        }
-        Data::Struct(data) => data
-            .fields
-            .iter()
-            .enumerate()
-            .map(|(index, field)| get_field_value(index, object, field).into_token_stream())
-            .collect(),
-    }
+    object
+        .data
+        .fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| get_field_value(index, object, field).into_token_stream())
+        .collect()
 }
 
 fn get_field_usage(
@@ -184,24 +199,18 @@ fn get_field_usage(
 }
 
 fn get_fields_usage(object: &InputObject) -> TokenStream {
-    match &object.data {
-        Data::Enum(_) => {
-            quote! {}
-        }
-        Data::Struct(data) => {
-            let items: Vec<_> = data
-                .fields
-                .iter()
-                .enumerate()
-                .map(|(index, field)| get_field_usage(index, object, field).into_token_stream())
-                .collect();
+    let items: Vec<_> = object
+        .data
+        .fields
+        .iter()
+        .enumerate()
+        .map(|(index, field)| get_field_usage(index, object, field).into_token_stream())
+        .collect();
 
-            quote! {
-                Ok(Self {
-                    #(#items)*
-                })
-            }
-        }
+    quote! {
+        Ok(Self {
+            #(#items)*
+        })
     }
 }
 
