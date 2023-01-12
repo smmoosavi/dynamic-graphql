@@ -11,4 +11,3 @@ pub mod type_utils;
 pub mod with_attributes;
 pub mod with_doc;
 pub mod with_index;
-pub mod with_parent;

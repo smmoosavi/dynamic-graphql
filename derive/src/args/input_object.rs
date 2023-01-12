@@ -6,7 +6,6 @@ use crate::utils::error::{GeneratorResult, IntoTokenStream, WithSpan};
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
-use crate::utils::with_parent::WithParent;
 use darling::{FromAttributes, ToTokens};
 use darling::{FromDeriveInput, FromField};
 use proc_macro2::TokenStream;
@@ -105,13 +104,9 @@ impl CommonField for InputObjectField {
     }
 }
 
-fn get_define_field(
-    object: &InputObject,
-    field: &InputObjectField,
-) -> GeneratorResult<TokenStream> {
-    let field = field.with_parent(object);
-    let description = common::field_description(&field)?;
-    let get_new_input_value_code = common::get_new_input_value_code(&field)?;
+fn get_define_field(field: &InputObjectField) -> GeneratorResult<TokenStream> {
+    let description = common::field_description(field)?;
+    let get_new_input_value_code = common::get_new_input_value_code(field)?;
     Ok(quote! {
         #get_new_input_value_code
         #description
@@ -125,7 +120,7 @@ fn get_define_fields(object: &InputObject) -> TokenStream {
         .fields
         .iter()
         .filter(|field| !field.get_skip())
-        .map(|field| get_define_field(object, field).into_token_stream())
+        .map(|field| get_define_field(field).into_token_stream())
         .collect()
 }
 
@@ -160,11 +155,10 @@ fn get_field_value(
     object: &InputObject,
     field: &InputObjectField,
 ) -> GeneratorResult<TokenStream> {
-    let field = field.with_parent(object);
     let create_name = get_create_name();
     let field_ident = field.get_ident().with_span(&object.ident)?;
     let item = get_item_ident(index, field_ident);
-    let field_name = common::get_input_field_name(&field)?;
+    let field_name = common::get_input_field_name(field)?;
     if field.get_skip() {
         return Ok(quote! {
             let #item = Default::default();
@@ -185,12 +179,7 @@ fn get_fields_value(object: &InputObject) -> TokenStream {
         .collect()
 }
 
-fn get_field_usage(
-    index: usize,
-    object: &InputObject,
-    field: &InputObjectField,
-) -> GeneratorResult<TokenStream> {
-    let field = field.with_parent(object);
+fn get_field_usage(index: usize, field: &InputObjectField) -> GeneratorResult<TokenStream> {
     let field_ident = field.get_ident()?;
     let item = get_item_ident(index, field_ident);
     Ok(quote! {
@@ -204,7 +193,7 @@ fn get_fields_usage(object: &InputObject) -> TokenStream {
         .fields
         .iter()
         .enumerate()
-        .map(|(index, field)| get_field_usage(index, object, field).into_token_stream())
+        .map(|(index, field)| get_field_usage(index, field).into_token_stream())
         .collect();
 
     quote! {

@@ -8,7 +8,6 @@ use crate::utils::error::{GeneratorResult, IntoTokenStream};
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
-use crate::utils::with_parent::WithParent;
 use darling::util::SpannedValue;
 use darling::{FromAttributes, FromDeriveInput, FromVariant, ToTokens};
 use proc_macro2::{Ident, TokenStream};
@@ -132,9 +131,8 @@ fn impl_enum(enm: &Enum) -> GeneratorResult<TokenStream> {
 fn impl_into_value_match_item(enm: &Enum, variant: &EnumVariant) -> GeneratorResult<TokenStream> {
     let create_name = get_create_name();
     let ty = enm.get_ident();
-    let variant = variant.with_parent(enm);
     let variant_ident = variant.get_ident()?;
-    let variant_name = get_enum_item_name(&variant)?;
+    let variant_name = get_enum_item_name(variant)?;
 
     Ok(quote! {
         #ty::#variant_ident => {
@@ -170,9 +168,8 @@ fn impl_into_value(enm: &Enum) -> GeneratorResult<TokenStream> {
 
 fn get_from_value_match_item(enm: &Enum, variant: &EnumVariant) -> GeneratorResult<TokenStream> {
     let ty = enm.get_ident();
-    let variant = variant.with_parent(enm);
     let variant_ident = variant.get_ident()?;
-    let variant_name = get_enum_item_name(&variant)?;
+    let variant_name = get_enum_item_name(variant)?;
 
     Ok(quote! {
         #variant_name => {
@@ -281,12 +278,11 @@ fn impl_remote(enm: &Enum) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn register_item(enm: &Enum, variant: &EnumVariant) -> GeneratorResult<TokenStream> {
+fn register_item(variant: &EnumVariant) -> GeneratorResult<TokenStream> {
     let create_name = get_create_name();
-    let variant = variant.with_parent(enm);
-    let name = get_enum_item_name(&variant)?;
-    let description = common::field_description(&variant)?;
-    let deprecated = field_deprecation_code(&variant)?;
+    let name = get_enum_item_name(variant)?;
+    let description = common::field_description(variant)?;
+    let deprecated = field_deprecation_code(variant)?;
     // todo rename field to item
     Ok(quote! {
         let field = #create_name::dynamic::EnumItem::new(#name);
@@ -299,7 +295,7 @@ fn register_item(enm: &Enum, variant: &EnumVariant) -> GeneratorResult<TokenStre
 fn register_items(enm: &Enum) -> TokenStream {
     enm.data
         .iter()
-        .map(|variant| register_item(enm, variant).into_token_stream())
+        .map(|variant| register_item(variant).into_token_stream())
         .collect()
 }
 

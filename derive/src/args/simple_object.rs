@@ -7,7 +7,6 @@ use crate::utils::error::{GeneratorResult, IntoTokenStream, WithSpan};
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
-use crate::utils::with_parent::WithParent;
 use darling::ast::Fields;
 use darling::{FromAttributes, ToTokens};
 use darling::{FromDeriveInput, FromField};
@@ -153,17 +152,13 @@ fn impl_resolvers(object: &SimpleObject) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn impl_define_field(
-    object: &SimpleObject,
-    field: &SimpleObjectField,
-) -> GeneratorResult<TokenStream> {
-    let field = field.with_parent(object);
-    let field_name = common::get_field_name(&field)?;
+fn impl_define_field(field: &SimpleObjectField) -> GeneratorResult<TokenStream> {
+    let field_name = common::get_field_name(field)?;
     let ty = field.get_type()?;
-    let resolver_ident = get_resolver_ident(&field)?;
+    let resolver_ident = get_resolver_ident(field)?;
     let create_name = get_create_name();
-    let description = common::field_description(&field)?;
-    let deprecation = common::field_deprecation_code(&field)?;
+    let description = common::field_description(field)?;
+    let deprecation = common::field_deprecation_code(field)?;
     Ok(quote! {
         let field = #create_name::dynamic::Field::new(#field_name, <#ty as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
             #create_name::dynamic::FieldFuture::new(async move {
@@ -184,7 +179,7 @@ fn get_define_fields(object: &SimpleObject) -> GeneratorResult<TokenStream> {
         .fields
         .iter()
         .filter(|field| !field.get_skip())
-        .map(|field| impl_define_field(object, field).into_token_stream())
+        .map(|field| impl_define_field(field).into_token_stream())
         .collect())
 }
 
