@@ -2,15 +2,13 @@ use crate::args::common;
 use crate::utils::common::CommonObject;
 use crate::utils::derive_types::BaseStruct;
 use crate::utils::error::IntoTokenStream;
+use crate::utils::macros::*;
 use crate::utils::with_attributes::WithAttributes;
-use crate::utils::with_context::{MakeContext, SetContext};
 use crate::utils::with_doc::WithDoc;
 use darling::FromAttributes;
-use darling::FromDeriveInput;
 use proc_macro2::TokenStream;
 use quote::quote;
 use quote::ToTokens;
-use std::ops::Deref;
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -19,23 +17,10 @@ pub struct ResolvedObjectAttrs {
     pub name: Option<String>,
 }
 
-pub struct ResolvedObject(WithAttributes<WithDoc<ResolvedObjectAttrs>, BaseStruct<()>>);
-
-impl Deref for ResolvedObject {
-    type Target = WithAttributes<WithDoc<ResolvedObjectAttrs>, BaseStruct<()>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl FromDeriveInput for ResolvedObject {
-    fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
-        let mut object = Self(FromDeriveInput::from_derive_input(input)?);
-        object.0.set_context(object.make_context());
-        Ok(object)
-    }
-}
+from_derive_input!(
+    ResolvedObject,
+    WithAttributes<WithDoc<ResolvedObjectAttrs>, BaseStruct<()>>,
+);
 
 impl CommonObject for ResolvedObject {
     fn get_name(&self) -> Option<&str> {

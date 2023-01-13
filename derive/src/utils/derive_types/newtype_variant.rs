@@ -2,6 +2,7 @@ use super::{BaseVariant, TupleField};
 use crate::utils::with_context::SetContext;
 use darling::{FromField, FromVariant};
 
+#[derive(Debug, Clone)]
 pub struct NewtypeVariant<F: FromField = TupleField> {
     pub ident: syn::Ident,
     pub fields: F,

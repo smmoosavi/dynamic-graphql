@@ -4,17 +4,14 @@ use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::{IntoTokenStream, WithSpan};
+use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
-use crate::utils::with_context::{MakeContext, SetContext, WithContext};
+use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
-use darling::ast::Fields;
 use darling::{FromAttributes, ToTokens};
-use darling::{FromDeriveInput, FromField};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
-use std::ops::Deref;
-use syn::Field;
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -34,37 +31,13 @@ pub struct SimpleObjectFieldContext {
     pub rename_fields: Option<RenameRule>,
 }
 
-pub struct SimpleObjectField(
+from_field!(
+    SimpleObjectField,
     WithAttributes<
         WithDoc<SimpleObjectFieldAttrs>,
         WithContext<SimpleObjectFieldContext, NamedField>,
     >,
 );
-
-impl FromField for SimpleObjectField {
-    fn from_field(field: &Field) -> darling::Result<Self> {
-        Ok(Self(FromField::from_field(field)?))
-    }
-}
-
-impl Deref for SimpleObjectField {
-    type Target = WithAttributes<
-        WithDoc<SimpleObjectFieldAttrs>,
-        WithContext<SimpleObjectFieldContext, NamedField>,
-    >;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl SetContext for SimpleObjectField {
-    type Context = <<Self as Deref>::Target as SetContext>::Context;
-
-    fn set_context(&mut self, context: Self::Context) {
-        self.0.set_context(context);
-    }
-}
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -76,23 +49,11 @@ pub struct SimpleObjectAttrs {
     pub rename_fields: Option<RenameRule>,
 }
 
-pub struct SimpleObject(WithAttributes<WithDoc<SimpleObjectAttrs>, BaseStruct<SimpleObjectField>>);
-
-impl Deref for SimpleObject {
-    type Target = WithAttributes<WithDoc<SimpleObjectAttrs>, BaseStruct<SimpleObjectField>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl FromDeriveInput for SimpleObject {
-    fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
-        let mut object = Self(FromDeriveInput::from_derive_input(input)?);
-        object.0.set_context(object.make_context());
-        Ok(object)
-    }
-}
+from_derive_input!(
+    SimpleObject,
+    WithAttributes<WithDoc<SimpleObjectAttrs>, BaseStruct<SimpleObjectField>>,
+    ctx,
+);
 
 impl MakeContext<SimpleObjectFieldContext> for SimpleObject {
     fn make_context(&self) -> SimpleObjectFieldContext {
@@ -147,10 +108,6 @@ impl CommonField for SimpleObjectField {
     }
 }
 
-fn get_fields(object: &SimpleObject) -> darling::Result<&Fields<SimpleObjectField>> {
-    Ok(&object.data)
-}
-
 fn get_resolver_ident(field: &impl CommonField) -> darling::Result<Ident> {
     let field_ident = field.get_ident()?;
     let resolver_name = format!("__resolve_{}", field_ident);
@@ -172,8 +129,8 @@ fn impl_resolver(field: &impl CommonField) -> darling::Result<TokenStream> {
 
 fn impl_resolvers(object: &SimpleObject) -> darling::Result<TokenStream> {
     let ident = &object.ident;
-    let struct_data = get_fields(object)?;
-    let fields = struct_data
+    let fields = object
+        .data
         .fields
         .iter()
         .filter(|field| !field.get_skip())
@@ -209,8 +166,8 @@ fn impl_define_field(field: &SimpleObjectField) -> darling::Result<TokenStream> 
 }
 
 fn get_define_fields(object: &SimpleObject) -> darling::Result<TokenStream> {
-    let fields = get_fields(object)?;
-    Ok(fields
+    Ok(object
+        .data
         .fields
         .iter()
         .filter(|field| !field.get_skip())

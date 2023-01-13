@@ -4,21 +4,19 @@ use crate::utils::common::{CommonArg, CommonField};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
-use crate::utils::impl_block::{
-    BaseFnArg, BaseItemImpl, BaseMethod, FromFnArg, FromItemImpl, FromMethod, TypedArg,
-};
+use crate::utils::impl_block::{BaseFnArg, BaseItemImpl, BaseMethod, TypedArg};
+use crate::utils::macros::*;
 use crate::utils::rename_rule::{calc_arg_name, calc_field_name, RenameRule};
 use crate::utils::type_utils::{
     get_owned_type, get_value_type, is_type_ref, is_type_slice, is_type_str,
 };
 use crate::utils::with_attributes::WithAttributes;
-use crate::utils::with_context::{MakeContext, SetContext, WithContext};
+use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
-use crate::utils::with_index::{SetIndex, WithIndex};
+use crate::utils::with_index::WithIndex;
 use darling::FromAttributes;
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use std::ops::Deref;
 use syn::spanned::Spanned;
 
 #[derive(FromAttributes, Debug, Clone)]
@@ -40,44 +38,12 @@ pub struct ResolvedObjectFieldsArgContext {
     pub rename_args: Option<RenameRule>,
 }
 
-#[derive(Debug, Clone)]
-pub struct ResolvedObjectFieldsArg(
+from_fn_arg!(ResolvedObjectFieldsArg,
     WithAttributes<
         ResolvedObjectFieldsArgAttrs,
         WithIndex<WithContext<ResolvedObjectFieldsArgContext, BaseFnArg>>,
     >,
 );
-
-impl Deref for ResolvedObjectFieldsArg {
-    type Target = WithAttributes<
-        ResolvedObjectFieldsArgAttrs,
-        WithIndex<WithContext<ResolvedObjectFieldsArgContext, BaseFnArg>>,
-    >;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl SetContext for ResolvedObjectFieldsArg {
-    type Context = <<Self as Deref>::Target as SetContext>::Context;
-
-    fn set_context(&mut self, context: Self::Context) {
-        self.0.set_context(context);
-    }
-}
-
-impl FromFnArg for ResolvedObjectFieldsArg {
-    fn from_fn_arg(arg: &mut syn::FnArg) -> darling::Result<Self> {
-        Ok(Self(FromFnArg::from_fn_arg(arg)?))
-    }
-}
-
-impl SetIndex for ResolvedObjectFieldsArg {
-    fn with_index(self, index: usize) -> Self {
-        Self(SetIndex::with_index(self.0, index))
-    }
-}
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -104,49 +70,20 @@ pub struct ResolvedObjectFieldsMethodContext {
     pub rename_args: Option<RenameRule>,
 }
 
-#[derive(Debug, Clone)]
-pub struct ResolvedObjectFieldsMethod(
+from_method!(
+    ResolvedObjectFieldsMethod,
     WithAttributes<
         WithDoc<ResolvedObjectFieldsMethodAttrs>,
         WithContext<ResolvedObjectFieldsMethodContext, BaseMethod<ResolvedObjectFieldsArg>>,
     >,
+    inner = args,
 );
-
-impl Deref for ResolvedObjectFieldsMethod {
-    type Target = WithAttributes<
-        WithDoc<ResolvedObjectFieldsMethodAttrs>,
-        WithContext<ResolvedObjectFieldsMethodContext, BaseMethod<ResolvedObjectFieldsArg>>,
-    >;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl FromMethod for ResolvedObjectFieldsMethod {
-    fn from_method(method: &mut syn::ImplItemMethod) -> darling::Result<Self> {
-        let mut value = Self(FromMethod::from_method(method)?);
-        let ctx = value.make_context();
-        value.0.args.set_context(ctx);
-        Ok(value)
-    }
-}
 
 impl MakeContext<ResolvedObjectFieldsArgContext> for ResolvedObjectFieldsMethod {
     fn make_context(&self) -> ResolvedObjectFieldsArgContext {
         ResolvedObjectFieldsArgContext {
             rename_args: self.attrs.rename_args.or(self.ctx.rename_args),
         }
-    }
-}
-
-impl SetContext for ResolvedObjectFieldsMethod {
-    type Context = <<Self as Deref>::Target as SetContext>::Context;
-
-    fn set_context(&mut self, context: Self::Context) {
-        self.0.set_context(context);
-        let ctx = MakeContext::make_context(self);
-        self.0.args.set_context(ctx);
     }
 }
 
@@ -164,30 +101,11 @@ impl Attributes for ResolvedObjectFieldsAttrs {
     const ATTRIBUTES: &'static [&'static str] = &["graphql"];
 }
 
-#[derive(Debug, Clone)]
-pub struct ResolvedObjectFields(
+from_item_impl!(
+    ResolvedObjectFields,
     WithAttributes<WithDoc<ResolvedObjectFieldsAttrs>, BaseItemImpl<ResolvedObjectFieldsMethod>>,
+    ctx,
 );
-
-impl Deref for ResolvedObjectFields {
-    type Target = WithAttributes<
-        WithDoc<ResolvedObjectFieldsAttrs>,
-        BaseItemImpl<ResolvedObjectFieldsMethod>,
-    >;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl FromItemImpl for ResolvedObjectFields {
-    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> darling::Result<Self> {
-        let mut value = Self(FromItemImpl::from_item_impl(item_impl)?);
-        let ctx = value.make_context();
-        value.0.methods.set_context(ctx);
-        Ok(value)
-    }
-}
 
 impl MakeContext<ResolvedObjectFieldsMethodContext> for ResolvedObjectFields {
     fn make_context(&self) -> ResolvedObjectFieldsMethodContext {

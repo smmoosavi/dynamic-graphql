@@ -2,6 +2,7 @@ use super::{BaseStruct, TupleField};
 use crate::utils::with_context::SetContext;
 use darling::{FromDeriveInput, FromField, FromGenerics};
 
+#[derive(Debug, Clone)]
 pub struct NewtypeStruct<F: FromField = TupleField, G: FromGenerics = ()> {
     pub ident: syn::Ident,
     pub generics: G,

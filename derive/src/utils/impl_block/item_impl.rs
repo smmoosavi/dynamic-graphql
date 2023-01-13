@@ -61,3 +61,14 @@ impl FromItemImpl for Ignored {
         Ok(Ignored)
     }
 }
+
+impl<Method> SetContext for BaseItemImpl<Method>
+where
+    Method: FromMethod + SetContext,
+{
+    type Context = Method::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.methods.set_context(context);
+    }
+}

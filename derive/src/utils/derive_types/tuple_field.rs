@@ -3,6 +3,7 @@ use crate::utils::with_context::SetContext;
 use darling::util::Ignored;
 use darling::FromField;
 
+#[derive(Debug, Clone)]
 pub struct TupleField {
     pub ty: syn::Type,
 }

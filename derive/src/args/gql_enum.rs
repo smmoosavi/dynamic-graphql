@@ -5,18 +5,17 @@ use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseEnum, UnitVariant};
 use crate::utils::error::IntoTokenStream;
+use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
-use crate::utils::with_context::{MakeContext, SetContext, WithContext};
+use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
 use darling::util::SpannedValue;
-use darling::{FromAttributes, FromDeriveInput, FromVariant, ToTokens};
+use darling::{FromAttributes, ToTokens};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
-use std::ops::Deref;
-use syn::Variant;
 
-#[derive(FromAttributes)]
+#[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
 pub struct EnumVariantAttributes {
     #[darling(default)]
@@ -31,36 +30,12 @@ pub struct EnumVariantContext {
     pub rename_items: Option<RenameRule>,
 }
 
-pub struct EnumVariant(
+from_variant!(
+    EnumVariant,
     WithAttributes<WithDoc<EnumVariantAttributes>, WithContext<EnumVariantContext, UnitVariant>>,
 );
 
-impl Deref for EnumVariant {
-    type Target = WithAttributes<
-        WithDoc<EnumVariantAttributes>,
-        WithContext<EnumVariantContext, UnitVariant>,
-    >;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl SetContext for EnumVariant {
-    type Context = <<Self as Deref>::Target as SetContext>::Context;
-
-    fn set_context(&mut self, context: Self::Context) {
-        self.0.set_context(context);
-    }
-}
-
-impl FromVariant for EnumVariant {
-    fn from_variant(variant: &Variant) -> darling::Result<Self> {
-        Ok(EnumVariant(FromVariant::from_variant(variant)?))
-    }
-}
-
-#[derive(FromAttributes)]
+#[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
 pub struct EnumAttributes {
     #[darling(default)]
@@ -73,21 +48,11 @@ pub struct EnumAttributes {
     pub remote: Option<SpannedValue<String>>,
 }
 
-pub struct Enum(WithAttributes<WithDoc<EnumAttributes>, BaseEnum<EnumVariant>>);
-impl Deref for Enum {
-    type Target = WithAttributes<WithDoc<EnumAttributes>, BaseEnum<EnumVariant>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-impl FromDeriveInput for Enum {
-    fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
-        let mut object = Self(FromDeriveInput::from_derive_input(input)?);
-        object.0.set_context(object.make_context());
-        Ok(object)
-    }
-}
+from_derive_input!(
+    Enum,
+    WithAttributes<WithDoc<EnumAttributes>, BaseEnum<EnumVariant>>,
+    ctx,
+);
 
 impl MakeContext<EnumVariantContext> for Enum {
     fn make_context(&self) -> EnumVariantContext {

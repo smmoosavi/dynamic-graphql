@@ -4,6 +4,7 @@ use darling::util::Ignored;
 use darling::FromField;
 use syn::Field;
 
+#[derive(Debug, Clone)]
 pub struct NamedField {
     pub ident: syn::Ident,
     pub ty: syn::Type,

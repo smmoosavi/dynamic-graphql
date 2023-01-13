@@ -3,18 +3,16 @@ use crate::utils::common::{CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::{IntoTokenStream, WithSpan};
+use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
-use crate::utils::with_context::{MakeContext, SetContext, WithContext};
+use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
 use darling::{FromAttributes, ToTokens};
-use darling::{FromDeriveInput, FromField};
 use proc_macro2::TokenStream;
 use quote::quote;
-use std::ops::Deref;
-use syn::DeriveInput;
 
-#[derive(FromAttributes)]
+#[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
 pub struct InputObjectFieldAttrs {
     #[darling(default)]
@@ -29,39 +27,15 @@ pub struct InputObjectFieldContext {
     pub rename_fields: Option<RenameRule>,
 }
 
-pub struct InputObjectField(
+from_field!(
+    InputObjectField,
     WithAttributes<
         WithDoc<InputObjectFieldAttrs>,
         WithContext<InputObjectFieldContext, NamedField>,
     >,
 );
 
-impl Deref for InputObjectField {
-    type Target = WithAttributes<
-        WithDoc<InputObjectFieldAttrs>,
-        WithContext<InputObjectFieldContext, NamedField>,
-    >;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl FromField for InputObjectField {
-    fn from_field(field: &syn::Field) -> darling::Result<Self> {
-        Ok(Self(FromField::from_field(field)?))
-    }
-}
-
-impl SetContext for InputObjectField {
-    type Context = <<Self as Deref>::Target as SetContext>::Context;
-
-    fn set_context(&mut self, context: Self::Context) {
-        self.0.set_context(context);
-    }
-}
-
-#[derive(FromAttributes)]
+#[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
 pub struct InputObjectAttrs {
     #[darling(default)]
@@ -71,23 +45,11 @@ pub struct InputObjectAttrs {
     pub rename_fields: Option<RenameRule>,
 }
 
-pub struct InputObject(WithAttributes<WithDoc<InputObjectAttrs>, BaseStruct<InputObjectField>>);
-
-impl Deref for InputObject {
-    type Target = WithAttributes<WithDoc<InputObjectAttrs>, BaseStruct<InputObjectField>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl FromDeriveInput for InputObject {
-    fn from_derive_input(input: &DeriveInput) -> darling::Result<Self> {
-        let mut object = Self(FromDeriveInput::from_derive_input(input)?);
-        object.0.set_context(object.make_context());
-        Ok(object)
-    }
-}
+from_derive_input!(
+    InputObject,
+    WithAttributes<WithDoc<InputObjectAttrs>, BaseStruct<InputObjectField>>,
+    ctx,
+);
 
 impl MakeContext<InputObjectFieldContext> for InputObject {
     fn make_context(&self) -> InputObjectFieldContext {

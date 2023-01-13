@@ -3,6 +3,7 @@ use crate::utils::with_context::SetContext;
 use darling::util::Ignored;
 use darling::FromVariant;
 
+#[derive(Debug, Clone)]
 pub struct UnitVariant {
     pub ident: syn::Ident,
 }

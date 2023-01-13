@@ -3,6 +3,7 @@ use crate::utils::with_context::SetContext;
 use darling::{FromDeriveInput, FromGenerics, FromVariant};
 use syn::DeriveInput;
 
+#[derive(Debug, Clone)]
 pub struct BaseEnum<V: FromVariant, G: FromGenerics = ()> {
     pub ident: syn::Ident,
     pub generics: G,
