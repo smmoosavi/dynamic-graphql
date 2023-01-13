@@ -1,7 +1,7 @@
 use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::FromFnArg;
 use crate::utils::with_context::SetContext;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use syn::FnArg;
 
 pub trait SetIndex: Sized {
@@ -25,6 +25,12 @@ impl<D> Deref for WithIndex<D> {
 
     fn deref(&self) -> &Self::Target {
         &self.inner
+    }
+}
+
+impl<D> DerefMut for WithIndex<D> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
     }
 }
 

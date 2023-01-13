@@ -4,7 +4,7 @@ use crate::FromItemImpl;
 use darling::ast::Data;
 use darling::util::Ignored;
 use darling::{FromDeriveInput, FromField, FromVariant};
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use syn::{DeriveInput, Field, ImplItemMethod, Variant};
 
 pub trait MakeContext<C: Clone> {
@@ -14,6 +14,7 @@ pub trait MakeContext<C: Clone> {
 impl<T> MakeContext<()> for T {
     fn make_context(&self) {}
 }
+
 impl<T> MakeContext<Ignored> for T {
     fn make_context(&self) -> Ignored {
         Ignored
@@ -101,6 +102,12 @@ impl<C, T> Deref for WithContext<C, T> {
     type Target = T;
     fn deref(&self) -> &Self::Target {
         &self.inner
+    }
+}
+
+impl<C, T> DerefMut for WithContext<C, T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::utils::attributes::Attributes;
 use crate::utils::docs_utils::get_rustdoc;
 use darling::FromAttributes;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, Clone)]
 pub struct WithDoc<D> {
@@ -14,6 +14,12 @@ impl<D> Deref for WithDoc<D> {
 
     fn deref(&self) -> &Self::Target {
         &self.inner
+    }
+}
+
+impl<D> DerefMut for WithDoc<D> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
     }
 }
 

@@ -5,7 +5,7 @@ use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
 use darling::{FromAttributes, FromDeriveInput, FromField, FromVariant};
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use syn::{FnArg, ImplItemMethod, ItemImpl};
 
 #[derive(Clone, Debug)]
@@ -20,6 +20,12 @@ impl<A: FromAttributes, D> Deref for WithAttributes<A, D> {
 
     fn deref(&self) -> &Self::Target {
         &self.inner
+    }
+}
+
+impl<A: FromAttributes, D> DerefMut for WithAttributes<A, D> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
     }
 }
 
