@@ -1,11 +1,10 @@
-use crate::utils::error::GeneratorResult;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use darling::util::Ignored;
 use syn::spanned::Spanned;
 
 pub trait FromFnArg: Sized {
-    fn from_fn_arg(arg: &mut syn::FnArg) -> GeneratorResult<Self>;
+    fn from_fn_arg(arg: &mut syn::FnArg) -> darling::Result<Self>;
 }
 
 #[derive(Debug, Clone)]
@@ -65,7 +64,7 @@ impl SetContext for BaseFnArg {
 }
 
 impl FromFnArg for BaseFnArg {
-    fn from_fn_arg(arg: &mut syn::FnArg) -> GeneratorResult<Self> {
+    fn from_fn_arg(arg: &mut syn::FnArg) -> darling::Result<Self> {
         match arg {
             syn::FnArg::Receiver(receiver) => Ok(Self::Receiver(SelfArg {
                 is_mut: receiver.mutability.is_some(),
@@ -76,11 +75,8 @@ impl FromFnArg for BaseFnArg {
                 let ident = match *typed.pat {
                     syn::Pat::Ident(ref i) => i.ident.clone(),
                     _ => {
-                        return Err(syn::Error::new(
-                            typed.pat.span(),
-                            "Only named arguments are supported",
-                        )
-                        .into());
+                        return Err(darling::Error::unsupported_shape("unnamed arguments")
+                            .with_span(&typed.pat));
                     }
                 };
                 Self::Typed(TypedArg {
@@ -93,7 +89,7 @@ impl FromFnArg for BaseFnArg {
 }
 
 impl FromFnArg for Ignored {
-    fn from_fn_arg(_arg: &mut syn::FnArg) -> GeneratorResult<Self> {
+    fn from_fn_arg(_arg: &mut syn::FnArg) -> darling::Result<Self> {
         Ok(Ignored)
     }
 }

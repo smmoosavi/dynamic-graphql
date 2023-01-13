@@ -4,7 +4,7 @@ use crate::utils::common::{CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseEnum, UnitVariant};
-use crate::utils::error::{GeneratorResult, IntoTokenStream};
+use crate::utils::error::IntoTokenStream;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, SetContext, WithContext};
@@ -106,7 +106,7 @@ impl CommonObject for Enum {
         &self.ident
     }
 
-    fn get_doc(&self) -> GeneratorResult<Option<String>> {
+    fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
     }
 
@@ -120,25 +120,23 @@ impl CommonField for EnumVariant {
         self.attrs.name.as_deref()
     }
 
-    fn get_ident(&self) -> GeneratorResult<&Ident> {
+    fn get_ident(&self) -> darling::Result<&Ident> {
         Ok(&self.ident)
     }
 
-    fn get_type(&self) -> GeneratorResult<&syn::Type> {
-        Err(darling::Error::custom("Enum variant has no type")
-            .with_span(&self.ident)
-            .into())
+    fn get_type(&self) -> darling::Result<&syn::Type> {
+        Err(darling::Error::custom("Enum variant has no type").with_span(&self.ident))
     }
 
     fn get_skip(&self) -> bool {
         false
     }
 
-    fn get_doc(&self) -> GeneratorResult<Option<String>> {
+    fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
     }
 
-    fn get_deprecation(&self) -> GeneratorResult<Deprecation> {
+    fn get_deprecation(&self) -> darling::Result<Deprecation> {
         Ok(self.attrs.deprecation.clone())
     }
 
@@ -147,7 +145,7 @@ impl CommonField for EnumVariant {
     }
 }
 
-fn impl_enum(enm: &Enum) -> GeneratorResult<TokenStream> {
+fn impl_enum(enm: &Enum) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let enum_ident = enm.get_ident();
     let name = get_type_name(enm)?;
@@ -162,7 +160,7 @@ fn impl_enum(enm: &Enum) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn impl_into_value_match_item(enm: &Enum, variant: &EnumVariant) -> GeneratorResult<TokenStream> {
+fn impl_into_value_match_item(enm: &Enum, variant: &EnumVariant) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let ty = enm.get_ident();
     let variant_ident = variant.get_ident()?;
@@ -184,7 +182,7 @@ fn impl_into_value_match_items(enm: &Enum) -> TokenStream {
         .collect()
 }
 
-fn impl_into_value(enm: &Enum) -> GeneratorResult<TokenStream> {
+fn impl_into_value(enm: &Enum) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let enum_ident = enm.get_ident();
     let match_items = impl_into_value_match_items(enm);
@@ -200,7 +198,7 @@ fn impl_into_value(enm: &Enum) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn get_from_value_match_item(enm: &Enum, variant: &EnumVariant) -> GeneratorResult<TokenStream> {
+fn get_from_value_match_item(enm: &Enum, variant: &EnumVariant) -> darling::Result<TokenStream> {
     let ty = enm.get_ident();
     let variant_ident = variant.get_ident()?;
     let variant_name = get_enum_item_name(variant)?;
@@ -219,7 +217,7 @@ fn get_from_value_match_items(enm: &Enum) -> TokenStream {
         .collect()
 }
 
-fn impl_from_value(enm: &Enum) -> GeneratorResult<TokenStream> {
+fn impl_from_value(enm: &Enum) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let enum_ident = enm.get_ident();
     let match_items = get_from_value_match_items(enm);
@@ -243,14 +241,14 @@ fn impl_into_remote_item(
     enum_ident: &syn::Ident,
     remote_ident: &syn::Ident,
     item: &EnumVariant,
-) -> GeneratorResult<TokenStream> {
+) -> darling::Result<TokenStream> {
     let item_ident = item.get_ident()?;
     Ok(quote! {
             #enum_ident::#item_ident => #remote_ident::#item_ident,
     })
 }
 
-fn impl_into_remote(enm: &Enum, remote_ident: &syn::Ident) -> GeneratorResult<TokenStream> {
+fn impl_into_remote(enm: &Enum, remote_ident: &syn::Ident) -> darling::Result<TokenStream> {
     let enum_ident = enm.get_ident();
     let matches: TokenStream = enm
         .data
@@ -272,14 +270,14 @@ fn impl_from_remote_item(
     enum_ident: &syn::Ident,
     remote_ident: &syn::Ident,
     item: &EnumVariant,
-) -> GeneratorResult<TokenStream> {
+) -> darling::Result<TokenStream> {
     let item_ident = item.get_ident()?;
     Ok(quote! {
             #remote_ident::#item_ident => #enum_ident::#item_ident,
     })
 }
 
-fn impl_from_remote(enm: &Enum, remote_ident: &syn::Ident) -> GeneratorResult<TokenStream> {
+fn impl_from_remote(enm: &Enum, remote_ident: &syn::Ident) -> darling::Result<TokenStream> {
     let enum_ident = enm.get_ident();
     let matches: TokenStream = enm
         .data
@@ -297,7 +295,7 @@ fn impl_from_remote(enm: &Enum, remote_ident: &syn::Ident) -> GeneratorResult<To
     })
 }
 
-fn impl_remote(enm: &Enum) -> GeneratorResult<TokenStream> {
+fn impl_remote(enm: &Enum) -> darling::Result<TokenStream> {
     let Some(remote) = &enm.attrs.remote else {
         return Ok(quote! {});
     };
@@ -312,7 +310,7 @@ fn impl_remote(enm: &Enum) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn register_item(variant: &EnumVariant) -> GeneratorResult<TokenStream> {
+fn register_item(variant: &EnumVariant) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let name = get_enum_item_name(variant)?;
     let description = common::field_description(variant)?;
@@ -333,7 +331,7 @@ fn register_items(enm: &Enum) -> TokenStream {
         .collect()
 }
 
-fn impl_register(enm: &Enum) -> GeneratorResult<TokenStream> {
+fn impl_register(enm: &Enum) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let enum_ident = enm.get_ident();
     let items = register_items(enm);

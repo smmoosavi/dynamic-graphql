@@ -1,4 +1,3 @@
-use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::method::BaseMethod;
 use crate::utils::impl_block::method::FromMethod;
 use crate::utils::with_context::SetContext;
@@ -6,7 +5,7 @@ use darling::util::Ignored;
 use std::ops::Deref;
 
 pub trait FromItemImpl: Sized {
-    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> GeneratorResult<Self>;
+    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> darling::Result<Self>;
 }
 
 #[derive(Debug, Clone)]
@@ -39,7 +38,7 @@ impl<Method: SetContext> SetContext for Methods<Method> {
 }
 
 impl<Method: FromMethod> FromItemImpl for BaseItemImpl<Method> {
-    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> GeneratorResult<Self> {
+    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> darling::Result<Self> {
         Ok(Self {
             trait_: item_impl.trait_.as_ref().map(|t| t.1.clone()),
             ty: item_impl.self_ty.as_ref().clone(),
@@ -51,14 +50,14 @@ impl<Method: FromMethod> FromItemImpl for BaseItemImpl<Method> {
                         syn::ImplItem::Method(method) => Some(Method::from_method(method)),
                         _ => None,
                     })
-                    .collect::<GeneratorResult<Vec<_>>>()?,
+                    .collect::<darling::Result<Vec<_>>>()?,
             },
         })
     }
 }
 
 impl FromItemImpl for Ignored {
-    fn from_item_impl(_item_impl: &mut syn::ItemImpl) -> GeneratorResult<Self> {
+    fn from_item_impl(_item_impl: &mut syn::ItemImpl) -> darling::Result<Self> {
         Ok(Ignored)
     }
 }

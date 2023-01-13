@@ -1,4 +1,3 @@
-use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::FromFnArg;
 use crate::utils::with_context::SetContext;
 use std::ops::{Deref, DerefMut};
@@ -50,7 +49,7 @@ impl<A> SetIndex for WithIndex<A> {
 }
 
 impl<A: FromFnArg> FromFnArg for WithIndex<A> {
-    fn from_fn_arg(arg: &mut FnArg) -> GeneratorResult<Self> {
+    fn from_fn_arg(arg: &mut FnArg) -> darling::Result<Self> {
         let inner = A::from_fn_arg(arg)?;
         Ok(WithIndex {
             index: usize::MAX,

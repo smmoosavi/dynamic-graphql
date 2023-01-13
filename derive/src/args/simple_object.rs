@@ -3,7 +3,7 @@ use crate::utils::common::{CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseStruct, NamedField};
-use crate::utils::error::{GeneratorResult, IntoTokenStream, WithSpan};
+use crate::utils::error::{IntoTokenStream, WithSpan};
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, SetContext, WithContext};
@@ -111,7 +111,7 @@ impl CommonObject for SimpleObject {
         &self.ident
     }
 
-    fn get_doc(&self) -> GeneratorResult<Option<String>> {
+    fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
     }
     fn get_fields_rename_rule(&self) -> Option<&RenameRule> {
@@ -124,11 +124,11 @@ impl CommonField for SimpleObjectField {
         self.attrs.name.as_deref()
     }
 
-    fn get_ident(&self) -> GeneratorResult<&Ident> {
+    fn get_ident(&self) -> darling::Result<&Ident> {
         Ok(&self.ident)
     }
 
-    fn get_type(&self) -> GeneratorResult<&syn::Type> {
+    fn get_type(&self) -> darling::Result<&syn::Type> {
         Ok(&self.ty)
     }
 
@@ -136,10 +136,10 @@ impl CommonField for SimpleObjectField {
         self.attrs.skip
     }
 
-    fn get_doc(&self) -> GeneratorResult<Option<String>> {
+    fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
     }
-    fn get_deprecation(&self) -> GeneratorResult<Deprecation> {
+    fn get_deprecation(&self) -> darling::Result<Deprecation> {
         Ok(self.attrs.deprecation.clone())
     }
     fn get_field_rename_rule(&self) -> Option<&RenameRule> {
@@ -147,11 +147,11 @@ impl CommonField for SimpleObjectField {
     }
 }
 
-fn get_fields(object: &SimpleObject) -> GeneratorResult<&Fields<SimpleObjectField>> {
+fn get_fields(object: &SimpleObject) -> darling::Result<&Fields<SimpleObjectField>> {
     Ok(&object.data)
 }
 
-fn get_resolver_ident(field: &impl CommonField) -> GeneratorResult<Ident> {
+fn get_resolver_ident(field: &impl CommonField) -> darling::Result<Ident> {
     let field_ident = field.get_ident()?;
     let resolver_name = format!("__resolve_{}", field_ident);
 
@@ -159,7 +159,7 @@ fn get_resolver_ident(field: &impl CommonField) -> GeneratorResult<Ident> {
     Ok(resolver_ident)
 }
 
-fn impl_resolver(field: &impl CommonField) -> GeneratorResult<TokenStream> {
+fn impl_resolver(field: &impl CommonField) -> darling::Result<TokenStream> {
     let field_ident = field.get_ident()?;
     let resolver_ident = get_resolver_ident(field)?;
     let ty = field.get_type()?;
@@ -170,7 +170,7 @@ fn impl_resolver(field: &impl CommonField) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn impl_resolvers(object: &SimpleObject) -> GeneratorResult<TokenStream> {
+fn impl_resolvers(object: &SimpleObject) -> darling::Result<TokenStream> {
     let ident = &object.ident;
     let struct_data = get_fields(object)?;
     let fields = struct_data
@@ -187,7 +187,7 @@ fn impl_resolvers(object: &SimpleObject) -> GeneratorResult<TokenStream> {
     })
 }
 
-fn impl_define_field(field: &SimpleObjectField) -> GeneratorResult<TokenStream> {
+fn impl_define_field(field: &SimpleObjectField) -> darling::Result<TokenStream> {
     let field_name = common::get_field_name(field)?;
     let ty = field.get_type()?;
     let resolver_ident = get_resolver_ident(field)?;
@@ -208,7 +208,7 @@ fn impl_define_field(field: &SimpleObjectField) -> GeneratorResult<TokenStream> 
     })
 }
 
-fn get_define_fields(object: &SimpleObject) -> GeneratorResult<TokenStream> {
+fn get_define_fields(object: &SimpleObject) -> darling::Result<TokenStream> {
     let fields = get_fields(object)?;
     Ok(fields
         .fields
@@ -218,7 +218,7 @@ fn get_define_fields(object: &SimpleObject) -> GeneratorResult<TokenStream> {
         .collect())
 }
 
-fn impl_register(object: &SimpleObject) -> GeneratorResult<TokenStream> {
+fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let ident = &object.ident;
     let define_object = common::impl_define_object();

@@ -2,7 +2,7 @@ use crate::args::common;
 use crate::utils::common::{CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::derive_types::{BaseStruct, NamedField};
-use crate::utils::error::{GeneratorResult, IntoTokenStream, WithSpan};
+use crate::utils::error::{IntoTokenStream, WithSpan};
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, SetContext, WithContext};
@@ -106,7 +106,7 @@ impl CommonObject for InputObject {
         &self.ident
     }
 
-    fn get_doc(&self) -> GeneratorResult<Option<String>> {
+    fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
     }
     fn get_fields_rename_rule(&self) -> Option<&RenameRule> {
@@ -119,11 +119,11 @@ impl CommonField for InputObjectField {
         self.attrs.name.as_deref()
     }
 
-    fn get_ident(&self) -> GeneratorResult<&syn::Ident> {
+    fn get_ident(&self) -> darling::Result<&syn::Ident> {
         Ok(&self.ident)
     }
 
-    fn get_type(&self) -> GeneratorResult<&syn::Type> {
+    fn get_type(&self) -> darling::Result<&syn::Type> {
         Ok(&self.ty)
     }
 
@@ -131,7 +131,7 @@ impl CommonField for InputObjectField {
         self.attrs.skip
     }
 
-    fn get_doc(&self) -> GeneratorResult<Option<String>> {
+    fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
     }
 
@@ -140,7 +140,7 @@ impl CommonField for InputObjectField {
     }
 }
 
-fn get_define_field(field: &InputObjectField) -> GeneratorResult<TokenStream> {
+fn get_define_field(field: &InputObjectField) -> darling::Result<TokenStream> {
     let description = common::field_description(field)?;
     let get_new_input_value_code = common::get_new_input_value_code(field)?;
     Ok(quote! {
@@ -160,7 +160,7 @@ fn get_define_fields(object: &InputObject) -> TokenStream {
         .collect()
 }
 
-fn impl_register(object: &InputObject) -> GeneratorResult<TokenStream> {
+fn impl_register(object: &InputObject) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let ident = &object.ident;
     let define_object = common::impl_define_input_object();
@@ -190,7 +190,7 @@ fn get_field_value(
     index: usize,
     object: &InputObject,
     field: &InputObjectField,
-) -> GeneratorResult<TokenStream> {
+) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let field_ident = field.get_ident().with_span(&object.ident)?;
     let item = get_item_ident(index, field_ident);
@@ -215,7 +215,7 @@ fn get_fields_value(object: &InputObject) -> TokenStream {
         .collect()
 }
 
-fn get_field_usage(index: usize, field: &InputObjectField) -> GeneratorResult<TokenStream> {
+fn get_field_usage(index: usize, field: &InputObjectField) -> darling::Result<TokenStream> {
     let field_ident = field.get_ident()?;
     let item = get_item_ident(index, field_ident);
     Ok(quote! {

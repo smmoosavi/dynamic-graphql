@@ -1,4 +1,3 @@
-use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::fn_arg::BaseFnArg;
 use crate::utils::impl_block::fn_arg::FromFnArg;
 use crate::utils::with_context::SetContext;
@@ -7,7 +6,7 @@ use darling::util::Ignored;
 use std::ops::Deref;
 
 pub trait FromMethod: Sized {
-    fn from_method(method: &mut syn::ImplItemMethod) -> GeneratorResult<Self>;
+    fn from_method(method: &mut syn::ImplItemMethod) -> darling::Result<Self>;
 }
 
 #[derive(Debug, Clone)]
@@ -42,7 +41,7 @@ impl<MethodArg: SetContext> SetContext for Args<MethodArg> {
 }
 
 impl<MethodArg: FromFnArg + SetIndex> FromMethod for BaseMethod<MethodArg> {
-    fn from_method(method: &mut syn::ImplItemMethod) -> GeneratorResult<Self> {
+    fn from_method(method: &mut syn::ImplItemMethod) -> darling::Result<Self> {
         Ok(BaseMethod {
             vis: method.vis.clone(),
             constness: method.sig.constness.is_some(),
@@ -55,7 +54,7 @@ impl<MethodArg: FromFnArg + SetIndex> FromMethod for BaseMethod<MethodArg> {
                     .iter_mut()
                     .enumerate()
                     .map(|(index, arg)| MethodArg::from_fn_arg(arg).with_index(index))
-                    .collect::<GeneratorResult<Vec<_>>>()?,
+                    .collect::<darling::Result<Vec<_>>>()?,
             },
             output_type: match &method.sig.output {
                 syn::ReturnType::Default => None,
@@ -66,7 +65,7 @@ impl<MethodArg: FromFnArg + SetIndex> FromMethod for BaseMethod<MethodArg> {
 }
 
 impl FromMethod for Ignored {
-    fn from_method(_method: &mut syn::ImplItemMethod) -> GeneratorResult<Self> {
+    fn from_method(_method: &mut syn::ImplItemMethod) -> darling::Result<Self> {
         Ok(Ignored)
     }
 }

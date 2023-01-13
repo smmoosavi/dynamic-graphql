@@ -1,7 +1,7 @@
 use crate::args::common;
 use crate::utils::common::CommonObject;
 use crate::utils::derive_types::BaseStruct;
-use crate::utils::error::{GeneratorResult, IntoTokenStream};
+use crate::utils::error::IntoTokenStream;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, SetContext};
 use crate::utils::with_doc::WithDoc;
@@ -46,7 +46,7 @@ impl CommonObject for ResolvedObject {
         &self.ident
     }
 
-    fn get_doc(&self) -> GeneratorResult<Option<String>> {
+    fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
     }
 }

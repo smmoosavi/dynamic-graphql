@@ -1,4 +1,3 @@
-use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::{FromFnArg, FromMethod};
 use crate::FromItemImpl;
 use darling::ast::Data;
@@ -120,7 +119,7 @@ impl<C: Clone, T> SetContext for WithContext<C, T> {
 }
 
 impl<A: FromFnArg, C: Default> FromFnArg for WithContext<C, A> {
-    fn from_fn_arg(arg: &mut syn::FnArg) -> GeneratorResult<Self> {
+    fn from_fn_arg(arg: &mut syn::FnArg) -> darling::Result<Self> {
         let inner = A::from_fn_arg(arg)?;
         Ok(WithContext {
             ctx: C::default(),
@@ -130,7 +129,7 @@ impl<A: FromFnArg, C: Default> FromFnArg for WithContext<C, A> {
 }
 
 impl<A: FromMethod, C: Default> FromMethod for WithContext<C, A> {
-    fn from_method(method: &mut ImplItemMethod) -> GeneratorResult<Self> {
+    fn from_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
         let inner = A::from_method(method)?;
         Ok(WithContext {
             ctx: C::default(),
@@ -140,7 +139,7 @@ impl<A: FromMethod, C: Default> FromMethod for WithContext<C, A> {
 }
 
 impl<A: FromItemImpl, C: Default> FromItemImpl for WithContext<C, A> {
-    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> GeneratorResult<Self> {
+    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> darling::Result<Self> {
         let inner = A::from_item_impl(item_impl)?;
         Ok(WithContext {
             ctx: C::default(),

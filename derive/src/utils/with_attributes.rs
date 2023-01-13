@@ -1,5 +1,4 @@
 use crate::utils::attributes::{Attributes, CleanAttributes};
-use crate::utils::error::GeneratorResult;
 use crate::utils::impl_block::{BaseFnArg, FromFnArg, FromMethod};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
@@ -54,7 +53,7 @@ impl<A: FromAttributes, D: FromVariant> FromVariant for WithAttributes<A, D> {
 }
 
 impl<A: FromAttributes + Attributes, D: FromFnArg> FromFnArg for WithAttributes<A, D> {
-    fn from_fn_arg(arg: &mut FnArg) -> GeneratorResult<Self> {
+    fn from_fn_arg(arg: &mut FnArg) -> darling::Result<Self> {
         let inner = D::from_fn_arg(arg)?;
         let base_attrs = BaseFnArg::get_attrs_mut(arg);
         let attrs = A::from_attributes(base_attrs)?;
@@ -63,7 +62,7 @@ impl<A: FromAttributes + Attributes, D: FromFnArg> FromFnArg for WithAttributes<
     }
 }
 impl<A: FromAttributes + Attributes, D: FromMethod> FromMethod for WithAttributes<A, D> {
-    fn from_method(method: &mut ImplItemMethod) -> GeneratorResult<Self> {
+    fn from_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
         let inner = D::from_method(method)?;
         let attrs = A::from_attributes(&method.attrs)?;
         A::clean_attributes(&mut method.attrs);
@@ -71,7 +70,7 @@ impl<A: FromAttributes + Attributes, D: FromMethod> FromMethod for WithAttribute
     }
 }
 impl<A: FromAttributes + Attributes, D: FromItemImpl> FromItemImpl for WithAttributes<A, D> {
-    fn from_item_impl(item_impl: &mut ItemImpl) -> GeneratorResult<Self> {
+    fn from_item_impl(item_impl: &mut ItemImpl) -> darling::Result<Self> {
         let inner = D::from_item_impl(item_impl)?;
         let attrs = A::from_attributes(&item_impl.attrs)?;
         A::clean_attributes(&mut item_impl.attrs);

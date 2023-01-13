@@ -3,7 +3,7 @@ use crate::utils::attributes::Attributes;
 use crate::utils::common::{CommonArg, CommonField};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
-use crate::utils::error::{GeneratorResult, IntoTokenStream};
+use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::{
     BaseFnArg, BaseItemImpl, BaseMethod, FromFnArg, FromItemImpl, FromMethod, TypedArg,
 };
@@ -68,7 +68,7 @@ impl SetContext for ResolvedObjectFieldsArg {
 }
 
 impl FromFnArg for ResolvedObjectFieldsArg {
-    fn from_fn_arg(arg: &mut syn::FnArg) -> GeneratorResult<Self> {
+    fn from_fn_arg(arg: &mut syn::FnArg) -> darling::Result<Self> {
         Ok(Self(FromFnArg::from_fn_arg(arg)?))
     }
 }
@@ -124,7 +124,7 @@ impl Deref for ResolvedObjectFieldsMethod {
 }
 
 impl FromMethod for ResolvedObjectFieldsMethod {
-    fn from_method(method: &mut syn::ImplItemMethod) -> GeneratorResult<Self> {
+    fn from_method(method: &mut syn::ImplItemMethod) -> darling::Result<Self> {
         let mut value = Self(FromMethod::from_method(method)?);
         let ctx = value.make_context();
         value.0.args.set_context(ctx);
@@ -181,7 +181,7 @@ impl Deref for ResolvedObjectFields {
 }
 
 impl FromItemImpl for ResolvedObjectFields {
-    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> GeneratorResult<Self> {
+    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> darling::Result<Self> {
         let mut value = Self(FromItemImpl::from_item_impl(item_impl)?);
         let ctx = value.make_context();
         value.0.methods.set_context(ctx);
@@ -202,15 +202,13 @@ impl CommonField for ResolvedObjectFieldsMethod {
         self.attrs.name.as_deref()
     }
 
-    fn get_ident(&self) -> GeneratorResult<&Ident> {
+    fn get_ident(&self) -> darling::Result<&Ident> {
         Ok(&self.ident)
     }
 
-    fn get_type(&self) -> GeneratorResult<&syn::Type> {
+    fn get_type(&self) -> darling::Result<&syn::Type> {
         self.output_type.as_ref().ok_or_else(|| {
-            darling::Error::custom("Field must have return type")
-                .with_span(&self.ident)
-                .into()
+            darling::Error::custom("Field must have return type").with_span(&self.ident)
         })
     }
 
@@ -218,10 +216,10 @@ impl CommonField for ResolvedObjectFieldsMethod {
         self.attrs.skip
     }
 
-    fn get_doc(&self) -> GeneratorResult<Option<String>> {
+    fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
     }
-    fn get_deprecation(&self) -> GeneratorResult<Deprecation> {
+    fn get_deprecation(&self) -> darling::Result<Deprecation> {
         Ok(self.attrs.deprecation.clone())
     }
 }
@@ -253,7 +251,7 @@ fn is_arg_ctx(arg: &ResolvedObjectFieldsArg) -> bool {
         || matches!(arg.get_arg(), BaseFnArg::Typed(TypedArg{ref ident, ..}) if ident == "ctx" || ident == "_ctx")
 }
 
-fn get_arg_definition(arg: &ResolvedObjectFieldsArg) -> GeneratorResult<TokenStream> {
+fn get_arg_definition(arg: &ResolvedObjectFieldsArg) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let arg_ident = get_arg_ident(arg);
 
@@ -343,7 +341,7 @@ fn get_argument_definitions(args: &[ResolvedObjectFieldsArg]) -> TokenStream {
 fn define_fields(
     object: &ResolvedObjectFields,
     method: &ResolvedObjectFieldsMethod,
-) -> GeneratorResult<TokenStream> {
+) -> darling::Result<TokenStream> {
     let field_ident = &method.ident;
     let field_name = calc_field_name(
         method.attrs.name.as_deref(),
@@ -423,7 +421,7 @@ fn get_define_fields_code(object: &ResolvedObjectFields) -> TokenStream {
         .collect()
 }
 
-fn impl_register(object: &ResolvedObjectFields) -> GeneratorResult<TokenStream> {
+fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let ty = &object.ty;
     let define_object = common::impl_define_object();

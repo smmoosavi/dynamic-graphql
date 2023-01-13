@@ -1,7 +1,6 @@
 use crate::utils::common::{CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
-use crate::utils::error::GeneratorResult;
 use crate::utils::rename_rule::{
     calc_enum_item_name, calc_field_name, calc_input_field_name, calc_type_name,
 };
@@ -9,7 +8,7 @@ use crate::utils::type_utils::get_owned_type;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-pub fn impl_object(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
+pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let object_ident = obj.get_ident();
     let name = get_type_name(obj)?;
     let create_name = get_create_name();
@@ -22,7 +21,7 @@ pub fn impl_object(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
     })
 }
 
-pub fn impl_input_object(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
+pub fn impl_input_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let object_ident = obj.get_ident();
     let name = get_type_name(obj)?;
     let create_name = get_create_name();
@@ -35,7 +34,7 @@ pub fn impl_input_object(obj: &impl CommonObject) -> GeneratorResult<TokenStream
     })
 }
 
-pub fn impl_graphql_doc(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
+pub fn impl_graphql_doc(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let doc = obj.get_doc()?;
     let object_ident = obj.get_ident();
     let create_name = get_create_name();
@@ -51,7 +50,7 @@ pub fn impl_graphql_doc(obj: &impl CommonObject) -> GeneratorResult<TokenStream>
     })
 }
 
-pub fn impl_resolve_owned(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
+pub fn impl_resolve_owned(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let object_ident = obj.get_ident();
 
@@ -64,7 +63,7 @@ pub fn impl_resolve_owned(obj: &impl CommonObject) -> GeneratorResult<TokenStrea
     })
 }
 
-pub fn impl_resolve_ref(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
+pub fn impl_resolve_ref(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let object_ident = obj.get_ident();
     Ok(quote! {
@@ -76,7 +75,7 @@ pub fn impl_resolve_ref(obj: &impl CommonObject) -> GeneratorResult<TokenStream>
     })
 }
 
-pub fn impl_resolve_owned_by_value(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
+pub fn impl_resolve_owned_by_value(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let object_ident = obj.get_ident();
 
@@ -89,7 +88,7 @@ pub fn impl_resolve_owned_by_value(obj: &impl CommonObject) -> GeneratorResult<T
     })
 }
 
-pub fn impl_resolve_ref_by_value(obj: &impl CommonObject) -> GeneratorResult<TokenStream> {
+pub fn impl_resolve_ref_by_value(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let object_ident = obj.get_ident();
     Ok(quote! {
@@ -121,7 +120,7 @@ pub fn register_object_code() -> TokenStream {
     quote!(registry.register_type(object))
 }
 
-pub fn field_deprecation_code(deprecation: &impl CommonField) -> GeneratorResult<TokenStream> {
+pub fn field_deprecation_code(deprecation: &impl CommonField) -> darling::Result<TokenStream> {
     let deprecation = deprecation.get_deprecation()?;
     // todo get "field" from input
     match deprecation {
@@ -137,7 +136,7 @@ pub fn field_deprecation_code(deprecation: &impl CommonField) -> GeneratorResult
     }
 }
 
-pub fn field_description(field: &impl CommonField) -> GeneratorResult<TokenStream> {
+pub fn field_description(field: &impl CommonField) -> darling::Result<TokenStream> {
     let doc = field.get_doc()?;
     // todo get "field" from input
     if let Some(doc) = doc {
@@ -149,7 +148,7 @@ pub fn field_description(field: &impl CommonField) -> GeneratorResult<TokenStrea
     }
 }
 
-pub fn object_description(doc: Option<&str>) -> GeneratorResult<TokenStream> {
+pub fn object_description(doc: Option<&str>) -> darling::Result<TokenStream> {
     // todo get "object" from input
     if let Some(doc) = doc {
         Ok(quote! {
@@ -160,21 +159,21 @@ pub fn object_description(doc: Option<&str>) -> GeneratorResult<TokenStream> {
     }
 }
 
-pub fn get_type_name(obj: &impl CommonObject) -> GeneratorResult<String> {
+pub fn get_type_name(obj: &impl CommonObject) -> darling::Result<String> {
     let name = obj.get_name();
     let object_ident = obj.get_ident();
     let name = calc_type_name(name, &object_ident.to_string());
     Ok(name)
 }
 
-pub fn get_enum_item_name(item: &impl CommonField) -> GeneratorResult<String> {
+pub fn get_enum_item_name(item: &impl CommonField) -> darling::Result<String> {
     let name = item.get_name();
     let item_ident = item.get_ident()?;
     let name = calc_enum_item_name(name, &item_ident.to_string(), item.get_field_rename_rule());
     Ok(name)
 }
 
-pub fn get_input_field_name(field: &impl CommonField) -> GeneratorResult<String> {
+pub fn get_input_field_name(field: &impl CommonField) -> darling::Result<String> {
     Ok(calc_input_field_name(
         field.get_name(),
         &field.get_ident()?.to_string(),
@@ -182,7 +181,7 @@ pub fn get_input_field_name(field: &impl CommonField) -> GeneratorResult<String>
     ))
 }
 
-pub fn get_input_type_ref_code(field: &impl CommonField) -> GeneratorResult<TokenStream> {
+pub fn get_input_type_ref_code(field: &impl CommonField) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let field_type = get_owned_type(field.get_type()?);
     Ok(quote! {
@@ -190,7 +189,7 @@ pub fn get_input_type_ref_code(field: &impl CommonField) -> GeneratorResult<Toke
     })
 }
 
-pub fn get_new_input_value_code(field: &impl CommonField) -> GeneratorResult<TokenStream> {
+pub fn get_new_input_value_code(field: &impl CommonField) -> darling::Result<TokenStream> {
     // todo get "field" from input
     let create_name = get_create_name();
     let field_name = get_input_field_name(field)?;
@@ -201,7 +200,7 @@ pub fn get_new_input_value_code(field: &impl CommonField) -> GeneratorResult<Tok
     })
 }
 
-pub fn get_field_name(field: &impl CommonField) -> GeneratorResult<String> {
+pub fn get_field_name(field: &impl CommonField) -> darling::Result<String> {
     Ok(calc_field_name(
         field.get_name(),
         &field.get_ident()?.to_string(),
