@@ -12,6 +12,7 @@ use crate::utils::type_utils::{
     get_owned_type, get_value_type, is_type_ref, is_type_slice, is_type_str,
 };
 use crate::utils::with_attributes::WithAttributes;
+use crate::utils::with_context::{MakeContext, SetContext, WithContext};
 use crate::utils::with_doc::WithDoc;
 use crate::utils::with_index::{SetIndex, WithIndex};
 use darling::FromAttributes;
@@ -34,16 +35,35 @@ impl Attributes for ResolvedObjectFieldsArgAttrs {
     const ATTRIBUTES: &'static [&'static str] = &["graphql"];
 }
 
+#[derive(Default, Debug, Clone)]
+pub struct ResolvedObjectFieldsArgContext {
+    pub rename_args: Option<RenameRule>,
+}
+
 #[derive(Debug, Clone)]
 pub struct ResolvedObjectFieldsArg(
-    WithAttributes<ResolvedObjectFieldsArgAttrs, WithIndex<BaseFnArg>>,
+    WithAttributes<
+        ResolvedObjectFieldsArgAttrs,
+        WithIndex<WithContext<ResolvedObjectFieldsArgContext, BaseFnArg>>,
+    >,
 );
 
 impl Deref for ResolvedObjectFieldsArg {
-    type Target = WithAttributes<ResolvedObjectFieldsArgAttrs, WithIndex<BaseFnArg>>;
+    type Target = WithAttributes<
+        ResolvedObjectFieldsArgAttrs,
+        WithIndex<WithContext<ResolvedObjectFieldsArgContext, BaseFnArg>>,
+    >;
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl SetContext for ResolvedObjectFieldsArg {
+    type Context = <<Self as Deref>::Target as SetContext>::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.0.set_context(context);
     }
 }
 
@@ -79,15 +99,23 @@ impl Attributes for ResolvedObjectFieldsMethodAttrs {
     const ATTRIBUTES: &'static [&'static str] = &["graphql"];
 }
 
+#[derive(Default, Debug, Clone)]
+pub struct ResolvedObjectFieldsMethodContext {
+    pub rename_args: Option<RenameRule>,
+}
+
 #[derive(Debug, Clone)]
 pub struct ResolvedObjectFieldsMethod(
-    WithAttributes<WithDoc<ResolvedObjectFieldsMethodAttrs>, BaseMethod<ResolvedObjectFieldsArg>>,
+    WithAttributes<
+        WithDoc<ResolvedObjectFieldsMethodAttrs>,
+        WithContext<ResolvedObjectFieldsMethodContext, BaseMethod<ResolvedObjectFieldsArg>>,
+    >,
 );
 
 impl Deref for ResolvedObjectFieldsMethod {
     type Target = WithAttributes<
         WithDoc<ResolvedObjectFieldsMethodAttrs>,
-        BaseMethod<ResolvedObjectFieldsArg>,
+        WithContext<ResolvedObjectFieldsMethodContext, BaseMethod<ResolvedObjectFieldsArg>>,
     >;
 
     fn deref(&self) -> &Self::Target {
@@ -97,7 +125,28 @@ impl Deref for ResolvedObjectFieldsMethod {
 
 impl FromMethod for ResolvedObjectFieldsMethod {
     fn from_method(method: &mut syn::ImplItemMethod) -> GeneratorResult<Self> {
-        Ok(Self(FromMethod::from_method(method)?))
+        let mut value = Self(FromMethod::from_method(method)?);
+        let ctx = value.make_context();
+        value.0.args.set_context(ctx);
+        Ok(value)
+    }
+}
+
+impl MakeContext<ResolvedObjectFieldsArgContext> for ResolvedObjectFieldsMethod {
+    fn make_context(&self) -> ResolvedObjectFieldsArgContext {
+        ResolvedObjectFieldsArgContext {
+            rename_args: self.attrs.rename_args.or(self.ctx.rename_args),
+        }
+    }
+}
+
+impl SetContext for ResolvedObjectFieldsMethod {
+    type Context = <<Self as Deref>::Target as SetContext>::Context;
+
+    fn set_context(&mut self, context: Self::Context) {
+        self.0.set_context(context);
+        let ctx = MakeContext::make_context(self);
+        self.0.args.set_context(ctx);
     }
 }
 
@@ -133,7 +182,18 @@ impl Deref for ResolvedObjectFields {
 
 impl FromItemImpl for ResolvedObjectFields {
     fn from_item_impl(item_impl: &mut syn::ItemImpl) -> GeneratorResult<Self> {
-        Ok(Self(FromItemImpl::from_item_impl(item_impl)?))
+        let mut value = Self(FromItemImpl::from_item_impl(item_impl)?);
+        let ctx = value.make_context();
+        value.0.methods.set_context(ctx);
+        Ok(value)
+    }
+}
+
+impl MakeContext<ResolvedObjectFieldsMethodContext> for ResolvedObjectFields {
+    fn make_context(&self) -> ResolvedObjectFieldsMethodContext {
+        ResolvedObjectFieldsMethodContext {
+            rename_args: self.attrs.rename_args,
+        }
     }
 }
 
@@ -178,10 +238,14 @@ impl CommonArg for ResolvedObjectFieldsArg {
     fn get_arg(&self) -> &BaseFnArg {
         self
     }
+
+    fn get_arg_rename_rule(&self) -> Option<&RenameRule> {
+        self.ctx.rename_args.as_ref()
+    }
 }
 
-fn get_arg_ident(index: usize, arg: &ResolvedObjectFieldsArg) -> syn::Ident {
-    syn::Ident::new(&format!("arg{}", index), arg.span())
+fn get_arg_ident(arg: &impl CommonArg) -> syn::Ident {
+    syn::Ident::new(&format!("arg{}", arg.get_index()), arg.get_arg().span())
 }
 
 fn is_arg_ctx(arg: &ResolvedObjectFieldsArg) -> bool {
@@ -189,13 +253,9 @@ fn is_arg_ctx(arg: &ResolvedObjectFieldsArg) -> bool {
         || matches!(arg.get_arg(), BaseFnArg::Typed(TypedArg{ref ident, ..}) if ident == "ctx" || ident == "_ctx")
 }
 
-fn get_arg_definition(
-    index: usize,
-    arg: &ResolvedObjectFieldsArg,
-    rename_rule: Option<&RenameRule>,
-) -> GeneratorResult<TokenStream> {
+fn get_arg_definition(arg: &ResolvedObjectFieldsArg) -> GeneratorResult<TokenStream> {
     let create_name = get_create_name();
-    let arg_ident = get_arg_ident(index, arg);
+    let arg_ident = get_arg_ident(arg);
 
     match &arg.get_arg() {
         BaseFnArg::Receiver(_) => Ok(quote! {
@@ -211,7 +271,7 @@ fn get_arg_definition(
                 let arg_name = calc_arg_name(
                     arg.attrs.name.as_deref(),
                     &typed.ident.to_string(),
-                    rename_rule,
+                    arg.get_arg_rename_rule(),
                 );
                 let value_type = get_value_type(&typed.ty);
                 match value_type {
@@ -227,18 +287,14 @@ fn get_arg_definition(
     }
 }
 
-fn get_args_definition(
-    args: &[ResolvedObjectFieldsArg],
-    rename_rule: Option<&RenameRule>,
-) -> GeneratorResult<TokenStream> {
+fn get_args_definition(args: &[ResolvedObjectFieldsArg]) -> TokenStream {
     args.iter()
-        .enumerate()
-        .map(|(index, arg)| get_arg_definition(index, arg, rename_rule))
+        .map(|arg| get_arg_definition(arg).into_token_stream())
         .collect()
 }
 
-fn get_arg_usage(index: usize, arg: &ResolvedObjectFieldsArg) -> TokenStream {
-    let arg_ident = get_arg_ident(index, arg);
+fn get_arg_usage(arg: &ResolvedObjectFieldsArg) -> TokenStream {
+    let arg_ident = get_arg_ident(arg);
     match arg.get_arg() {
         BaseFnArg::Receiver(_) => {
             quote!(#arg_ident,)
@@ -256,16 +312,10 @@ fn get_arg_usage(index: usize, arg: &ResolvedObjectFieldsArg) -> TokenStream {
 }
 
 fn get_args_usage(args: &[ResolvedObjectFieldsArg]) -> TokenStream {
-    args.iter()
-        .enumerate()
-        .map(|(index, arg)| get_arg_usage(index, arg))
-        .collect()
+    args.iter().map(get_arg_usage).collect()
 }
 
-fn get_argument_definition(
-    arg: &ResolvedObjectFieldsArg,
-    rename_rule: Option<&RenameRule>,
-) -> TokenStream {
+fn get_argument_definition(arg: &ResolvedObjectFieldsArg) -> TokenStream {
     if is_arg_ctx(arg) {
         return quote!();
     }
@@ -276,7 +326,7 @@ fn get_argument_definition(
     let arg_name = calc_arg_name(
         arg.attrs.name.as_deref(),
         &typed.ident.to_string(),
-        rename_rule,
+        arg.get_arg_rename_rule(),
     );
     let arg_type = get_owned_type(&typed.ty);
 
@@ -286,13 +336,8 @@ fn get_argument_definition(
     }
 }
 
-fn get_argument_definitions(
-    args: &[ResolvedObjectFieldsArg],
-    rename_rule: Option<&RenameRule>,
-) -> TokenStream {
-    args.iter()
-        .map(|arg| get_argument_definition(arg, rename_rule))
-        .collect()
+fn get_argument_definitions(args: &[ResolvedObjectFieldsArg]) -> TokenStream {
+    args.iter().map(get_argument_definition).collect()
 }
 
 fn define_fields(
@@ -327,12 +372,7 @@ fn define_fields(
     } else {
         resolve_ref
     };
-    let rename_rule = method
-        .attrs
-        .rename_args
-        .as_ref()
-        .or(object.attrs.rename_args.as_ref());
-    let args_definition = get_args_definition(&method.args, rename_rule)?;
+    let args_definition = get_args_definition(&method.args);
     let args = get_args_usage(&method.args);
 
     let execute = if method.asyncness {
@@ -344,7 +384,7 @@ fn define_fields(
             let value = Self::#field_ident(#args);
         }
     };
-    let argument_definitions = get_argument_definitions(&method.args, rename_rule);
+    let argument_definitions = get_argument_definitions(&method.args);
 
     let description = common::field_description(method)?;
     let deprecation = common::field_deprecation_code(method)?;
