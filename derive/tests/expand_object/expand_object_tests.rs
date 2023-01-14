@@ -14,11 +14,14 @@ fn test_impl_expand_object() {
         <<ExpandExample as ExpandObject>::Target as Object>::NAME,
         "Example"
     );
+    assert_eq!(<ExpandExample as ExpandObject>::NAME, "ExpandExample");
 
     let example = Example {
         field: "field".to_string(),
     };
     let expand_example = ExpandExample(&example);
+    assert_eq!(expand_example.parent().field, "field");
+    let expand_example: ExpandExample = (&example).into();
     assert_eq!(expand_example.parent().field, "field");
 }
 
@@ -45,12 +48,18 @@ fn test_impl_expand_object_with_generic() {
         <<ExpandExample<Example> as ExpandObject>::Target as Object>::NAME,
         "Example"
     );
+    assert_eq!(
+        <ExpandExample<Example> as ExpandObject>::NAME,
+        "ExpandExample"
+    );
     let example = Example {
         field: "field".to_string(),
     };
     let expand_example = ExpandExample(&example);
     assert_eq!(expand_example.parent().field, "field");
     assert_eq!(expand_example.parent().get_name(), "foo");
+    let expand_example: ExpandExample<Example> = (&example).into();
+    assert_eq!(expand_example.parent().field, "field");
 }
 
 #[test]
@@ -78,10 +87,16 @@ fn test_impl_expand_object_with_where() {
         <<ExpandExample<Example> as ExpandObject>::Target as Object>::NAME,
         "Example"
     );
+    assert_eq!(
+        <ExpandExample<Example> as ExpandObject>::NAME,
+        "ExpandExample"
+    );
     let example = Example {
         field: "field".to_string(),
     };
     let expand_example = ExpandExample(&example);
     assert_eq!(expand_example.parent().field, "field");
     assert_eq!(expand_example.parent().get_name(), "foo");
+    let expand_example: ExpandExample<Example> = (&example).into();
+    assert_eq!(expand_example.parent().field, "field");
 }
