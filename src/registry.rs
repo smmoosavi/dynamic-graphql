@@ -32,7 +32,6 @@ impl Registry {
 struct PendingExpandObject {
     target: String,
     expansion: String,
-    field: String,
     map_fn: Box<dyn FnOnce(dynamic::Object) -> dynamic::Object>,
 }
 
@@ -59,20 +58,13 @@ impl Registry {
         }
         self
     }
-    pub fn update_object<F>(
-        mut self,
-        target: &str,
-        expansion_name: &str,
-        field_name: &str,
-        f: F,
-    ) -> Self
+    pub fn update_object<F>(mut self, target: &str, expansion_name: &str, f: F) -> Self
     where
         F: FnOnce(dynamic::Object) -> dynamic::Object + 'static,
     {
         self.pending_expand_objects.push_back(PendingExpandObject {
             target: target.to_string(),
             expansion: expansion_name.to_string(),
-            field: field_name.to_string(),
             map_fn: Box::new(f),
         });
         self
@@ -109,7 +101,7 @@ impl Registry {
                 let keys = self
                     .pending_expand_objects
                     .iter()
-                    .map(|p| format!("{} when defining {} in {}", p.target, p.field, p.expansion))
+                    .map(|p| format!("{} when defining {}", p.target, p.expansion))
                     .collect::<Vec<_>>()
                     .join(", ");
                 panic!("Can't find object: {:?}", keys);
