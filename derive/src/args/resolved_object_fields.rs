@@ -1,6 +1,6 @@
 use crate::args::common;
 use crate::utils::attributes::Attributes;
-use crate::utils::common::{CommonArg, CommonField};
+use crate::utils::common::{CommonArg, CommonField, CommonMethod, GetArgs, GetFields};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
@@ -175,6 +175,24 @@ impl CommonArg for ResolvedObjectFieldsArg {
     }
 }
 
+impl CommonMethod for ResolvedObjectFieldsMethod {
+    fn is_async(&self) -> bool {
+        self.asyncness
+    }
+}
+
+impl GetArgs<ResolvedObjectFieldsArg> for ResolvedObjectFieldsMethod {
+    fn get_args(&self) -> darling::Result<&Vec<ResolvedObjectFieldsArg>> {
+        Ok(&self.args)
+    }
+}
+
+impl GetFields<ResolvedObjectFieldsMethod> for ResolvedObjectFields {
+    fn get_fields(&self) -> darling::Result<&Vec<ResolvedObjectFieldsMethod>> {
+        Ok(&self.methods)
+    }
+}
+
 fn get_arg_ident(arg: &impl CommonArg) -> syn::Ident {
     syn::Ident::new(&format!("arg{}", arg.get_index()), arg.get_arg().span())
 }
@@ -292,12 +310,16 @@ fn resolve_value_code(ty: &syn::Type) -> TokenStream {
     }
 }
 
-fn execute_code(method: &ResolvedObjectFieldsMethod) -> darling::Result<TokenStream> {
+fn execute_code<F, A>(method: &F) -> darling::Result<TokenStream>
+where
+    F: CommonMethod + GetArgs<A>,
+    A: CommonArg,
+{
     let field_ident = method.get_ident()?;
 
-    let args = get_args_usage(&method.args);
+    let args = get_args_usage(method.get_args()?);
 
-    if method.asyncness {
+    if method.is_async() {
         Ok(quote! {
             let value = Self::#field_ident(#args).await;
         })
@@ -308,7 +330,11 @@ fn execute_code(method: &ResolvedObjectFieldsMethod) -> darling::Result<TokenStr
     }
 }
 
-fn define_fields(method: &ResolvedObjectFieldsMethod) -> darling::Result<TokenStream> {
+fn define_fields<F, A>(method: &F) -> darling::Result<TokenStream>
+where
+    F: CommonMethod + GetArgs<A>,
+    A: CommonArg,
+{
     let field_ident = method.get_ident()?;
     let field_name = calc_field_name(
         method.get_name(),
@@ -321,10 +347,10 @@ fn define_fields(method: &ResolvedObjectFieldsMethod) -> darling::Result<TokenSt
     let owned_type = get_owned_type(ty);
     let resolve = resolve_value_code(ty);
 
-    let args_definition = get_args_definition(&method.args);
+    let args_definition = get_args_definition(method.get_args()?);
 
     let execute = execute_code(method)?;
-    let argument_definitions = get_argument_definitions(&method.args);
+    let argument_definitions = get_argument_definitions(method.get_args()?);
 
     let description = common::field_description(method)?;
     let deprecation = common::field_deprecation_code(method)?;
@@ -354,13 +380,18 @@ fn impl_object_description() -> TokenStream {
     }
 }
 
-fn get_define_fields_code(object: &ResolvedObjectFields) -> TokenStream {
-    object
-        .methods
+fn get_define_fields_code<O, F, A>(object: &O) -> darling::Result<TokenStream>
+where
+    O: GetFields<F>,
+    F: CommonMethod + GetArgs<A>,
+    A: CommonArg,
+{
+    Ok(object
+        .get_fields()?
         .iter()
         .filter(|method| !method.get_skip())
         .map(|method| define_fields(method).into_token_stream())
-        .collect()
+        .collect())
 }
 
 fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> {
@@ -368,7 +399,7 @@ fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> 
     let ty = &object.ty;
     let define_object = common::impl_define_object();
     let description = impl_object_description();
-    let define_fields = get_define_fields_code(object);
+    let define_fields = get_define_fields_code(object)?;
     let register_object_code = common::register_object_code();
 
     Ok(quote! {

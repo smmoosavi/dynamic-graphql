@@ -1,9 +1,9 @@
 use crate::args::common;
-use crate::utils::common::{CommonField, CommonObject};
+use crate::utils::common::{CommonField, CommonObject, GetFields};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseStruct, NamedField};
-use crate::utils::error::{IntoTokenStream, WithSpan};
+use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
@@ -108,6 +108,12 @@ impl CommonField for SimpleObjectField {
     }
 }
 
+impl GetFields<SimpleObjectField> for SimpleObject {
+    fn get_fields(&self) -> darling::Result<&Vec<SimpleObjectField>> {
+        Ok(&self.data.fields)
+    }
+}
+
 fn get_resolver_ident(field: &impl CommonField) -> darling::Result<Ident> {
     let field_ident = field.get_ident()?;
     let resolver_name = format!("__resolve_{}", field_ident);
@@ -127,15 +133,18 @@ fn impl_resolver(field: &impl CommonField) -> darling::Result<TokenStream> {
     })
 }
 
-fn impl_resolvers(object: &SimpleObject) -> darling::Result<TokenStream> {
-    let ident = &object.ident;
+fn impl_resolvers<O, F>(object: &O) -> darling::Result<TokenStream>
+where
+    O: CommonObject + GetFields<F>,
+    F: CommonField,
+{
+    let ident = object.get_ident();
     let fields = object
-        .data
-        .fields
+        .get_fields()?
         .iter()
         .filter(|field| !field.get_skip())
         .map(impl_resolver)
-        .map(|r| r.with_span(&object.ident).into_token_stream())
+        .map(|r| r.into_token_stream())
         .collect::<Vec<TokenStream>>();
     Ok(quote! {
         impl #ident {
@@ -144,7 +153,10 @@ fn impl_resolvers(object: &SimpleObject) -> darling::Result<TokenStream> {
     })
 }
 
-fn impl_define_field(field: &SimpleObjectField) -> darling::Result<TokenStream> {
+fn impl_define_field<F>(field: &F) -> darling::Result<TokenStream>
+where
+    F: CommonField,
+{
     let field_name = common::get_field_name(field)?;
     let ty = field.get_type()?;
     let resolver_ident = get_resolver_ident(field)?;
@@ -165,10 +177,13 @@ fn impl_define_field(field: &SimpleObjectField) -> darling::Result<TokenStream> 
     })
 }
 
-fn get_define_fields(object: &SimpleObject) -> darling::Result<TokenStream> {
+fn get_define_fields<O, F>(object: &O) -> darling::Result<TokenStream>
+where
+    O: CommonObject + GetFields<F>,
+    F: CommonField,
+{
     Ok(object
-        .data
-        .fields
+        .get_fields()?
         .iter()
         .filter(|field| !field.get_skip())
         .map(|field| impl_define_field(field).into_token_stream())

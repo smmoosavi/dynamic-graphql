@@ -1,6 +1,6 @@
 use crate::args::common;
 use crate::args::common::{field_deprecation_code, get_enum_item_name, get_type_name};
-use crate::utils::common::{CommonField, CommonObject};
+use crate::utils::common::{CommonField, CommonObject, GetFields};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseEnum, UnitVariant};
@@ -110,7 +110,13 @@ impl CommonField for EnumVariant {
     }
 }
 
-fn impl_enum(enm: &Enum) -> darling::Result<TokenStream> {
+impl GetFields<EnumVariant> for Enum {
+    fn get_fields(&self) -> darling::Result<&Vec<EnumVariant>> {
+        Ok(&self.data)
+    }
+}
+
+fn impl_enum(enm: &impl CommonObject) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let enum_ident = enm.get_ident();
     let name = get_type_name(enm)?;
@@ -125,7 +131,10 @@ fn impl_enum(enm: &Enum) -> darling::Result<TokenStream> {
     })
 }
 
-fn impl_into_value_match_item(enm: &Enum, variant: &EnumVariant) -> darling::Result<TokenStream> {
+fn impl_into_value_match_item(
+    enm: &impl CommonObject,
+    variant: &impl CommonField,
+) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let ty = enm.get_ident();
     let variant_ident = variant.get_ident()?;
@@ -140,17 +149,26 @@ fn impl_into_value_match_item(enm: &Enum, variant: &EnumVariant) -> darling::Res
     })
 }
 
-fn impl_into_value_match_items(enm: &Enum) -> TokenStream {
-    enm.data
+fn impl_into_value_match_items<T, F>(enm: &T) -> darling::Result<TokenStream>
+where
+    T: GetFields<F> + CommonObject,
+    F: CommonField,
+{
+    Ok(enm
+        .get_fields()?
         .iter()
         .map(|variant| impl_into_value_match_item(enm, variant).into_token_stream())
-        .collect()
+        .collect())
 }
 
-fn impl_into_value(enm: &Enum) -> darling::Result<TokenStream> {
+fn impl_into_value<T, F>(enm: &T) -> darling::Result<TokenStream>
+where
+    T: GetFields<F> + CommonObject,
+    F: CommonField,
+{
     let create_name = get_create_name();
     let enum_ident = enm.get_ident();
-    let match_items = impl_into_value_match_items(enm);
+    let match_items = impl_into_value_match_items(enm)?;
 
     Ok(quote! {
         impl From<&#enum_ident> for #create_name::Value {
@@ -163,7 +181,10 @@ fn impl_into_value(enm: &Enum) -> darling::Result<TokenStream> {
     })
 }
 
-fn get_from_value_match_item(enm: &Enum, variant: &EnumVariant) -> darling::Result<TokenStream> {
+fn get_from_value_match_item(
+    enm: &impl CommonObject,
+    variant: &impl CommonField,
+) -> darling::Result<TokenStream> {
     let ty = enm.get_ident();
     let variant_ident = variant.get_ident()?;
     let variant_name = get_enum_item_name(variant)?;
@@ -175,17 +196,22 @@ fn get_from_value_match_item(enm: &Enum, variant: &EnumVariant) -> darling::Resu
     })
 }
 
-fn get_from_value_match_items(enm: &Enum) -> TokenStream {
-    enm.data
+fn get_from_value_match_items<T, F>(enm: &T) -> darling::Result<TokenStream>
+where
+    T: GetFields<F> + CommonObject,
+    F: CommonField,
+{
+    Ok(enm
+        .get_fields()?
         .iter()
         .map(|variant| get_from_value_match_item(enm, variant).into_token_stream())
-        .collect()
+        .collect())
 }
 
 fn impl_from_value(enm: &Enum) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let enum_ident = enm.get_ident();
-    let match_items = get_from_value_match_items(enm);
+    let match_items = get_from_value_match_items(enm)?;
 
     Ok(quote! {
         impl #create_name::FromValue for #enum_ident {
@@ -275,7 +301,7 @@ fn impl_remote(enm: &Enum) -> darling::Result<TokenStream> {
     })
 }
 
-fn register_item(variant: &EnumVariant) -> darling::Result<TokenStream> {
+fn register_item(variant: &impl CommonField) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let name = get_enum_item_name(variant)?;
     let description = common::field_description(variant)?;
@@ -289,17 +315,22 @@ fn register_item(variant: &EnumVariant) -> darling::Result<TokenStream> {
     })
 }
 
-fn register_items(enm: &Enum) -> TokenStream {
-    enm.data
+fn register_items<T, F>(enm: &T) -> darling::Result<TokenStream>
+where
+    T: GetFields<F>,
+    F: CommonField,
+{
+    Ok(enm
+        .get_fields()?
         .iter()
         .map(|variant| register_item(variant).into_token_stream())
-        .collect()
+        .collect())
 }
 
 fn impl_register(enm: &Enum) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let enum_ident = enm.get_ident();
-    let items = register_items(enm);
+    let items = register_items(enm)?;
     let description = common::object_description(enm.get_doc()?.as_deref())?;
     // todo rename object to enm
     Ok(quote! {

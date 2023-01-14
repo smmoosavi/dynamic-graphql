@@ -1,8 +1,8 @@
 use crate::args::common;
-use crate::utils::common::{CommonField, CommonObject};
+use crate::utils::common::{CommonField, CommonObject, GetFields};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::derive_types::{BaseStruct, NamedField};
-use crate::utils::error::{IntoTokenStream, WithSpan};
+use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
@@ -102,7 +102,13 @@ impl CommonField for InputObjectField {
     }
 }
 
-fn get_define_field(field: &InputObjectField) -> darling::Result<TokenStream> {
+impl GetFields<InputObjectField> for InputObject {
+    fn get_fields(&self) -> darling::Result<&Vec<InputObjectField>> {
+        Ok(&self.data.fields)
+    }
+}
+
+fn get_define_field(field: &impl CommonField) -> darling::Result<TokenStream> {
     let description = common::field_description(field)?;
     let get_new_input_value_code = common::get_new_input_value_code(field)?;
     Ok(quote! {
@@ -112,21 +118,24 @@ fn get_define_field(field: &InputObjectField) -> darling::Result<TokenStream> {
     })
 }
 
-fn get_define_fields(object: &InputObject) -> TokenStream {
-    object
-        .data
-        .fields
+fn get_define_fields<O, F>(object: &O) -> darling::Result<TokenStream>
+where
+    O: GetFields<F>,
+    F: CommonField,
+{
+    Ok(object
+        .get_fields()?
         .iter()
         .filter(|field| !field.get_skip())
         .map(|field| get_define_field(field).into_token_stream())
-        .collect()
+        .collect())
 }
 
 fn impl_register(object: &InputObject) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let ident = &object.ident;
     let define_object = common::impl_define_input_object();
-    let define_fields = get_define_fields(object);
+    let define_fields = get_define_fields(object)?;
     let description = common::object_description(object.get_doc()?.as_deref())?;
     let register_object_code = common::register_object_code();
     Ok(quote! {
@@ -148,13 +157,9 @@ fn get_item_ident(index: usize, ident: &syn::Ident) -> syn::Ident {
     syn::Ident::new(&format!("field{}", index), ident.span())
 }
 
-fn get_field_value(
-    index: usize,
-    object: &InputObject,
-    field: &InputObjectField,
-) -> darling::Result<TokenStream> {
+fn get_field_value(index: usize, field: &InputObjectField) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
-    let field_ident = field.get_ident().with_span(&object.ident)?;
+    let field_ident = field.get_ident()?;
     let item = get_item_ident(index, field_ident);
     let field_name = common::get_input_field_name(field)?;
     if field.get_skip() {
@@ -173,11 +178,11 @@ fn get_fields_value(object: &InputObject) -> TokenStream {
         .fields
         .iter()
         .enumerate()
-        .map(|(index, field)| get_field_value(index, object, field).into_token_stream())
+        .map(|(index, field)| get_field_value(index, field).into_token_stream())
         .collect()
 }
 
-fn get_field_usage(index: usize, field: &InputObjectField) -> darling::Result<TokenStream> {
+fn get_field_usage(index: usize, field: &impl CommonField) -> darling::Result<TokenStream> {
     let field_ident = field.get_ident()?;
     let item = get_item_ident(index, field_ident);
     Ok(quote! {
@@ -185,28 +190,31 @@ fn get_field_usage(index: usize, field: &InputObjectField) -> darling::Result<To
     })
 }
 
-fn get_fields_usage(object: &InputObject) -> TokenStream {
+fn get_fields_usage<O, F>(object: &O) -> darling::Result<TokenStream>
+where
+    O: GetFields<F>,
+    F: CommonField,
+{
     let items: Vec<_> = object
-        .data
-        .fields
+        .get_fields()?
         .iter()
         .enumerate()
         .map(|(index, field)| get_field_usage(index, field).into_token_stream())
         .collect();
 
-    quote! {
+    Ok(quote! {
         Ok(Self {
             #(#items)*
         })
-    }
+    })
 }
 
-fn impl_from_value(object: &InputObject) -> TokenStream {
+fn impl_from_value(object: &InputObject) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
-    let ident = &object.ident;
+    let ident = object.get_ident();
     let fields_value = get_fields_value(object);
-    let fields_usage = get_fields_usage(object);
-    quote!(
+    let fields_usage = get_fields_usage(object)?;
+    Ok(quote!(
         impl #create_name::FromValue for #ident {
             fn from_value(__value: #create_name::dynamic::ValueAccessor) -> #create_name::Result<Self> {
                 let __object = __value.object()?;
@@ -214,14 +222,14 @@ fn impl_from_value(object: &InputObject) -> TokenStream {
                 #fields_usage
             }
         }
-    )
+    ))
 }
 
 impl ToTokens for InputObject {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let impl_object = common::impl_input_object(self).into_token_stream();
         let impl_register = impl_register(self).into_token_stream();
-        let impl_from_value = impl_from_value(self);
+        let impl_from_value = impl_from_value(self).into_token_stream();
         tokens.extend(quote! {
             #impl_object
             #impl_register

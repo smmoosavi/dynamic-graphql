@@ -33,6 +33,10 @@ pub trait CommonField {
     }
 }
 
+pub trait CommonMethod: CommonField {
+    fn is_async(&self) -> bool;
+}
+
 pub trait CommonArg {
     /// user defined name
     fn get_name(&self) -> Option<&str>;
@@ -42,4 +46,12 @@ pub trait CommonArg {
         None
     }
     fn is_marked_as_ctx(&self) -> bool;
+}
+
+pub trait GetFields<F> {
+    fn get_fields(&self) -> darling::Result<&Vec<F>>;
+}
+
+pub trait GetArgs<A> {
+    fn get_args(&self) -> darling::Result<&Vec<A>>;
 }
