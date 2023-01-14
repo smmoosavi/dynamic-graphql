@@ -1,27 +1,18 @@
+use crate::utils::common::GetGenerics;
 use crate::utils::crate_name::get_create_name;
 use crate::utils::derive_types::{NewtypeStruct, TupleField};
+use crate::utils::macros::*;
 use crate::utils::type_utils::get_owned_type;
-use crate::utils::with_context::{MakeContext, SetContext};
-use darling::{FromDeriveInput, ToTokens};
+use darling::ToTokens;
 use proc_macro2::TokenStream;
 use quote::quote;
-use std::ops::Deref;
 use syn::Generics;
 
-pub struct ExpandObject(NewtypeStruct<TupleField, Generics>);
+from_derive_input!(ExpandObject, NewtypeStruct<TupleField, Generics>);
 
-impl Deref for ExpandObject {
-    type Target = NewtypeStruct<TupleField, Generics>;
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl FromDeriveInput for ExpandObject {
-    fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
-        let mut object = Self(FromDeriveInput::from_derive_input(input)?);
-        object.0.set_context(object.make_context());
-        Ok(object)
+impl GetGenerics for ExpandObject {
+    fn get_generics(&self) -> &Generics {
+        &self.generics
     }
 }
 
@@ -29,8 +20,12 @@ fn impl_expand_object(object: &ExpandObject) -> TokenStream {
     let create_name = get_create_name();
     let object_ident = &object.ident;
     let target = get_owned_type(&object.data.ty);
+
+    // parse generic
+    let (impl_generics, ty_generics, where_clause) = object.get_generics().split_for_impl();
+
     quote! {
-        impl #create_name::ExpandObject for #object_ident<'_> {
+        impl #impl_generics #create_name::ExpandObject for #object_ident #ty_generics #where_clause {
             type Target = #target;
         }
     }
@@ -39,8 +34,10 @@ fn impl_expand_object(object: &ExpandObject) -> TokenStream {
 fn impl_parent(object: &ExpandObject) -> TokenStream {
     let create_name = get_create_name();
     let object_ident = &object.ident;
+    let (impl_generics, ty_generics, where_clause) = object.get_generics().split_for_impl();
+
     quote! {
-        impl <'a> #object_ident<'a> {
+        impl #impl_generics #object_ident #ty_generics #where_clause {
                 fn parent(&self) -> &'a <Self as #create_name::ExpandObject>::Target {
                     self.0
                 }
