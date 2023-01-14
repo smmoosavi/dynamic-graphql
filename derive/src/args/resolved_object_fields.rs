@@ -68,6 +68,7 @@ impl Attributes for ResolvedObjectFieldsMethodAttrs {
 #[derive(Default, Debug, Clone)]
 pub struct ResolvedObjectFieldsMethodContext {
     pub rename_args: Option<RenameRule>,
+    pub rename_fields: Option<RenameRule>,
 }
 
 from_method!(
@@ -111,6 +112,7 @@ impl MakeContext<ResolvedObjectFieldsMethodContext> for ResolvedObjectFields {
     fn make_context(&self) -> ResolvedObjectFieldsMethodContext {
         ResolvedObjectFieldsMethodContext {
             rename_args: self.attrs.rename_args,
+            rename_fields: self.attrs.rename_fields,
         }
     }
 }
@@ -140,6 +142,15 @@ impl CommonField for ResolvedObjectFieldsMethod {
     fn get_deprecation(&self) -> darling::Result<Deprecation> {
         Ok(self.attrs.deprecation.clone())
     }
+    fn get_field_rename_rule(&self) -> Option<&RenameRule> {
+        self.ctx.rename_fields.as_ref()
+    }
+    fn get_args_rename_rule(&self) -> Option<&RenameRule> {
+        self.attrs
+            .rename_args
+            .as_ref()
+            .or(self.ctx.rename_args.as_ref())
+    }
 }
 
 impl CommonArg for ResolvedObjectFieldsArg {
@@ -158,18 +169,22 @@ impl CommonArg for ResolvedObjectFieldsArg {
     fn get_arg_rename_rule(&self) -> Option<&RenameRule> {
         self.ctx.rename_args.as_ref()
     }
+
+    fn is_marked_as_ctx(&self) -> bool {
+        self.attrs.ctx
+    }
 }
 
 fn get_arg_ident(arg: &impl CommonArg) -> syn::Ident {
     syn::Ident::new(&format!("arg{}", arg.get_index()), arg.get_arg().span())
 }
 
-fn is_arg_ctx(arg: &ResolvedObjectFieldsArg) -> bool {
-    arg.attrs.ctx
+fn is_arg_ctx(arg: &impl CommonArg) -> bool {
+    arg.is_marked_as_ctx()
         || matches!(arg.get_arg(), BaseFnArg::Typed(TypedArg{ref ident, ..}) if ident == "ctx" || ident == "_ctx")
 }
 
-fn get_arg_definition(arg: &ResolvedObjectFieldsArg) -> darling::Result<TokenStream> {
+fn get_arg_definition(arg: &impl CommonArg) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let arg_ident = get_arg_ident(arg);
 
@@ -185,7 +200,7 @@ fn get_arg_definition(arg: &ResolvedObjectFieldsArg) -> darling::Result<TokenStr
                 })
             } else {
                 let arg_name = calc_arg_name(
-                    arg.attrs.name.as_deref(),
+                    arg.get_name(),
                     &typed.ident.to_string(),
                     arg.get_arg_rename_rule(),
                 );
@@ -203,13 +218,13 @@ fn get_arg_definition(arg: &ResolvedObjectFieldsArg) -> darling::Result<TokenStr
     }
 }
 
-fn get_args_definition(args: &[ResolvedObjectFieldsArg]) -> TokenStream {
+fn get_args_definition(args: &[impl CommonArg]) -> TokenStream {
     args.iter()
         .map(|arg| get_arg_definition(arg).into_token_stream())
         .collect()
 }
 
-fn get_arg_usage(arg: &ResolvedObjectFieldsArg) -> TokenStream {
+fn get_arg_usage(arg: &impl CommonArg) -> TokenStream {
     let arg_ident = get_arg_ident(arg);
     match arg.get_arg() {
         BaseFnArg::Receiver(_) => {
@@ -227,11 +242,11 @@ fn get_arg_usage(arg: &ResolvedObjectFieldsArg) -> TokenStream {
     }
 }
 
-fn get_args_usage(args: &[ResolvedObjectFieldsArg]) -> TokenStream {
+fn get_args_usage(args: &[impl CommonArg]) -> TokenStream {
     args.iter().map(get_arg_usage).collect()
 }
 
-fn get_argument_definition(arg: &ResolvedObjectFieldsArg) -> TokenStream {
+fn get_argument_definition(arg: &impl CommonArg) -> TokenStream {
     if is_arg_ctx(arg) {
         return quote!();
     }
@@ -240,7 +255,7 @@ fn get_argument_definition(arg: &ResolvedObjectFieldsArg) -> TokenStream {
     };
     let create_name = get_create_name();
     let arg_name = calc_arg_name(
-        arg.attrs.name.as_deref(),
+        arg.get_name(),
         &typed.ident.to_string(),
         arg.get_arg_rename_rule(),
     );
@@ -252,30 +267,17 @@ fn get_argument_definition(arg: &ResolvedObjectFieldsArg) -> TokenStream {
     }
 }
 
-fn get_argument_definitions(args: &[ResolvedObjectFieldsArg]) -> TokenStream {
+fn get_argument_definitions(args: &[impl CommonArg]) -> TokenStream {
     args.iter().map(get_argument_definition).collect()
 }
 
-fn define_fields(
-    object: &ResolvedObjectFields,
-    method: &ResolvedObjectFieldsMethod,
-) -> darling::Result<TokenStream> {
-    let field_ident = &method.ident;
-    let field_name = calc_field_name(
-        method.attrs.name.as_deref(),
-        &field_ident.to_string(),
-        object.attrs.rename_fields.as_ref(),
-    );
-    let ty = method.output_type.as_ref().ok_or_else(|| {
-        darling::Error::custom("Field must have return type").with_span(&method.ident)
-    })?;
+fn resolve_value_code(ty: &syn::Type) -> TokenStream {
     let create_name = get_create_name();
 
     let is_str = is_type_str(ty);
     let is_slice = is_type_slice(ty);
     let is_ref = is_type_ref(ty);
     let is_owned = !is_ref;
-    let owned_type = get_owned_type(ty);
 
     let resolve_ref = quote! {
         #create_name::ResolveRef::resolve_ref(value, &ctx)
@@ -283,23 +285,45 @@ fn define_fields(
     let resolve_owned = quote! {
         #create_name::ResolveOwned::resolve_owned(value, &ctx)
     };
-    let resolve = if is_owned || is_str || is_slice {
+    if is_owned || is_str || is_slice {
         resolve_owned
     } else {
         resolve_ref
-    };
-    let args_definition = get_args_definition(&method.args);
+    }
+}
+
+fn execute_code(method: &ResolvedObjectFieldsMethod) -> darling::Result<TokenStream> {
+    let field_ident = method.get_ident()?;
+
     let args = get_args_usage(&method.args);
 
-    let execute = if method.asyncness {
-        quote! {
+    if method.asyncness {
+        Ok(quote! {
             let value = Self::#field_ident(#args).await;
-        }
+        })
     } else {
-        quote! {
+        Ok(quote! {
             let value = Self::#field_ident(#args);
-        }
-    };
+        })
+    }
+}
+
+fn define_fields(method: &ResolvedObjectFieldsMethod) -> darling::Result<TokenStream> {
+    let field_ident = method.get_ident()?;
+    let field_name = calc_field_name(
+        method.get_name(),
+        &field_ident.to_string(),
+        method.get_field_rename_rule(),
+    );
+    let ty = method.get_type()?;
+    let create_name = get_create_name();
+
+    let owned_type = get_owned_type(ty);
+    let resolve = resolve_value_code(ty);
+
+    let args_definition = get_args_definition(&method.args);
+
+    let execute = execute_code(method)?;
     let argument_definitions = get_argument_definitions(&method.args);
 
     let description = common::field_description(method)?;
@@ -335,7 +359,7 @@ fn get_define_fields_code(object: &ResolvedObjectFields) -> TokenStream {
         .methods
         .iter()
         .filter(|method| !method.get_skip())
-        .map(|method| define_fields(object, method).into_token_stream())
+        .map(|method| define_fields(method).into_token_stream())
         .collect()
 }
 

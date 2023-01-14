@@ -41,4 +41,5 @@ pub trait CommonArg {
     fn get_arg_rename_rule(&self) -> Option<&RenameRule> {
         None
     }
+    fn is_marked_as_ctx(&self) -> bool;
 }
