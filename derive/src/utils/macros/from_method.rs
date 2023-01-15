@@ -6,6 +6,7 @@ macro_rules! from_method {
         crate::utils::macros::define!($name, $ty);
         crate::utils::macros::deref!($name, $ty);
         crate::utils::macros::set_context!($name, $ty);
+        crate::utils::macros::set_index!($name);
 
         crate::utils::macros::impl_from_mut!(
             crate::utils::impl_block::FromMethod,
@@ -22,6 +23,7 @@ macro_rules! from_method {
         crate::utils::macros::define!($name, $ty);
         crate::utils::macros::deref!($name, $ty);
         crate::utils::macros::set_context!($name, $ty);
+        crate::utils::macros::set_index!($name);
 
 
         crate::utils::macros::impl_from_mut!(
@@ -40,6 +42,8 @@ macro_rules! from_method {
         crate::utils::macros::define!($name, $ty);
         crate::utils::macros::deref!($name, $ty);
         crate::utils::macros::set_context!($name, $ty, inner=$( $field_path ).+);
+        crate::utils::macros::set_index!($name);
+
 
         crate::utils::macros::impl_from_mut!(
             crate::utils::impl_block::FromMethod,

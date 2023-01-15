@@ -6,6 +6,7 @@ macro_rules! from_fn_arg {
         crate::utils::macros::define!($name, $ty);
         crate::utils::macros::deref!($name, $ty);
         crate::utils::macros::set_context!($name, $ty);
+        crate::utils::macros::set_index!($name);
 
         impl_from_mut!(
             crate::utils::impl_block::FromFnArg,
@@ -13,14 +14,6 @@ macro_rules! from_fn_arg {
             syn::FnArg,
             $name,
         );
-
-        impl crate::utils::with_index::SetIndex for $name {
-            fn with_index(self, index: usize) -> Self {
-                Self(crate::utils::with_index::SetIndex::with_index(
-                    self.0, index,
-                ))
-            }
-        }
     };
 }
 

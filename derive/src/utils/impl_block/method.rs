@@ -69,3 +69,9 @@ impl FromMethod for Ignored {
         Ok(Ignored)
     }
 }
+
+impl<A> SetIndex for BaseMethod<A> {
+    fn with_index(self, _index: usize) -> Self {
+        self
+    }
+}

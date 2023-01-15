@@ -1,6 +1,7 @@
 use crate::utils::impl_block::method::BaseMethod;
 use crate::utils::impl_block::method::FromMethod;
 use crate::utils::with_context::SetContext;
+use crate::utils::with_index::SetIndex;
 use darling::util::Ignored;
 use darling::FromGenerics;
 use std::ops::Deref;
@@ -41,7 +42,7 @@ impl<Method: SetContext> SetContext for Methods<Method> {
 
 impl<Method, Generics> FromItemImpl for BaseItemImpl<Method, Generics>
 where
-    Method: FromMethod,
+    Method: FromMethod + SetIndex,
     Generics: FromGenerics,
 {
     fn from_item_impl(item_impl: &mut syn::ItemImpl) -> darling::Result<Self> {
@@ -53,8 +54,11 @@ where
                 methods: item_impl
                     .items
                     .iter_mut()
-                    .filter_map(|item| match item {
-                        syn::ImplItem::Method(method) => Some(Method::from_method(method)),
+                    .enumerate()
+                    .filter_map(|(index, item)| match item {
+                        syn::ImplItem::Method(method) => {
+                            Some(Method::from_method(method).with_index(index))
+                        }
                         _ => None,
                     })
                     .collect::<darling::Result<Vec<_>>>()?,

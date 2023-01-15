@@ -1,7 +1,7 @@
-use crate::utils::impl_block::FromFnArg;
+use crate::utils::impl_block::{FromFnArg, FromMethod};
 use crate::utils::with_context::SetContext;
 use std::ops::{Deref, DerefMut};
-use syn::FnArg;
+use syn::{FnArg, ImplItemMethod};
 
 pub trait SetIndex: Sized {
     fn with_index(self, index: usize) -> Self;
@@ -51,6 +51,16 @@ impl<A> SetIndex for WithIndex<A> {
 impl<A: FromFnArg> FromFnArg for WithIndex<A> {
     fn from_fn_arg(arg: &mut FnArg) -> darling::Result<Self> {
         let inner = A::from_fn_arg(arg)?;
+        Ok(WithIndex {
+            index: usize::MAX,
+            inner,
+        })
+    }
+}
+
+impl<A: FromMethod> FromMethod for WithIndex<A> {
+    fn from_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
+        let inner = A::from_method(method)?;
         Ok(WithIndex {
             index: usize::MAX,
             inner,

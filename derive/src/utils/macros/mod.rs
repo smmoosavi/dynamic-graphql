@@ -6,7 +6,7 @@ mod from_item_impl;
 mod from_method;
 mod from_variant;
 
-pub(crate) use base::{define, deref, impl_from, impl_from_mut, set_context};
+pub(crate) use base::{define, deref, impl_from, impl_from_mut, set_context, set_index};
 pub(crate) use from_derive_input::from_derive_input;
 pub(crate) use from_field::from_field;
 pub(crate) use from_fn_arg::from_fn_arg;

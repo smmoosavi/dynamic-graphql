@@ -1,4 +1,5 @@
 use crate::utils::impl_block::{FromFnArg, FromMethod};
+use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
 use darling::ast::Data;
 use darling::util::Ignored;
@@ -115,6 +116,18 @@ impl<C: Clone, T> SetContext for WithContext<C, T> {
 
     fn set_context(&mut self, context: Self::Context) {
         self.ctx = context;
+    }
+}
+
+impl<C, T> SetIndex for WithContext<C, T>
+where
+    T: SetIndex,
+{
+    fn with_index(self, index: usize) -> Self {
+        Self {
+            ctx: self.ctx,
+            inner: T::with_index(self.inner, index),
+        }
     }
 }
 

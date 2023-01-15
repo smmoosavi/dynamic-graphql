@@ -17,6 +17,18 @@ macro_rules! deref {
     };
 }
 
+macro_rules! set_index {
+    ($name:ident) => {
+        impl crate::utils::with_index::SetIndex for $name {
+            fn with_index(self, index: usize) -> Self {
+                Self(crate::utils::with_index::SetIndex::with_index(
+                    self.0, index,
+                ))
+            }
+        }
+    };
+}
+
 macro_rules! set_context {
     ($name:ident, $ty:ty) => {
         impl crate::utils::with_context::SetContext for $name {
@@ -105,3 +117,4 @@ pub(crate) use deref;
 pub(crate) use impl_from;
 pub(crate) use impl_from_mut;
 pub(crate) use set_context;
+pub(crate) use set_index;
