@@ -23,19 +23,7 @@ where
             trait_: item_impl.trait_.as_ref().map(|t| t.1.clone()),
             ty: item_impl.self_ty.as_ref().clone(),
             generics: FromGenerics::from_generics(&item_impl.generics)?,
-            methods: Methods {
-                methods: item_impl
-                    .items
-                    .iter_mut()
-                    .enumerate()
-                    .filter_map(|(index, item)| match item {
-                        syn::ImplItem::Method(method) => {
-                            Some(Method::from_impl_item_method(method).with_index(index))
-                        }
-                        _ => None,
-                    })
-                    .collect::<darling::Result<Vec<_>>>()?,
-            },
+            methods: Methods::from_impl_item_methods(&mut item_impl.items.iter_mut())?,
         })
     }
 }

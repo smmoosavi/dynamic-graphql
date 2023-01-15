@@ -18,15 +18,7 @@ impl<MethodArg: FromFnArg + SetIndex> FromImplItemMethod for BaseMethod<MethodAr
             constness: method.sig.constness.is_some(),
             asyncness: method.sig.asyncness.is_some(),
             ident: method.sig.ident.clone(),
-            args: Args {
-                args: method
-                    .sig
-                    .inputs
-                    .iter_mut()
-                    .enumerate()
-                    .map(|(index, arg)| MethodArg::from_fn_arg(arg).with_index(index))
-                    .collect::<darling::Result<Vec<_>>>()?,
-            },
+            args: Args::from_fn_args(&mut method.sig.inputs.iter_mut())?,
             output_type: match &method.sig.output {
                 syn::ReturnType::Default => None,
                 syn::ReturnType::Type(_, ty) => Some(ty.as_ref().clone()),
