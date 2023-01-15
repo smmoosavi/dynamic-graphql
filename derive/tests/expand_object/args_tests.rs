@@ -1,53 +1,33 @@
 use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, ExpandObject, ExpandObjectFields, FieldValue, Object, SimpleObject};
-
-#[test]
-fn test_impl_expand_object() {
-    #[derive(SimpleObject)]
-    struct Example {
-        field: String,
-    }
-
-    #[derive(ExpandObject)]
-    struct ExpandExample<'a>(&'a Example);
-
-    assert_eq!(
-        <<ExpandExample as ExpandObject>::Target as Object>::NAME,
-        "Example"
-    );
-    assert_eq!(<ExpandExample as ExpandObject>::NAME, "ExpandExample");
-
-    let example = Example {
-        field: "field".to_string(),
-    };
-    let expand_example = ExpandExample(&example);
-    assert_eq!(expand_example.parent().field, "field");
-    let expand_example: ExpandExample = (&example).into();
-    assert_eq!(expand_example.parent().field, "field");
-}
+use dynamic_graphql::{App, Context, ExpandObject, ExpandObjectFields, FieldValue, SimpleObject};
 
 #[test]
 fn test_schema() {
-    #[derive(SimpleObject)]
-    struct Example {
-        field: String,
-    }
-
     #[derive(ExpandObject)]
     struct ExampleQuery<'a>(&'a Query);
 
     #[ExpandObjectFields]
     impl ExampleQuery<'_> {
-        fn the_example(&self) -> Example {
-            Example {
-                field: "field".to_string(),
-            }
+        fn without_self() -> String {
+            "Hello".to_string()
+        }
+        fn with_self(&self) -> String {
+            "Hello".to_string()
+        }
+        fn with_arg(&self, name: String) -> String {
+            format!("Hello {}", name)
+        }
+        fn without_self_with_args(name: String) -> String {
+            format!("Hello {}", name)
+        }
+        fn unused_arg(&self, _name: String) -> String {
+            "Hello".to_string()
         }
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
     struct Query {
@@ -65,52 +45,54 @@ fn test_schema() {
         normalize_schema(&sdl),
         normalize_schema(
             r#"
-
-            type Example {
-              field: String!
-            }
-
             type Query {
               foo: String!
-              theExample: Example!
+              withoutSelf: String!
+              withSelf: String!
+              withArg(name: String!): String!
+              withoutSelfWithArgs(name: String!): String!
+              unusedArg(name: String!): String!
             }
 
             schema {
               query: Query
             }
+
             "#
         ),
     );
 }
 
 #[test]
-fn test_schema_with_rename() {
-    #[derive(SimpleObject)]
-    struct Example {
-        field: String,
-    }
-
+fn test_schema_with_ctx() {
     #[derive(ExpandObject)]
     struct ExampleQuery<'a>(&'a Query);
 
     #[ExpandObjectFields]
-    #[graphql(rename_fields = "snake_case")]
     impl ExampleQuery<'_> {
-        fn the_example(&self) -> Example {
-            Example {
-                field: "field".to_string(),
-            }
+        #[allow(unused_variables)]
+        fn without_underline(ctx: &Context) -> String {
+            "Hello".to_string()
         }
-        #[graphql(name = "other")]
-        fn example(&self) -> Example {
-            Example {
-                field: "field".to_string(),
-            }
+        fn without_self(_ctx: &Context) -> String {
+            "Hello".to_string()
+        }
+        fn with_self(&self, _ctx: &Context) -> String {
+            "Hello".to_string()
+        }
+        fn renamed(&self, #[graphql(ctx)] _context: &Context) -> String {
+            "Hello".to_string()
+        }
+        fn with_arg(name: String, _ctx: &Context) -> String {
+            format!("Hello {}", name)
+        }
+        fn with_ctx_arg(#[graphql(name = "ctx")] my_ctx: String) -> String {
+            format!("Hello {}", my_ctx)
         }
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
     struct Query {
@@ -128,53 +110,44 @@ fn test_schema_with_rename() {
         normalize_schema(&sdl),
         normalize_schema(
             r#"
-
-            type Example {
-              field: String!
-            }
-
             type Query {
               foo: String!
-              the_example: Example!
-              other: Example!
+              withoutUnderline: String!
+              withoutSelf: String!
+              withSelf: String!
+              renamed: String!
+              withArg(name: String!): String!
+              withCtxArg(ctx: String!): String!
             }
 
             schema {
               query: Query
             }
+
             "#
         ),
     );
 }
 
 #[test]
-fn test_schema_with_skip() {
-    #[derive(SimpleObject)]
-    struct Example {
-        field: String,
-    }
-
+fn test_schema_rename_args() {
     #[derive(ExpandObject)]
     struct ExampleQuery<'a>(&'a Query);
 
     #[ExpandObjectFields]
+    #[graphql(rename_args = "UPPERCASE")]
     impl ExampleQuery<'_> {
-        fn the_example(&self) -> Example {
-            Example {
-                field: "field".to_string(),
-            }
+        fn with_arg(the_name: String, #[graphql(name = "foo")] _other: String) -> String {
+            format!("Hello {}", the_name)
         }
-        #[graphql(skip)]
-        #[allow(dead_code)]
-        fn other(&self) -> Example {
-            Example {
-                field: "field".to_string(),
-            }
+        #[graphql(rename_args = "snake_case")]
+        fn with_field_rename(the_name: String, #[graphql(name = "foo")] _other: String) -> String {
+            format!("Hello {}", the_name)
         }
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
     struct Query {
@@ -192,52 +165,38 @@ fn test_schema_with_skip() {
         normalize_schema(&sdl),
         normalize_schema(
             r#"
-
-            type Example {
-              field: String!
-            }
-
             type Query {
               foo: String!
-              theExample: Example!
+              withArg(THE_NAME: String!, foo: String!): String!
+              withFieldRename(the_name: String!, foo: String!): String!
             }
 
             schema {
               query: Query
             }
+
             "#
         ),
     );
 }
 
 #[test]
-fn test_schema_with_deprecation() {
-    #[derive(SimpleObject)]
-    struct Example {
-        field: String,
-    }
-
+fn test_schema_with_arg_ref() {
     #[derive(ExpandObject)]
     struct ExampleQuery<'a>(&'a Query);
 
     #[ExpandObjectFields]
     impl ExampleQuery<'_> {
-        #[graphql(deprecation)]
-        fn example(&self) -> Example {
-            Example {
-                field: "field".to_string(),
-            }
+        fn without_string_ref(name: &String) -> String {
+            format!("Hello {}", name)
         }
-        #[graphql(deprecation = "this is the old one")]
-        fn old(&self) -> Example {
-            Example {
-                field: "field".to_string(),
-            }
+        fn with_str(name: &str) -> String {
+            format!("Hello {}", name)
         }
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
     struct Query {
@@ -255,47 +214,41 @@ fn test_schema_with_deprecation() {
         normalize_schema(&sdl),
         normalize_schema(
             r#"
-
-            type Example {
-              field: String!
-            }
-
             type Query {
               foo: String!
-              example: Example! @deprecated
-              old: Example! @deprecated(reason: "this is the old one")
+              withoutStringRef(name: String!): String!
+              withStr(name: String!): String!
             }
 
             schema {
               query: Query
             }
+
             "#
         ),
     );
 }
 
 #[test]
-fn test_schema_with_description() {
-    #[derive(SimpleObject)]
-    struct Example {
-        field: String,
-    }
-
+fn test_schema_with_arg_option() {
     #[derive(ExpandObject)]
     struct ExampleQuery<'a>(&'a Query);
 
     #[ExpandObjectFields]
     impl ExampleQuery<'_> {
-        /// this is the example
-        fn the_example(&self) -> Example {
-            Example {
-                field: "field".to_string(),
-            }
+        fn without_option(name: String) -> String {
+            format!("Hello {}", name)
+        }
+        fn with_option(name: Option<String>) -> String {
+            format!("Hello {}", name.unwrap_or_default())
+        }
+        fn with_option_ref(name: &Option<String>) -> String {
+            format!("Hello {}", name.as_ref().unwrap_or(&"".to_string()))
         }
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
     struct Query {
@@ -313,22 +266,17 @@ fn test_schema_with_description() {
         normalize_schema(&sdl),
         normalize_schema(
             r#"
-
-            type Example {
-              field: String!
-            }
-
             type Query {
               foo: String!
-              """
-                this is the example
-              """
-              theExample: Example!
+                withoutOption(name: String!): String!
+                withOption(name: String): String!
+                withOptionRef(name: String): String!
             }
 
             schema {
               query: Query
             }
+
             "#
         ),
     );
@@ -336,29 +284,29 @@ fn test_schema_with_description() {
 
 #[tokio::test]
 async fn test_query() {
-    #[derive(SimpleObject)]
-    struct Example {
-        field: String,
-    }
-
     #[derive(ExpandObject)]
     struct ExampleQuery<'a>(&'a Query);
 
     #[ExpandObjectFields]
     impl ExampleQuery<'_> {
-        fn example(&self) -> Example {
-            Example {
-                field: "field".to_string(),
-            }
+        fn hello(name: String) -> String {
+            format!("Hello {}", name)
+        }
+        fn self_hello(&self, name: String) -> String {
+            format!("{} {}", self.parent().greeting, name)
+        }
+        fn with_ctx(ctx: &Context, name: String) -> String {
+            let greeter = ctx.data::<String>().unwrap();
+            format!("{} {}", greeter, name)
         }
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
     struct Query {
-        foo: String,
+        greeting: String,
     }
 
     #[derive(App)]
@@ -368,30 +316,29 @@ async fn test_query() {
     let registry = registry.register::<App>().set_root("Query");
     let schema = registry.create_schema().finish().unwrap();
 
-    let query = r#"
-        query {
-            example {
-                field
-            }
-        }
-    "#;
-
+    let query = r#"{
+        greeting
+        hello(name: "world")
+        selfHello(name: "world")
+        withCtx(name: "world")
+     }"#;
     let root = Query {
-        foo: "foo".to_string(),
+        greeting: "Hello".to_string(),
     };
-    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let req = dynamic_graphql::Request::new(query)
+        .data("Hello".to_string())
+        .root_value(FieldValue::owned_any(root));
 
     let res = schema.execute(req).await;
     let data = res.data.into_json().unwrap();
 
     assert_eq!(
         data,
-        serde_json::json!(
-            {
-                "example": {
-                    "field": "field"
-                }
-            }
-        )
+        serde_json::json!({
+            "greeting": "Hello",
+            "hello": "Hello world",
+            "selfHello": "Hello world",
+            "withCtx": "Hello world"
+        }),
     );
 }

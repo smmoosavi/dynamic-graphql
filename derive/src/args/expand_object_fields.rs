@@ -376,7 +376,7 @@ fn define_field_code(
     let deprecation = common::field_deprecation_code(method)?;
 
     Ok(quote! {
-        let #field_var_ident = #create_name::dynamic::Field::new(#field_name, <#owned_type as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
+        let field = #create_name::dynamic::Field::new(#field_name, <#owned_type as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
             #create_name::dynamic::FieldFuture::new(async move {
                 #args_definition
                 #execute
@@ -386,6 +386,7 @@ fn define_field_code(
         #argument_definitions
         #description
         #deprecation
+        let #field_var_ident = field;
     })
 }
 
@@ -393,6 +394,7 @@ fn define_fields_code(expand: &ExpandObjectFields) -> darling::Result<TokenStrea
     Ok(expand
         .get_fields()?
         .iter()
+        .filter(|method| !method.get_skip())
         .enumerate()
         .map(|(index, method)| define_field_code(expand, index, method).into_token_stream())
         .collect())
@@ -410,6 +412,7 @@ fn use_fields_code(expand: &ExpandObjectFields) -> darling::Result<TokenStream> 
     Ok(expand
         .get_fields()?
         .iter()
+        .filter(|method| !method.get_skip())
         .enumerate()
         .map(|(index, method)| use_field_code(index, method).into_token_stream())
         .collect())

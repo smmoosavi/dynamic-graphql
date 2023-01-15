@@ -302,3 +302,83 @@ async fn test_query_with_generic() {
         )
     );
 }
+
+#[tokio::test]
+async fn test_query_with_generic_and_args() {
+    #[derive(SimpleObject)]
+    struct Foo {
+        field: String,
+        #[graphql(skip)]
+        greeting: String,
+    }
+
+    impl GetGreeting for Foo {
+        fn get_greeting(&self) -> String {
+            self.greeting.clone()
+        }
+    }
+
+    trait GetGreeting {
+        fn get_greeting(&self) -> String;
+    }
+
+    #[derive(ExpandObject)]
+    struct WithGreeting<'a, T>(&'a T)
+    where
+        T: GetGreeting + Object;
+
+    #[ExpandObjectFields]
+    impl<'a, T> WithGreeting<'a, T>
+    where
+        T: GetGreeting + Object + 'static,
+    {
+        fn hello(&self, name: String) -> String {
+            let greeting = self.parent().get_greeting();
+            format!("{} {}", greeting, name)
+        }
+    }
+
+    #[derive(App)]
+    struct App<'a>(Query, Foo, WithGreeting<'a, Foo>);
+
+    #[derive(SimpleObject)]
+    struct Query {
+        foo: Foo,
+    }
+
+    let registry = dynamic_graphql::Registry::new();
+    let registry = registry.register::<App<'_>>().set_root("Query");
+    let schema = registry.create_schema().finish().unwrap();
+
+    let query = r#"
+        query {
+            foo {
+                field
+                hello(name: "world")
+            }
+        }
+    "#;
+
+    let root = Query {
+        foo: Foo {
+            field: "foo".to_string(),
+            greeting: "Hi".to_string(),
+        },
+    };
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!(
+            {
+                "foo": {
+                    "field": "foo",
+                    "hello": "Hi world",
+                }
+            }
+        )
+    );
+}
