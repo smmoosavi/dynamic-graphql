@@ -1,24 +1,8 @@
+use crate::utils::impl_block::{FromFnArg, SelfArg, TypedArg};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use darling::util::Ignored;
 use syn::spanned::Spanned;
-
-pub trait FromFnArg: Sized {
-    fn from_fn_arg(arg: &mut syn::FnArg) -> darling::Result<Self>;
-}
-
-#[derive(Debug, Clone)]
-pub struct SelfArg {
-    pub is_mut: bool,
-    pub is_ref: bool,
-    pub span: proc_macro2::Span,
-}
-
-#[derive(Debug, Clone)]
-pub struct TypedArg {
-    pub ident: syn::Ident,
-    pub ty: syn::Type,
-}
 
 #[derive(Debug, Clone)]
 pub enum BaseFnArg {
@@ -85,11 +69,5 @@ impl FromFnArg for BaseFnArg {
                 })
             }),
         }
-    }
-}
-
-impl FromFnArg for Ignored {
-    fn from_fn_arg(_arg: &mut syn::FnArg) -> darling::Result<Self> {
-        Ok(Ignored)
     }
 }

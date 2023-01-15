@@ -1,5 +1,4 @@
-use crate::utils::impl_block::fn_arg::BaseFnArg;
-use crate::utils::impl_block::fn_arg::FromFnArg;
+use crate::utils::impl_block::{BaseFnArg, FromFnArg};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use darling::util::Ignored;
