@@ -1,12 +1,5 @@
-use crate::utils::impl_block::{BaseFnArg, FromFnArg};
-use crate::utils::with_context::SetContext;
+use crate::utils::impl_block::{Args, BaseFnArg, FromFnArg, FromImplItemMethod};
 use crate::utils::with_index::SetIndex;
-use darling::util::Ignored;
-use std::ops::Deref;
-
-pub trait FromImplItemMethod: Sized {
-    fn from_impl_item_method(impl_item_method: &mut syn::ImplItemMethod) -> darling::Result<Self>;
-}
 
 #[derive(Debug, Clone)]
 pub struct BaseMethod<MethodArg = BaseFnArg> {
@@ -16,27 +9,6 @@ pub struct BaseMethod<MethodArg = BaseFnArg> {
     pub ident: syn::Ident,
     pub args: Args<MethodArg>,
     pub output_type: Option<syn::Type>,
-}
-
-#[derive(Debug, Clone)]
-pub struct Args<MethodArg> {
-    pub args: Vec<MethodArg>,
-}
-
-impl<MethodArg> Deref for Args<MethodArg> {
-    type Target = Vec<MethodArg>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.args
-    }
-}
-
-impl<MethodArg: SetContext> SetContext for Args<MethodArg> {
-    type Context = MethodArg::Context;
-
-    fn set_context(&mut self, context: Self::Context) {
-        self.args.set_context(context);
-    }
 }
 
 impl<MethodArg: FromFnArg + SetIndex> FromImplItemMethod for BaseMethod<MethodArg> {
@@ -60,12 +32,6 @@ impl<MethodArg: FromFnArg + SetIndex> FromImplItemMethod for BaseMethod<MethodAr
                 syn::ReturnType::Type(_, ty) => Some(ty.as_ref().clone()),
             },
         })
-    }
-}
-
-impl FromImplItemMethod for Ignored {
-    fn from_impl_item_method(_method: &mut syn::ImplItemMethod) -> darling::Result<Self> {
-        Ok(Ignored)
     }
 }
 
