@@ -1,4 +1,6 @@
-use crate::utils::impl_block::{Args, BaseFnArg, FromFnArg, FromImplItemMethod, FromSignature};
+use crate::utils::impl_block::{
+    Args, BaseFnArg, FromFnArg, FromImplItemMethod, FromSignature, FromTraitItemMethod,
+};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 
@@ -27,6 +29,14 @@ impl<MethodArg: FromFnArg + SetIndex> FromSignature for BaseMethod<MethodArg> {
 impl<MethodArg: FromFnArg + SetIndex> FromImplItemMethod for BaseMethod<MethodArg> {
     fn from_impl_item_method(impl_item_method: &mut syn::ImplItemMethod) -> darling::Result<Self> {
         Self::from_signature(&mut impl_item_method.sig)
+    }
+}
+
+impl<MethodArg: FromFnArg + SetIndex> FromTraitItemMethod for BaseMethod<MethodArg> {
+    fn from_trait_item_method(
+        trait_item_method: &mut syn::TraitItemMethod,
+    ) -> darling::Result<Self> {
+        Self::from_signature(&mut trait_item_method.sig)
     }
 }
 

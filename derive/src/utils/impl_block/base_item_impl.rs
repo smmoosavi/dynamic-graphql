@@ -31,7 +31,6 @@ where
 impl<Method, Generics> SetContext for BaseItemImpl<Method, Generics>
 where
     Method: FromImplItemMethod + SetContext,
-    Generics: FromGenerics,
 {
     type Context = Method::Context;
 

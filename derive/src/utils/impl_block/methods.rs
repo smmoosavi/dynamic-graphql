@@ -1,4 +1,4 @@
-use crate::utils::impl_block::FromImplItemMethod;
+use crate::utils::impl_block::{FromImplItemMethod, FromTraitItemMethod};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use std::ops::Deref;
@@ -34,6 +34,24 @@ impl<Method: FromImplItemMethod + SetIndex> Methods<Method> {
                 .filter_map(|(index, item)| match item {
                     syn::ImplItem::Method(method) => {
                         Some(Method::from_impl_item_method(method).with_index(index))
+                    }
+                    _ => None,
+                })
+                .collect::<darling::Result<Vec<_>>>()?,
+        })
+    }
+}
+
+impl<Method: FromTraitItemMethod + SetIndex> Methods<Method> {
+    pub fn from_trait_item_methods<'a>(
+        items: &mut impl Iterator<Item = &'a mut syn::TraitItem>,
+    ) -> darling::Result<Self> {
+        Ok(Self {
+            methods: items
+                .enumerate()
+                .filter_map(|(index, item)| match item {
+                    syn::TraitItem::Method(method) => {
+                        Some(Method::from_trait_item_method(method).with_index(index))
                     }
                     _ => None,
                 })
