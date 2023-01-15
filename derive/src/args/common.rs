@@ -1,12 +1,43 @@
-use crate::utils::common::{CommonField, CommonObject};
+mod args;
+mod fields;
+
+use crate::utils::common::{CommonArg, CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
-use crate::utils::deprecation::Deprecation;
-use crate::utils::rename_rule::{
-    calc_enum_item_name, calc_field_name, calc_input_field_name, calc_type_name,
-};
+use crate::utils::impl_block::BaseFnArg;
+use crate::utils::rename_rule::{calc_enum_item_name, calc_input_field_name, calc_type_name};
 use crate::utils::type_utils::get_owned_type;
+pub use args::*;
+pub use fields::*;
 use proc_macro2::TokenStream;
 use quote::quote;
+
+pub trait ArgImplementor: CommonArg {
+    fn get_self_arg_definition(&self) -> darling::Result<TokenStream>;
+    fn get_typed_arg_definition(&self) -> darling::Result<TokenStream>;
+    fn get_arg_definition(&self) -> darling::Result<TokenStream> {
+        match &self.get_arg() {
+            BaseFnArg::Receiver(_) => self.get_self_arg_definition(),
+            BaseFnArg::Typed(_) => self.get_typed_arg_definition(),
+        }
+    }
+    fn get_self_arg_usage(&self) -> darling::Result<TokenStream>;
+    fn get_typed_arg_usage(&self) -> darling::Result<TokenStream>;
+    fn get_arg_usage(&self) -> darling::Result<TokenStream> {
+        match &self.get_arg() {
+            BaseFnArg::Receiver(_) => self.get_self_arg_usage(),
+            BaseFnArg::Typed(_) => self.get_typed_arg_usage(),
+        }
+    }
+}
+
+pub trait FieldImplementor: CommonField {
+    fn get_execute_code(&self) -> darling::Result<TokenStream>;
+    fn get_resolve_code(&self) -> darling::Result<TokenStream>;
+    fn get_field_argument_definition(&self) -> darling::Result<TokenStream>;
+    fn get_field_description_code(&self) -> darling::Result<TokenStream>;
+    fn get_field_deprecation_code(&self) -> darling::Result<TokenStream>;
+    fn get_field_usage_code(&self) -> darling::Result<TokenStream>;
+}
 
 pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let object_ident = obj.get_ident();
@@ -120,34 +151,6 @@ pub fn register_object_code() -> TokenStream {
     quote!(registry.register_type(object))
 }
 
-pub fn field_deprecation_code(deprecation: &impl CommonField) -> darling::Result<TokenStream> {
-    let deprecation = deprecation.get_deprecation()?;
-    // todo get "field" from input
-    match deprecation {
-        Deprecation::NoDeprecated => Ok(quote! {}),
-        Deprecation::Deprecated { reason: None } => Ok(quote! {
-            let field = field.deprecation(None);
-        }),
-        Deprecation::Deprecated {
-            reason: Some(ref reason),
-        } => Ok(quote! {
-            let field = field.deprecation(Some(#reason));
-        }),
-    }
-}
-
-pub fn field_description(field: &impl CommonField) -> darling::Result<TokenStream> {
-    let doc = field.get_doc()?;
-    // todo get "field" from input
-    if let Some(doc) = doc {
-        Ok(quote! {
-            let field = field.description(#doc);
-        })
-    } else {
-        Ok(quote! {})
-    }
-}
-
 pub fn object_description(doc: Option<&str>) -> darling::Result<TokenStream> {
     // todo get "object" from input
     if let Some(doc) = doc {
@@ -198,12 +201,4 @@ pub fn get_new_input_value_code(field: &impl CommonField) -> darling::Result<Tok
     Ok(quote! {
         let field = #create_name::dynamic::InputValue::new(#field_name, #get_input_type_ref_code);
     })
-}
-
-pub fn get_field_name(field: &impl CommonField) -> darling::Result<String> {
-    Ok(calc_field_name(
-        field.get_name(),
-        &field.get_ident()?.to_string(),
-        field.get_field_rename_rule(),
-    ))
 }

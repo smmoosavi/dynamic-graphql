@@ -1,16 +1,14 @@
 use crate::args::common;
+use crate::args::common::{ArgImplementor, FieldImplementor};
 use crate::utils::attributes::Attributes;
 use crate::utils::common::{CommonArg, CommonField, CommonMethod, GetArgs, GetFields, GetGenerics};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
-use crate::utils::impl_block::{BaseFnArg, BaseItemImpl, BaseMethod, TypedArg};
+use crate::utils::impl_block::{BaseFnArg, BaseItemImpl, BaseMethod};
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
-use crate::utils::rename_rule::{calc_arg_name, calc_field_name};
-use crate::utils::type_utils::{
-    get_owned_type, get_type_ident, get_value_type, is_type_ref, is_type_slice, is_type_str,
-};
+use crate::utils::type_utils::get_type_ident;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
@@ -18,7 +16,6 @@ use crate::utils::with_index::WithIndex;
 use darling::FromAttributes;
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use syn::spanned::Spanned;
 use syn::Generics;
 
 #[derive(FromAttributes, Debug, Clone)]
@@ -71,13 +68,14 @@ impl Attributes for ExpandObjectFieldsMethodAttrs {
 pub struct ExpandObjectFieldsMethodContext {
     pub rename_args: Option<RenameRule>,
     pub rename_fields: Option<RenameRule>,
+    pub expand_ty: Option<syn::Type>,
 }
 
 from_method!(
     ExpandObjectFieldsMethod,
     WithAttributes<
         WithDoc<ExpandObjectFieldsMethodAttrs>,
-        WithContext<ExpandObjectFieldsMethodContext, BaseMethod<ExpandObjectFieldsArg>>,
+        WithIndex<WithContext<ExpandObjectFieldsMethodContext, BaseMethod<ExpandObjectFieldsArg>>>,
     >,
     inner = args,
 );
@@ -118,6 +116,7 @@ impl MakeContext<ExpandObjectFieldsMethodContext> for ExpandObjectFields {
         ExpandObjectFieldsMethodContext {
             rename_args: self.attrs.rename_args,
             rename_fields: self.attrs.rename_fields,
+            expand_ty: Some(self.ty.clone()),
         }
     }
 }
@@ -204,89 +203,78 @@ impl GetGenerics for ExpandObjectFields {
     }
 }
 
-fn get_arg_ident(arg: &impl CommonArg) -> syn::Ident {
-    syn::Ident::new(&format!("arg{}", arg.get_index()), arg.get_arg().span())
+impl ArgImplementor for ExpandObjectFieldsArg {
+    fn get_self_arg_definition(&self) -> darling::Result<TokenStream> {
+        let create_name = get_create_name();
+        let arg_ident = common::get_arg_ident(self);
+        Ok(quote! {
+            let parent = ctx.parent_value.try_downcast_ref::<<Self as #create_name::ExpandObject>::Target>()?.into();
+            let #arg_ident = &parent;
+        })
+    }
+
+    fn get_typed_arg_definition(&self) -> darling::Result<TokenStream> {
+        common::get_typed_arg_definition(self)
+    }
+
+    fn get_self_arg_usage(&self) -> darling::Result<TokenStream> {
+        common::get_self_arg_usage(self)
+    }
+
+    fn get_typed_arg_usage(&self) -> darling::Result<TokenStream> {
+        common::get_typed_arg_usage(self)
+    }
+}
+
+impl FieldImplementor for ExpandObjectFieldsMethod {
+    fn get_execute_code(&self) -> darling::Result<TokenStream> {
+        let ty = self.ctx.expand_ty.as_ref().unwrap_or_else(|| {
+            unreachable!("ExpandObjectFieldsMethodContext::expand_ty must be set")
+        });
+        let type_ident = get_type_ident(ty).ok_or_else(|| {
+            darling::Error::custom("Only simple or reference type accepted").with_span(ty)
+        })?;
+        execute_code(type_ident, self)
+    }
+
+    fn get_resolve_code(&self) -> darling::Result<TokenStream> {
+        let ty = self.get_type()?;
+        common::resolve_value_code(ty)
+    }
+
+    fn get_field_argument_definition(&self) -> darling::Result<TokenStream> {
+        common::get_argument_definitions(self.get_args()?)
+    }
+
+    fn get_field_description_code(&self) -> darling::Result<TokenStream> {
+        common::field_description(self)
+    }
+
+    fn get_field_deprecation_code(&self) -> darling::Result<TokenStream> {
+        common::field_deprecation_code(self)
+    }
+
+    fn get_field_usage_code(&self) -> darling::Result<TokenStream> {
+        let field_var_ident = get_field_var_ident(self.index, &self.ident);
+
+        Ok(quote! {
+            let #field_var_ident = field;
+        })
+    }
 }
 
 fn get_field_var_ident(index: usize, ident: &syn::Ident) -> Ident {
     Ident::new(&format!("__field_{}", index), ident.span())
 }
 
-fn is_arg_ctx(arg: &impl CommonArg) -> bool {
-    arg.is_marked_as_ctx()
-        || matches!(arg.get_arg(), BaseFnArg::Typed(TypedArg{ref ident, ..}) if ident == "ctx" || ident == "_ctx")
-}
-
-fn get_arg_definition(arg: &impl CommonArg) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
-    let arg_ident = get_arg_ident(arg);
-
-    match &arg.get_arg() {
-        BaseFnArg::Receiver(_) => Ok(quote! {
-            let parent = ctx.parent_value.try_downcast_ref::<<Self as #create_name::ExpandObject>::Target>()?.into();
-            let #arg_ident = &parent;
-        }),
-        BaseFnArg::Typed(typed) => {
-            if is_arg_ctx(arg) {
-                Ok(quote! {
-                    let #arg_ident = &ctx;
-                })
-            } else {
-                let arg_name = calc_arg_name(
-                    arg.get_name(),
-                    &typed.ident.to_string(),
-                    arg.get_arg_rename_rule(),
-                );
-                let value_type = get_value_type(&typed.ty);
-                match value_type {
-                    None => Ok(quote! {
-                        let #arg_ident = #create_name::FromValue::from_value(ctx.args.try_get(#arg_name)?)?;
-                    }),
-                    Some(ty) => Ok(quote! {
-                        let #arg_ident: #ty = #create_name::FromValue::from_value(ctx.args.try_get(#arg_name)?)?;
-                    }),
-                }
-            }
-        }
-    }
-}
-
-fn get_args_definition(args: &[impl CommonArg]) -> TokenStream {
-    args.iter()
-        .map(|arg| get_arg_definition(arg).into_token_stream())
-        .collect()
-}
-
-fn get_arg_usage(arg: &impl CommonArg) -> TokenStream {
-    let arg_ident = get_arg_ident(arg);
-    match arg.get_arg() {
-        BaseFnArg::Receiver(_) => {
-            quote!(#arg_ident,)
-        }
-        BaseFnArg::Typed(ref typed) => {
-            let is_ctx = is_arg_ctx(arg);
-            let is_owned = !is_type_ref(&typed.ty);
-            if is_ctx || is_owned {
-                quote!(#arg_ident,)
-            } else {
-                quote!(&#arg_ident,)
-            }
-        }
-    }
-}
-
-fn get_args_usage(args: &[impl CommonArg]) -> TokenStream {
-    args.iter().map(get_arg_usage).collect()
-}
-
 fn execute_code<F, A>(type_ident: &syn::Ident, method: &F) -> darling::Result<TokenStream>
 where
     F: CommonMethod + GetArgs<A>,
-    A: CommonArg,
+    A: CommonArg + ArgImplementor,
 {
     let field_ident = method.get_ident()?;
 
-    let args = get_args_usage(method.get_args()?);
+    let args = common::get_args_usage(method)?;
 
     if method.is_async() {
         Ok(quote! {
@@ -299,104 +287,12 @@ where
     }
 }
 
-fn resolve_value_code(ty: &syn::Type) -> TokenStream {
-    let create_name = get_create_name();
-
-    let is_str = is_type_str(ty);
-    let is_slice = is_type_slice(ty);
-    let is_ref = is_type_ref(ty);
-    let is_owned = !is_ref;
-
-    let resolve_ref = quote! {
-        #create_name::ResolveRef::resolve_ref(value, &ctx)
-    };
-    let resolve_owned = quote! {
-        #create_name::ResolveOwned::resolve_owned(value, &ctx)
-    };
-    if is_owned || is_str || is_slice {
-        resolve_owned
-    } else {
-        resolve_ref
-    }
-}
-
-fn get_argument_definition(arg: &impl CommonArg) -> TokenStream {
-    if is_arg_ctx(arg) {
-        return quote!();
-    }
-    let BaseFnArg::Typed(typed) = arg.get_arg() else {
-        return quote!();
-    };
-    let create_name = get_create_name();
-    let arg_name = calc_arg_name(
-        arg.get_name(),
-        &typed.ident.to_string(),
-        arg.get_arg_rename_rule(),
-    );
-    let arg_type = get_owned_type(&typed.ty);
-
-    quote! {
-        let arg = #create_name::dynamic::InputValue::new(#arg_name, <#arg_type as #create_name::GetInputTypeRef>::get_input_type_ref());
-        let field = field.argument(arg);
-    }
-}
-
-fn get_argument_definitions(args: &[impl CommonArg]) -> TokenStream {
-    args.iter().map(get_argument_definition).collect()
-}
-
-fn define_field_code(
-    expand: &ExpandObjectFields,
-    index: usize,
-    method: &ExpandObjectFieldsMethod,
-) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
-    let field_ident = method.get_ident()?;
-    let field_var_ident = get_field_var_ident(index, &method.ident);
-    let field_name = calc_field_name(
-        method.get_name(),
-        &field_ident.to_string(),
-        method.get_field_rename_rule(),
-    );
-
-    let ty = method.get_type()?;
-    let owned_type = get_owned_type(ty);
-
-    let args_definition = get_args_definition(method.get_args()?);
-    let type_ident = get_type_ident(&expand.ty).unwrap();
-    let execute = execute_code(type_ident, method)?;
-    let resolve = resolve_value_code(ty);
-
-    let args = method.get_args()?;
-
-    let argument_definitions = get_argument_definitions(args);
-
-    let description = common::field_description(method)?;
-
-    let deprecation = common::field_deprecation_code(method)?;
-
-    Ok(quote! {
-        let field = #create_name::dynamic::Field::new(#field_name, <#owned_type as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
-            #create_name::dynamic::FieldFuture::new(async move {
-                #args_definition
-                #execute
-                #resolve
-            })
-        });
-        #argument_definitions
-        #description
-        #deprecation
-        let #field_var_ident = field;
-    })
-}
-
 fn define_fields_code(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
     Ok(expand
         .get_fields()?
         .iter()
         .filter(|method| !method.get_skip())
-        .enumerate()
-        .map(|(index, method)| define_field_code(expand, index, method).into_token_stream())
+        .map(|method| common::define_fields(method).into_token_stream())
         .collect())
 }
 
