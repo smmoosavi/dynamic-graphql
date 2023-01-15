@@ -5,8 +5,8 @@ use crate::utils::with_index::SetIndex;
 use darling::util::Ignored;
 use std::ops::Deref;
 
-pub trait FromMethod: Sized {
-    fn from_method(method: &mut syn::ImplItemMethod) -> darling::Result<Self>;
+pub trait FromImplItemMethod: Sized {
+    fn from_impl_item_method(impl_item_method: &mut syn::ImplItemMethod) -> darling::Result<Self>;
 }
 
 #[derive(Debug, Clone)]
@@ -40,8 +40,8 @@ impl<MethodArg: SetContext> SetContext for Args<MethodArg> {
     }
 }
 
-impl<MethodArg: FromFnArg + SetIndex> FromMethod for BaseMethod<MethodArg> {
-    fn from_method(method: &mut syn::ImplItemMethod) -> darling::Result<Self> {
+impl<MethodArg: FromFnArg + SetIndex> FromImplItemMethod for BaseMethod<MethodArg> {
+    fn from_impl_item_method(method: &mut syn::ImplItemMethod) -> darling::Result<Self> {
         Ok(BaseMethod {
             vis: method.vis.clone(),
             constness: method.sig.constness.is_some(),
@@ -64,8 +64,8 @@ impl<MethodArg: FromFnArg + SetIndex> FromMethod for BaseMethod<MethodArg> {
     }
 }
 
-impl FromMethod for Ignored {
-    fn from_method(_method: &mut syn::ImplItemMethod) -> darling::Result<Self> {
+impl FromImplItemMethod for Ignored {
+    fn from_impl_item_method(_method: &mut syn::ImplItemMethod) -> darling::Result<Self> {
         Ok(Ignored)
     }
 }

@@ -71,7 +71,7 @@ pub struct ExpandObjectFieldsMethodContext {
     pub expand_ty: Option<syn::Type>,
 }
 
-from_method!(
+from_impl_item_method!(
     ExpandObjectFieldsMethod,
     WithAttributes<
         WithDoc<ExpandObjectFieldsMethodAttrs>,

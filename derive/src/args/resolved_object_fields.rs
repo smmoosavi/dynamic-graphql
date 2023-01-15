@@ -68,7 +68,7 @@ pub struct ResolvedObjectFieldsMethodContext {
     pub rename_fields: Option<RenameRule>,
 }
 
-from_method!(
+from_impl_item_method!(
     ResolvedObjectFieldsMethod,
     WithAttributes<
         WithDoc<ResolvedObjectFieldsMethodAttrs>,

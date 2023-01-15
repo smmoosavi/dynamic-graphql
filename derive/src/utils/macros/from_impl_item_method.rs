@@ -1,6 +1,6 @@
-macro_rules! from_method {
+macro_rules! from_impl_item_method {
     ($name:ident, $ty:ty,) => {
-        from_method!($name, $ty);
+        from_impl_item_method!($name, $ty);
     };
     ($name:ident, $ty:ty) => {
         crate::utils::macros::define!($name, $ty);
@@ -9,15 +9,15 @@ macro_rules! from_method {
         crate::utils::macros::set_index!($name);
 
         crate::utils::macros::impl_from_mut!(
-            crate::utils::impl_block::FromMethod,
-            from_method,
+            crate::utils::impl_block::FromImplItemMethod,
+            from_impl_item_method,
             syn::ImplItemMethod,
             $name,
         );
 
     };
     ($name:ident, $ty:ty, ctx,) => {
-        from_method!($name, $ty, ctx);
+        from_impl_item_method!($name, $ty, ctx);
     };
     ($name:ident, $ty:ty, ctx) => {
         crate::utils::macros::define!($name, $ty);
@@ -27,8 +27,8 @@ macro_rules! from_method {
 
 
         crate::utils::macros::impl_from_mut!(
-            crate::utils::impl_block::FromMethod,
-            from_method,
+            crate::utils::impl_block::FromImplItemMethod,
+            from_impl_item_method,
             syn::ImplItemMethod,
             $name,
             ctx,
@@ -36,7 +36,7 @@ macro_rules! from_method {
     };
 
     ($name:ident, $ty:ty, inner=$( $field_path:ident ).+,) => {
-        from_method!($name, $ty, inner=$( $field_path ).+);
+        from_impl_item_method!($name, $ty, inner=$( $field_path ).+);
     };
     ($name:ident, $ty:ty, inner=$( $field_path:ident ).+) => {
         crate::utils::macros::define!($name, $ty);
@@ -46,8 +46,8 @@ macro_rules! from_method {
 
 
         crate::utils::macros::impl_from_mut!(
-            crate::utils::impl_block::FromMethod,
-            from_method,
+            crate::utils::impl_block::FromImplItemMethod,
+            from_impl_item_method,
             syn::ImplItemMethod,
             $name,
             inner=$( $field_path ).+,
@@ -57,4 +57,4 @@ macro_rules! from_method {
 
 }
 
-pub(crate) use from_method;
+pub(crate) use from_impl_item_method;

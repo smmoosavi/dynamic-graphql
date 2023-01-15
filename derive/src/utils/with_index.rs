@@ -1,4 +1,4 @@
-use crate::utils::impl_block::{FromFnArg, FromMethod};
+use crate::utils::impl_block::{FromFnArg, FromImplItemMethod};
 use crate::utils::with_context::SetContext;
 use std::ops::{Deref, DerefMut};
 use syn::{FnArg, ImplItemMethod};
@@ -58,9 +58,9 @@ impl<A: FromFnArg> FromFnArg for WithIndex<A> {
     }
 }
 
-impl<A: FromMethod> FromMethod for WithIndex<A> {
-    fn from_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
-        let inner = A::from_method(method)?;
+impl<A: FromImplItemMethod> FromImplItemMethod for WithIndex<A> {
+    fn from_impl_item_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
+        let inner = A::from_impl_item_method(method)?;
         Ok(WithIndex {
             index: usize::MAX,
             inner,

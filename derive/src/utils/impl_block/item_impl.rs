@@ -1,5 +1,5 @@
-use crate::utils::impl_block::method::BaseMethod;
-use crate::utils::impl_block::method::FromMethod;
+use crate::utils::impl_block::impl_item_method::BaseMethod;
+use crate::utils::impl_block::impl_item_method::FromImplItemMethod;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use darling::util::Ignored;
@@ -42,7 +42,7 @@ impl<Method: SetContext> SetContext for Methods<Method> {
 
 impl<Method, Generics> FromItemImpl for BaseItemImpl<Method, Generics>
 where
-    Method: FromMethod + SetIndex,
+    Method: FromImplItemMethod + SetIndex,
     Generics: FromGenerics,
 {
     fn from_item_impl(item_impl: &mut syn::ItemImpl) -> darling::Result<Self> {
@@ -57,7 +57,7 @@ where
                     .enumerate()
                     .filter_map(|(index, item)| match item {
                         syn::ImplItem::Method(method) => {
-                            Some(Method::from_method(method).with_index(index))
+                            Some(Method::from_impl_item_method(method).with_index(index))
                         }
                         _ => None,
                     })
@@ -75,7 +75,7 @@ impl FromItemImpl for Ignored {
 
 impl<Method, Generics> SetContext for BaseItemImpl<Method, Generics>
 where
-    Method: FromMethod + SetContext,
+    Method: FromImplItemMethod + SetContext,
     Generics: FromGenerics,
 {
     type Context = Method::Context;

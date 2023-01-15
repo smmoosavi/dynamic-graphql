@@ -1,4 +1,4 @@
-use crate::utils::impl_block::{FromFnArg, FromMethod};
+use crate::utils::impl_block::{FromFnArg, FromImplItemMethod};
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
 use darling::ast::Data;
@@ -141,9 +141,9 @@ impl<A: FromFnArg, C: Default> FromFnArg for WithContext<C, A> {
     }
 }
 
-impl<A: FromMethod, C: Default> FromMethod for WithContext<C, A> {
-    fn from_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
-        let inner = A::from_method(method)?;
+impl<A: FromImplItemMethod, C: Default> FromImplItemMethod for WithContext<C, A> {
+    fn from_impl_item_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
+        let inner = A::from_impl_item_method(method)?;
         Ok(WithContext {
             ctx: C::default(),
             inner,

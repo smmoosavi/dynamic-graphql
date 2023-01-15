@@ -1,5 +1,5 @@
 use crate::utils::attributes::{Attributes, CleanAttributes};
-use crate::utils::impl_block::{BaseFnArg, FromFnArg, FromMethod};
+use crate::utils::impl_block::{BaseFnArg, FromFnArg, FromImplItemMethod};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
@@ -61,9 +61,11 @@ impl<A: FromAttributes + Attributes, D: FromFnArg> FromFnArg for WithAttributes<
         Ok(WithAttributes { attrs, inner })
     }
 }
-impl<A: FromAttributes + Attributes, D: FromMethod> FromMethod for WithAttributes<A, D> {
-    fn from_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
-        let inner = D::from_method(method)?;
+impl<A: FromAttributes + Attributes, D: FromImplItemMethod> FromImplItemMethod
+    for WithAttributes<A, D>
+{
+    fn from_impl_item_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
+        let inner = D::from_impl_item_method(method)?;
         let attrs = A::from_attributes(&method.attrs)?;
         A::clean_attributes(&mut method.attrs);
         Ok(WithAttributes { attrs, inner })
