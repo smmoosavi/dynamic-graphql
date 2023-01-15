@@ -1,14 +1,8 @@
-use crate::utils::impl_block::impl_item_method::BaseMethod;
-use crate::utils::impl_block::impl_item_method::FromImplItemMethod;
+use crate::utils::impl_block::{BaseMethod, FromImplItemMethod, Methods};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
-use darling::util::Ignored;
+use crate::FromItemImpl;
 use darling::FromGenerics;
-use std::ops::Deref;
-
-pub trait FromItemImpl: Sized {
-    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> darling::Result<Self>;
-}
 
 #[derive(Debug, Clone)]
 pub struct BaseItemImpl<Method = BaseMethod, Generics = ()> {
@@ -17,27 +11,6 @@ pub struct BaseItemImpl<Method = BaseMethod, Generics = ()> {
     pub methods: Methods<Method>,
     pub generics: Generics,
     // todo generics, consts, types
-}
-
-#[derive(Debug, Clone)]
-pub struct Methods<Method> {
-    pub methods: Vec<Method>,
-}
-
-impl<Method> Deref for Methods<Method> {
-    type Target = Vec<Method>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.methods
-    }
-}
-
-impl<Method: SetContext> SetContext for Methods<Method> {
-    type Context = Method::Context;
-
-    fn set_context(&mut self, context: Self::Context) {
-        self.methods.set_context(context);
-    }
 }
 
 impl<Method, Generics> FromItemImpl for BaseItemImpl<Method, Generics>
@@ -64,12 +37,6 @@ where
                     .collect::<darling::Result<Vec<_>>>()?,
             },
         })
-    }
-}
-
-impl FromItemImpl for Ignored {
-    fn from_item_impl(_item_impl: &mut syn::ItemImpl) -> darling::Result<Self> {
-        Ok(Ignored)
     }
 }
 
