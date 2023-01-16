@@ -9,6 +9,7 @@ pub mod impl_block;
 pub mod macros;
 pub mod rename_rule;
 pub mod type_utils;
+pub mod with_arg;
 pub mod with_attributes;
 pub mod with_context;
 pub mod with_doc;
