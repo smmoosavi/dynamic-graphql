@@ -2,7 +2,7 @@ use crate::args::common;
 use crate::args::common::{ArgImplementor, FieldImplementor};
 use crate::utils::attributes::Attributes;
 use crate::utils::common::{
-    CommonArg, CommonField, CommonMethod, CommonObject, GetArgs, GetFields, GetGenerics,
+    CommonArg, CommonField, CommonMethod, CommonObject, GetArgs, GetFields,
 };
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
@@ -231,12 +231,6 @@ impl GetArgs<ExpandObjectFieldsArg> for ExpandObjectFieldsMethod {
 impl GetFields<ExpandObjectFieldsMethod> for ExpandObjectFields {
     fn get_fields(&self) -> darling::Result<&Vec<ExpandObjectFieldsMethod>> {
         Ok(&self.methods)
-    }
-}
-
-impl GetGenerics for ExpandObjectFields {
-    fn get_generics(&self) -> &syn::Generics {
-        &self.generics
     }
 }
 

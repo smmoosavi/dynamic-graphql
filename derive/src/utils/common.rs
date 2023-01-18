@@ -57,7 +57,3 @@ pub trait GetFields<F> {
 pub trait GetArgs<A> {
     fn get_args(&self) -> darling::Result<&Vec<A>>;
 }
-
-pub trait GetGenerics {
-    fn get_generics(&self) -> &syn::Generics;
-}
