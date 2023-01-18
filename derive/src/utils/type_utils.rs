@@ -59,6 +59,14 @@ pub fn get_type_ident(ty: &syn::Type) -> Option<&syn::Ident> {
     }
 }
 
+pub fn get_type_path(ty: &syn::Type) -> Option<&syn::Path> {
+    match ty {
+        syn::Type::Reference(ref r) => get_type_path(&r.elem),
+        syn::Type::Path(ref p) => Some(&p.path),
+        _ => None,
+    }
+}
+
 pub fn get_value_type(ty: &syn::Type) -> Option<TokenStream> {
     if is_type_slice(ty) {
         return Some(quote!(Vec<_>));

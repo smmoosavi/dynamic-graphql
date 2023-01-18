@@ -1,14 +1,16 @@
 use crate::args::common;
 use crate::args::common::{ArgImplementor, FieldImplementor};
 use crate::utils::attributes::Attributes;
-use crate::utils::common::{CommonArg, CommonField, CommonMethod, GetArgs, GetFields, GetGenerics};
+use crate::utils::common::{
+    CommonArg, CommonField, CommonMethod, CommonObject, GetArgs, GetFields, GetGenerics,
+};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::{BaseFnArg, BaseItemImpl, BaseMethod};
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
-use crate::utils::type_utils::get_type_ident;
+use crate::utils::type_utils::{get_type_ident, get_type_path};
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
@@ -16,7 +18,7 @@ use crate::utils::with_index::WithIndex;
 use darling::FromAttributes;
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use syn::Generics;
+use syn::{Generics, Path};
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -118,6 +120,41 @@ impl MakeContext<ExpandObjectFieldsMethodContext> for ExpandObjectFields {
             rename_fields: self.attrs.rename_fields,
             expand_ty: Some(self.ty.clone()),
         }
+    }
+}
+
+impl CommonObject for ExpandObjectFields {
+    fn get_name(&self) -> Option<&str> {
+        unreachable!("ResolvedObjectFields does not have a name");
+    }
+
+    fn get_ident(&self) -> &Ident {
+        unreachable!("ResolvedObjectFields does not have an ident");
+    }
+
+    fn get_type(&self) -> darling::Result<Path> {
+        get_type_path(&self.ty)
+            .ok_or_else(|| {
+                darling::Error::custom("ExpandObjectFields must be implemented for a struct")
+                    .with_span(&self.ty)
+            })
+            .cloned()
+    }
+
+    fn get_generics(&self) -> darling::Result<&Generics> {
+        Ok(&self.generics)
+    }
+
+    fn get_doc(&self) -> darling::Result<Option<String>> {
+        Ok(self.attrs.doc.clone())
+    }
+
+    fn get_fields_rename_rule(&self) -> Option<&RenameRule> {
+        self.attrs.rename_fields.as_ref()
+    }
+
+    fn get_args_rename_rule(&self) -> Option<&RenameRule> {
+        self.attrs.rename_args.as_ref()
     }
 }
 
