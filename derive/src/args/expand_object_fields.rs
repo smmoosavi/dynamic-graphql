@@ -264,6 +264,9 @@ impl ArgImplementor for ExpandObjectFieldsArg {
 }
 
 impl FieldImplementor for ExpandObjectFieldsMethod {
+    fn define_field(&self) -> darling::Result<TokenStream> {
+        common::define_field(self)
+    }
     fn get_execute_code(&self) -> darling::Result<TokenStream> {
         let ty = self.ctx.expand_ty.as_ref().unwrap_or_else(|| {
             unreachable!("ExpandObjectFieldsMethodContext::expand_ty must be set")
@@ -329,7 +332,7 @@ fn define_fields_code(expand: &ExpandObjectFields) -> darling::Result<TokenStrea
         .get_fields()?
         .iter()
         .filter(|method| !method.get_skip())
-        .map(|method| common::define_fields(method).into_token_stream())
+        .map(|method| common::build_field(method).into_token_stream())
         .collect())
 }
 

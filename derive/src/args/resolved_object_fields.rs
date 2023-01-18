@@ -256,6 +256,9 @@ impl ArgImplementor for ResolvedObjectFieldsArg {
 }
 
 impl FieldImplementor for ResolvedObjectFieldsMethod {
+    fn define_field(&self) -> darling::Result<TokenStream> {
+        common::define_field(self)
+    }
     fn get_execute_code(&self) -> darling::Result<TokenStream> {
         execute_code(self)
     }
@@ -324,7 +327,7 @@ where
         .get_fields()?
         .iter()
         .filter(|method| !method.get_skip())
-        .map(|method| common::define_fields(method).into_token_stream())
+        .map(|method| common::build_field(method).into_token_stream())
         .collect())
 }
 

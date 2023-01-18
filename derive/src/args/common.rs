@@ -31,6 +31,7 @@ pub trait ArgImplementor: CommonArg {
 }
 
 pub trait FieldImplementor: CommonField {
+    fn define_field(&self) -> darling::Result<TokenStream>;
     fn get_execute_code(&self) -> darling::Result<TokenStream>;
     fn get_resolve_code(&self) -> darling::Result<TokenStream>;
     fn get_field_argument_definition(&self) -> darling::Result<TokenStream>;

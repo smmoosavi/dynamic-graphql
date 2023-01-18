@@ -74,7 +74,7 @@ pub fn get_field_name(field: &impl CommonField) -> darling::Result<String> {
     ))
 }
 
-pub fn define_fields<F, A>(method: &F) -> darling::Result<TokenStream>
+pub fn define_field<F, A>(method: &F) -> darling::Result<TokenStream>
 where
     F: FieldImplementor + GetArgs<A>,
     A: ArgImplementor,
@@ -86,11 +86,6 @@ where
     let graphql_args_definition = get_args_definition(method)?;
     let execute = method.get_execute_code()?;
     let resolve = method.get_resolve_code()?;
-    let argument_definitions = method.get_field_argument_definition()?;
-    let description = method.get_field_description_code()?;
-    let deprecation = method.get_field_deprecation_code()?;
-    let field_usage = method.get_field_usage_code()?;
-
     Ok(quote! {
         let field = #create_name::dynamic::Field::new(#field_name, <#field_type as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
             #create_name::dynamic::FieldFuture::new(async move {
@@ -99,6 +94,22 @@ where
                 #resolve
             })
         });
+    })
+}
+
+pub fn build_field<F, A>(method: &F) -> darling::Result<TokenStream>
+where
+    F: FieldImplementor + GetArgs<A>,
+    A: ArgImplementor,
+{
+    let define_field = method.define_field()?;
+    let argument_definitions = method.get_field_argument_definition()?;
+    let description = method.get_field_description_code()?;
+    let deprecation = method.get_field_deprecation_code()?;
+    let field_usage = method.get_field_usage_code()?;
+
+    Ok(quote! {
+        #define_field
         #argument_definitions
         #description
         #deprecation
