@@ -79,12 +79,12 @@ pub fn define_interface_struct(input: &Interface) -> darling::Result<TokenStream
 
     let ident = &input.arg.ident;
     Ok(quote! {
-        pub struct #ident<T=#create_name::InterfaceRoot>(::std::marker::PhantomData<T>);
-        impl #create_name::GraphqlType for #ident {
+        pub struct #ident<'a, T=#create_name::InterfaceRoot>(::std::marker::PhantomData<T>, #create_name::AnyBox<'a>);
+        impl #create_name::GraphqlType for #ident<'static> {
             const NAME: &'static str = #name;
         }
-        impl #create_name::OutputType for #ident {}
-        impl #create_name::Interface for #ident {}
+        impl #create_name::OutputType for #ident<'static> {}
+        impl #create_name::Interface for #ident<'static> {}
     })
 }
 
@@ -110,7 +110,7 @@ pub fn impl_register(input: &Interface) -> darling::Result<TokenStream> {
     let define_fields = get_define_fields_code(input)?;
     let register_code = common::register_object_code();
     Ok(quote! {
-        impl #create_name::Register for #ident {
+        impl #create_name::Register for #ident <'static> {
             fn register(registry: #create_name::Registry) -> #create_name::Registry {
                 // todo rename to interface
                 let object = #create_name::dynamic::Interface::new(<Self as #create_name::Interface>::NAME);

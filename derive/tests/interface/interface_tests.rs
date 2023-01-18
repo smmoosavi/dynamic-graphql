@@ -35,7 +35,7 @@ fn test_schema() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface);
+    struct App(Query, NodeInterface<'static>);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -78,7 +78,7 @@ fn test_schema_with_name() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface);
+    struct App(Query, NodeInterface<'static>);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -123,7 +123,7 @@ fn test_schema_with_rename() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface);
+    struct App(Query, NodeInterface<'static>);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -167,7 +167,7 @@ fn test_schema_description() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface);
+    struct App(Query, NodeInterface<'static>);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -218,7 +218,7 @@ fn test_schema_with_deprecation() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface);
+    struct App(Query, NodeInterface<'static>);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -262,7 +262,7 @@ fn test_schema_with_skip() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface);
+    struct App(Query, NodeInterface<'static>);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");

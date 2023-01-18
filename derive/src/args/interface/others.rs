@@ -156,7 +156,7 @@ pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
 
     Ok(quote! {
 
-        impl <I> #create_name::Register for #ident<I> where I: #trait_ident + #create_name::InterfaceTarget + 'static {
+        impl <I> #create_name::Register for #ident<'static, I> where I: #trait_ident + #create_name::InterfaceTarget + 'static {
             fn register(registry: #create_name::Registry) -> #create_name::Registry {
                 #define_fields
                 registry.update_object(

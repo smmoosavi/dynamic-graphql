@@ -23,7 +23,7 @@ fn test_schema_simple_object_mark_as() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode);
+    struct App(Query, NodeInterface<'static>, FooNode);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -74,7 +74,7 @@ fn test_schema_simple_object_mark_with() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode);
+    struct App(Query, NodeInterface<'static>, FooNode);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -132,7 +132,12 @@ fn test_schema_simple_object_with_trait() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode, NodeInterface<FooNode>);
+    struct App(
+        Query,
+        NodeInterface<'static>,
+        FooNode,
+        NodeInterface<'static, FooNode>,
+    );
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -195,7 +200,7 @@ fn test_schema_simple_object_with_implement() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode);
+    struct App(Query, NodeInterface<'static>, FooNode);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -248,7 +253,7 @@ fn test_schema_simple_object_with_error() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode);
+    struct App(Query, NodeInterface<'static>, FooNode);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -283,7 +288,7 @@ fn test_schema_resolved_object_mark_as() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode);
+    struct App(Query, NodeInterface<'static>, FooNode);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -339,7 +344,7 @@ fn test_schema_resolved_object_mark_with() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode);
+    struct App(Query, NodeInterface<'static>, FooNode);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -401,7 +406,12 @@ fn test_schema_resolved_object_with_trait() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode, NodeInterface<FooNode>);
+    struct App(
+        Query,
+        NodeInterface<'static>,
+        FooNode,
+        NodeInterface<'static, FooNode>,
+    );
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -465,7 +475,7 @@ fn test_schema_resolved_object_with_implement() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode);
+    struct App(Query, NodeInterface<'static>, FooNode);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -523,7 +533,7 @@ fn test_schema_resolved_object_with_error() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode);
+    struct App(Query, NodeInterface<'static>, FooNode);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -569,7 +579,7 @@ fn test_schema_expand_object_mark_as() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, NodeInterface, FooNode, NodeNess<'a>);
+    struct App<'a>(Query, NodeInterface<'static>, FooNode, NodeNess<'a>);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -637,7 +647,7 @@ fn test_schema_expand_object_mark_with() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, NodeInterface, FooNode, NodeNess<'a>);
+    struct App<'a>(Query, NodeInterface<'static>, FooNode, NodeNess<'a>);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -712,10 +722,10 @@ fn test_schema_expand_object_with_trait() {
     #[derive(App)]
     struct App(
         Query,
-        NodeInterface,
+        NodeInterface<'static>,
         FooNode,
         NodeNess<'static>,
-        NodeInterface<NodeNess<'static>>,
+        NodeInterface<'static, NodeNess<'static>>,
     );
 
     let registry = dynamic_graphql::Registry::new();
@@ -791,7 +801,7 @@ fn test_schema_expand_object_with_implement() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooNode, NodeNess<'static>);
+    struct App(Query, NodeInterface<'static>, FooNode, NodeNess<'static>);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -860,7 +870,7 @@ fn test_schema_expand_object_with_error() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, NodeInterface, FooNode, NodeNess<'a>);
+    struct App<'a>(Query, NodeInterface<'static>, FooNode, NodeNess<'a>);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -931,7 +941,7 @@ fn test_schema_generic_expand_object_mark_as() {
     struct FooApp(FooNode, WithName<'static, FooNode>);
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooApp);
+    struct App(Query, NodeInterface<'static>, FooApp);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -1025,7 +1035,7 @@ fn test_schema_generic_expand_object_mark_with() {
     struct FooApp(FooNode, WithName<'static, FooNode>);
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooApp);
+    struct App(Query, NodeInterface<'static>, FooApp);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -1127,11 +1137,11 @@ fn test_schema_generic_expand_object_with_trait() {
     struct FooApp(
         FooNode,
         WithName<'static, FooNode>,
-        NodeInterface<WithName<'static, FooNode>>,
+        NodeInterface<'static, WithName<'static, FooNode>>,
     );
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooApp);
+    struct App(Query, NodeInterface<'static>, FooApp);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -1235,7 +1245,7 @@ fn test_schema_generic_expand_object_with_implement() {
     struct FooApp(FooNode, WithName<'static, FooNode>);
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooApp);
+    struct App(Query, NodeInterface<'static>, FooApp);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");
@@ -1323,7 +1333,7 @@ fn test_schema_generic_expand_object_with_error() {
     struct FooApp(FooNode, WithName<'static, FooNode>);
 
     #[derive(App)]
-    struct App(Query, NodeInterface, FooApp);
+    struct App(Query, NodeInterface<'static>, FooApp);
 
     let registry = dynamic_graphql::Registry::new();
     let registry = registry.register::<App>().set_root("Query");

@@ -9,6 +9,7 @@ use syn::{Generics, ItemTrait, Meta, Path, Type};
 use crate::args::interface::others::impl_others_register;
 use crate::utils::attributes::Attributes;
 use crate::utils::common::{CommonArg, CommonField, CommonObject, GetArgs, GetFields};
+use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::{BaseFnArg, BaseItemTrait, BaseMethod, FromItemTrait};
@@ -268,14 +269,57 @@ impl CommonField for InterfaceMethod {
     }
 }
 
+fn define_new_fns_for_interface(input: &Interface) -> darling::Result<proc_macro2::TokenStream> {
+    let create_name = get_create_name();
+    let ident = &input.arg.ident;
+    Ok(quote! {
+
+        impl #ident<'_> {
+            fn new_owned<'a, T>(value: T) -> #ident<'a>
+            where
+                T: #create_name::Object + #create_name::ResolveOwned<'a> + Send + Sync + 'static,
+            {
+                #ident(Default::default() ,#create_name::AnyBox::new_owned(value, <T as #create_name::Object>::NAME.to_string()))
+            }
+
+            fn new_borrowed<'a, T>(value: &'a T) -> #ident<'a>
+            where
+                T: #create_name::Object + #create_name::ResolveRef<'a> + Send + Sync + 'static,
+            {
+                #ident(Default::default() ,#create_name::AnyBox::new_borrowed(value, <T as #create_name::Object>::NAME.to_string()))
+            }
+        }
+
+    })
+}
+
+fn define_resolve_owned_for_interface(
+    input: &Interface,
+) -> darling::Result<proc_macro2::TokenStream> {
+    let create_name = get_create_name();
+    let ident = &input.arg.ident;
+
+    Ok(quote! {
+        impl<'a> #create_name::ResolveOwned<'a> for #ident<'a> {
+            fn resolve_owned(self, ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
+                self.1.resolve_owned(ctx)
+            }
+        }
+    })
+}
+
 impl ToTokens for Interface {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let interface_struct = root::define_interface_struct(self).into_token_stream();
+        let resolve = define_resolve_owned_for_interface(self).into_token_stream();
+        let new_fns = define_new_fns_for_interface(self).into_token_stream();
         let register = root::impl_register(self).into_token_stream();
         let register_other = impl_others_register(self).into_token_stream();
 
         tokens.extend(quote! {
             #interface_struct
+            #resolve
+            #new_fns
             #register
             #register_other
         });
