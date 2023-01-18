@@ -1,18 +1,20 @@
+use darling::{FromAttributes, ToTokens};
+use proc_macro2::{Ident, TokenStream};
+use quote::quote;
+use syn::{Generics, Path};
+
 use crate::args::common;
-use crate::utils::common::{CommonField, CommonObject, GetFields};
+use crate::utils::common::{CommonField, CommonInterfacable, CommonObject, GetFields};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::IntoTokenStream;
+use crate::utils::interface_attr::InterfaceAttr;
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
-use darling::{FromAttributes, ToTokens};
-use proc_macro2::{Ident, TokenStream};
-use quote::quote;
-use syn::{Generics, Path};
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -48,6 +50,15 @@ pub struct SimpleObjectAttrs {
 
     #[darling(default)]
     pub rename_fields: Option<RenameRule>,
+
+    #[darling(default, multiple)]
+    pub mark_as: Vec<InterfaceAttr>,
+
+    #[darling(default, multiple)]
+    pub mark_with: Vec<InterfaceAttr>,
+
+    #[darling(default, multiple)]
+    pub implement: Vec<InterfaceAttr>,
 }
 
 from_derive_input!(
@@ -61,6 +72,20 @@ impl MakeContext<SimpleObjectFieldContext> for SimpleObject {
         SimpleObjectFieldContext {
             rename_fields: self.attrs.rename_fields,
         }
+    }
+}
+
+impl CommonInterfacable for SimpleObject {
+    fn get_mark_as(&self) -> &Vec<InterfaceAttr> {
+        &self.attrs.mark_as
+    }
+
+    fn get_mark_with(&self) -> &Vec<InterfaceAttr> {
+        &self.attrs.mark_with
+    }
+
+    fn get_implement(&self) -> &Vec<InterfaceAttr> {
+        &self.attrs.implement
     }
 }
 
@@ -203,6 +228,9 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let ident = &object.ident;
     let define_object = common::impl_define_object();
+    let add_interfaces = common::get_interface_code(object)?;
+    let implement = common::get_add_implement_code(object, &object.attrs.implement)?;
+
     let description = common::object_description(object.get_doc()?.as_deref())?;
     let define_fields = get_define_fields(object)?;
     let register_object_code = common::register_object_code();
@@ -211,6 +239,10 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
         impl #create_name::Register for #ident {
             fn register(registry: #create_name::Registry) -> #create_name::Registry {
                 #define_object
+
+                #implement
+
+                #add_interfaces
 
                 #description
 

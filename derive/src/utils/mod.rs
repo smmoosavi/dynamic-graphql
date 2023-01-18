@@ -6,6 +6,7 @@ pub mod derive_types;
 pub mod docs_utils;
 pub mod error;
 pub mod impl_block;
+pub mod interface_attr;
 pub mod macros;
 pub mod rename_rule;
 pub mod type_utils;

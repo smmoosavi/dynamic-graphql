@@ -1,10 +1,12 @@
 extern crate core;
 extern crate proc_macro;
 
-use crate::utils::impl_block::FromItemImpl;
-use darling::{FromDeriveInput, ToTokens};
+use darling::{FromDeriveInput, FromMeta, ToTokens};
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
+
+use crate::utils::impl_block::{FromItemImpl, FromItemTrait};
+use crate::utils::with_arg::SetArg;
 
 mod args;
 mod utils;
@@ -85,6 +87,27 @@ pub fn ExpandObjectFields(
     let mut item = parse_macro_input!(item as syn::ItemImpl);
     let data = args::ExpandObjectFields::from_item_impl(&mut item);
     let extension = match data {
+        Ok(obj) => obj.into_token_stream(),
+        Err(err) => err.write_errors(),
+    };
+    (quote! {
+        #item
+        #extension
+    })
+    .into()
+}
+
+#[proc_macro_attribute]
+#[allow(non_snake_case)]
+pub fn Interface(
+    attr: proc_macro::TokenStream,
+    item: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    let arg = args::InterfaceArg::from_meta(&parse_macro_input!(attr as syn::Meta));
+    let mut item = parse_macro_input!(item as syn::ItemTrait);
+    let data = args::Interface::from_item_trait(&mut item);
+    let data_with_arg = arg.and_then(|arg| data.with_arg(arg));
+    let extension = match data_with_arg {
         Ok(obj) => obj.into_token_stream(),
         Err(err) => err.write_errors(),
     };

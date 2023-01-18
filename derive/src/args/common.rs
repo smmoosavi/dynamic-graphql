@@ -1,15 +1,21 @@
-mod args;
-mod fields;
+use proc_macro2::TokenStream;
+use quote::quote;
+
+pub use args::*;
+pub use fields::*;
+pub use generics::*;
+pub use interfaces::*;
 
 use crate::utils::common::{CommonArg, CommonField, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::impl_block::BaseFnArg;
 use crate::utils::rename_rule::{calc_enum_item_name, calc_input_field_name, calc_type_name};
 use crate::utils::type_utils::get_owned_type;
-pub use args::*;
-pub use fields::*;
-use proc_macro2::TokenStream;
-use quote::quote;
+
+mod args;
+mod fields;
+mod generics;
+mod interfaces;
 
 pub trait ArgImplementor: CommonArg {
     fn get_self_arg_definition(&self) -> darling::Result<TokenStream>;
@@ -50,6 +56,9 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
         }
         impl #create_name::OutputType for #object_ident {}
         impl #create_name::Object for #object_ident {}
+        impl #create_name::InterfaceTarget for #object_ident {
+            const TARGET: &'static str = #name;
+        }
     })
 }
 
@@ -202,4 +211,11 @@ pub fn get_new_input_value_code(field: &impl CommonField) -> darling::Result<Tok
     Ok(quote! {
         let field = #create_name::dynamic::InputValue::new(#field_name, #get_input_type_ref_code);
     })
+}
+
+pub fn call_register_fns() -> TokenStream {
+    let create_name = get_create_name();
+    quote!(
+        let registry = <Self as #create_name::RegisterFns>::REGISTER_FNS.iter().fold(registry, |registry, f| f(registry));
+    )
 }

@@ -1,3 +1,8 @@
+use darling::FromAttributes;
+use proc_macro2::{Ident, TokenStream};
+use quote::{quote, ToTokens};
+use syn::Generics;
+
 use crate::args::common;
 use crate::args::common::{ArgImplementor, FieldImplementor};
 use crate::utils::attributes::Attributes;
@@ -15,10 +20,6 @@ use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
 use crate::utils::with_index::WithIndex;
-use darling::FromAttributes;
-use proc_macro2::{Ident, TokenStream};
-use quote::{quote, ToTokens};
-use syn::{Generics, Path};
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -128,11 +129,11 @@ impl CommonObject for ExpandObjectFields {
         unreachable!("ResolvedObjectFields does not have a name");
     }
 
-    fn get_ident(&self) -> &Ident {
+    fn get_ident(&self) -> &syn::Ident {
         unreachable!("ResolvedObjectFields does not have an ident");
     }
 
-    fn get_type(&self) -> darling::Result<Path> {
+    fn get_type(&self) -> darling::Result<syn::Path> {
         get_type_path(&self.ty)
             .ok_or_else(|| {
                 darling::Error::custom("ExpandObjectFields must be implemented for a struct")
@@ -354,11 +355,15 @@ fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
     let ty = &expand.ty;
 
     let define_fields = define_fields_code(expand).into_token_stream();
+
     let use_fields = use_fields_code(expand).into_token_stream();
 
+    let register_fns = common::call_register_fns();
     Ok(quote! {
         impl #impl_generics #create_name::Register for #ty #where_clause {
             fn register(registry: #create_name::Registry) -> #create_name::Registry {
+                #register_fns
+
                 #define_fields
                 registry.update_object(
                     <<Self as #create_name::ExpandObject>::Target as #create_name::Object>::NAME,

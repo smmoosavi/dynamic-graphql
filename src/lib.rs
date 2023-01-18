@@ -12,10 +12,11 @@ pub use registry::Registry;
 pub use resolve::{ResolveOwned, ResolveRef};
 pub use types::{
     Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, GraphqlDoc, GraphqlType, InputObject,
-    InputType, Interface, Mutation, Object, OutputType, Register, Scalar, Union,
+    InputType, Interface, InterfaceRoot, InterfaceTarget, Mutation, Object, OutputType, Register,
+    RegisterFns, Scalar, Union,
 };
 
 pub use dynamic_graphql_derive::{
-    App, Enum, ExpandObject, ExpandObjectFields, InputObject, ResolvedObject, ResolvedObjectFields,
-    SimpleObject,
+    App, Enum, ExpandObject, ExpandObjectFields, InputObject, Interface, ResolvedObject,
+    ResolvedObjectFields, SimpleObject,
 };

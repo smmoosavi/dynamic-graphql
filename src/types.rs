@@ -1,10 +1,14 @@
-use crate::dynamic;
 use crate::registry::Registry;
 use async_graphql::dynamic::TypeRef;
+
 mod common;
 
 pub trait Register {
     fn register(registry: Registry) -> Registry;
+}
+
+pub trait RegisterFns {
+    const REGISTER_FNS: &'static [fn(registry: Registry) -> Registry];
 }
 
 pub trait GraphqlType {
@@ -23,7 +27,7 @@ pub trait InputType: GraphqlType {
     const NAME: &'static str = <Self as GraphqlType>::NAME;
 }
 
-pub trait Object: OutputType {
+pub trait Object: OutputType + InterfaceTarget {
     const NAME: &'static str = <Self as OutputType>::NAME;
 }
 
@@ -41,9 +45,13 @@ pub trait Union: OutputType {
 
 pub trait Interface: OutputType {
     const NAME: &'static str = <Self as OutputType>::NAME;
-
-    fn register_fields(interface: dynamic::Interface) -> dynamic::Interface;
 }
+
+pub trait InterfaceTarget {
+    const TARGET: &'static str;
+}
+
+pub struct InterfaceRoot;
 
 pub trait InputObject: InputType {
     const NAME: &'static str = <Self as InputType>::NAME;
@@ -51,7 +59,7 @@ pub trait InputObject: InputType {
 
 pub trait Mutation: Object {}
 
-pub trait ExpandObject {
+pub trait ExpandObject: InterfaceTarget {
     const NAME: &'static str;
     type Target: Object;
 }
@@ -59,6 +67,7 @@ pub trait ExpandObject {
 pub trait GetOutputTypeRef {
     fn get_output_type_ref() -> TypeRef;
 }
+
 pub trait GetInputTypeRef {
     fn get_input_type_ref() -> TypeRef;
 }

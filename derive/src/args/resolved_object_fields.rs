@@ -1,3 +1,8 @@
+use darling::FromAttributes;
+use proc_macro2::{Ident, TokenStream};
+use quote::{quote, ToTokens};
+use syn::{Generics, Path};
+
 use crate::args::common;
 use crate::args::common::{ArgImplementor, FieldImplementor};
 use crate::utils::attributes::Attributes;
@@ -15,10 +20,6 @@ use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
 use crate::utils::with_index::WithIndex;
-use darling::FromAttributes;
-use proc_macro2::{Ident, TokenStream};
-use quote::{quote, ToTokens};
-use syn::{Generics, Path};
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -338,6 +339,7 @@ fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> 
     let description = impl_object_description();
     let define_fields = get_define_fields_code(object)?;
     let register_object_code = common::register_object_code();
+    let register_fns = common::call_register_fns();
 
     Ok(quote! {
         impl #create_name::Register for #ty {
@@ -347,6 +349,8 @@ fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> 
                 #define_fields
 
                 #description
+
+                #register_fns
 
                 #register_object_code
             }

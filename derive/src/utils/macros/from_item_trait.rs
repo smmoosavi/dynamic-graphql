@@ -1,3 +1,4 @@
+#[allow(unused_macros)]
 macro_rules! from_item_trait {
     ($name:ident, $ty:ty,) => {
         from_item_trait!($name, $ty);
