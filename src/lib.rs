@@ -1,3 +1,4 @@
+mod any_box;
 mod from_value;
 mod registry;
 mod resolve;
@@ -7,6 +8,7 @@ pub use async_graphql::dynamic;
 pub use async_graphql::dynamic::FieldValue;
 pub use async_graphql::{Context, Error, Name, Request, Result, Value, Variables, ID};
 
+pub use any_box::AnyBox;
 pub use from_value::FromValue;
 pub use registry::Registry;
 pub use resolve::{ResolveOwned, ResolveRef};
