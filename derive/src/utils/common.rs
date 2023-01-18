@@ -6,6 +6,8 @@ pub trait CommonObject {
     /// user defined name
     fn get_name(&self) -> Option<&str>;
     fn get_ident(&self) -> &syn::Ident;
+    fn get_type(&self) -> darling::Result<syn::Path>;
+    fn get_generics(&self) -> darling::Result<&syn::Generics>;
     fn get_doc(&self) -> darling::Result<Option<String>>;
     fn get_fields_rename_rule(&self) -> Option<&RenameRule> {
         None

@@ -9,6 +9,7 @@ use darling::FromAttributes;
 use proc_macro2::TokenStream;
 use quote::quote;
 use quote::ToTokens;
+use syn::{Generics, Path};
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -19,7 +20,7 @@ pub struct ResolvedObjectAttrs {
 
 from_derive_input!(
     ResolvedObject,
-    WithAttributes<WithDoc<ResolvedObjectAttrs>, BaseStruct<()>>,
+    WithAttributes<WithDoc<ResolvedObjectAttrs>, BaseStruct<(), Generics>>,
 );
 
 impl CommonObject for ResolvedObject {
@@ -29,6 +30,14 @@ impl CommonObject for ResolvedObject {
 
     fn get_ident(&self) -> &syn::Ident {
         &self.ident
+    }
+
+    fn get_type(&self) -> darling::Result<Path> {
+        Ok(self.ident.clone().into())
+    }
+
+    fn get_generics(&self) -> darling::Result<&Generics> {
+        Ok(&self.generics)
     }
 
     fn get_doc(&self) -> darling::Result<Option<String>> {

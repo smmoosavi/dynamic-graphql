@@ -12,6 +12,7 @@ use crate::utils::with_doc::WithDoc;
 use darling::{FromAttributes, ToTokens};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
+use syn::{Generics, Path};
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -51,7 +52,7 @@ pub struct SimpleObjectAttrs {
 
 from_derive_input!(
     SimpleObject,
-    WithAttributes<WithDoc<SimpleObjectAttrs>, BaseStruct<SimpleObjectField>>,
+    WithAttributes<WithDoc<SimpleObjectAttrs>, BaseStruct<SimpleObjectField, Generics>>,
     ctx,
 );
 
@@ -70,6 +71,14 @@ impl CommonObject for SimpleObject {
 
     fn get_ident(&self) -> &syn::Ident {
         &self.ident
+    }
+
+    fn get_type(&self) -> darling::Result<Path> {
+        Ok(self.ident.clone().into())
+    }
+
+    fn get_generics(&self) -> darling::Result<&Generics> {
+        Ok(&self.generics)
     }
 
     fn get_doc(&self) -> darling::Result<Option<String>> {

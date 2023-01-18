@@ -14,6 +14,7 @@ use darling::util::SpannedValue;
 use darling::{FromAttributes, ToTokens};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
+use syn::{Generics, Path};
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -50,7 +51,7 @@ pub struct EnumAttributes {
 
 from_derive_input!(
     Enum,
-    WithAttributes<WithDoc<EnumAttributes>, BaseEnum<EnumVariant>>,
+    WithAttributes<WithDoc<EnumAttributes>, BaseEnum<EnumVariant, Generics>>,
     ctx,
 );
 
@@ -69,6 +70,14 @@ impl CommonObject for Enum {
 
     fn get_ident(&self) -> &syn::Ident {
         &self.ident
+    }
+
+    fn get_type(&self) -> darling::Result<Path> {
+        Ok(self.ident.clone().into())
+    }
+
+    fn get_generics(&self) -> darling::Result<&Generics> {
+        Ok(&self.generics)
     }
 
     fn get_doc(&self) -> darling::Result<Option<String>> {

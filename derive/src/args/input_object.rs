@@ -11,6 +11,7 @@ use crate::utils::with_doc::WithDoc;
 use darling::{FromAttributes, ToTokens};
 use proc_macro2::TokenStream;
 use quote::quote;
+use syn::{Generics, Path};
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
@@ -47,7 +48,7 @@ pub struct InputObjectAttrs {
 
 from_derive_input!(
     InputObject,
-    WithAttributes<WithDoc<InputObjectAttrs>, BaseStruct<InputObjectField>>,
+    WithAttributes<WithDoc<InputObjectAttrs>, BaseStruct<InputObjectField, Generics>>,
     ctx,
 );
 
@@ -66,6 +67,14 @@ impl CommonObject for InputObject {
 
     fn get_ident(&self) -> &syn::Ident {
         &self.ident
+    }
+
+    fn get_type(&self) -> darling::Result<Path> {
+        Ok(self.ident.clone().into())
+    }
+
+    fn get_generics(&self) -> darling::Result<&Generics> {
+        Ok(&self.generics)
     }
 
     fn get_doc(&self) -> darling::Result<Option<String>> {
