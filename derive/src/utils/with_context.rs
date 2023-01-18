@@ -1,11 +1,10 @@
-use crate::utils::impl_block::{FromFnArg, FromImplItemMethod};
+use crate::utils::impl_block::{FromFnArg, FromImplItemMethod, FromItemTrait, FromTraitItemMethod};
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
 use darling::ast::Data;
 use darling::util::Ignored;
 use darling::{FromDeriveInput, FromField, FromVariant};
 use std::ops::{Deref, DerefMut};
-use syn::{DeriveInput, Field, ImplItemMethod, Variant};
 
 pub trait MakeContext<C: Clone> {
     fn make_context(&self) -> C;
@@ -131,62 +130,48 @@ where
     }
 }
 
-impl<A: FromFnArg, C: Default> FromFnArg for WithContext<C, A> {
-    fn from_fn_arg(arg: &mut syn::FnArg) -> darling::Result<Self> {
-        let inner = A::from_fn_arg(arg)?;
-        Ok(WithContext {
-            ctx: C::default(),
-            inner,
-        })
-    }
+macro_rules! impl_for_with_context {
+    ($trayt:ident, $method:ident, $syn:path) => {
+        impl<A: $trayt, C: Default> $trayt for WithContext<C, A> {
+            fn $method(input: &$syn) -> darling::Result<Self> {
+                let inner = A::$method(input)?;
+                Ok(WithContext {
+                    ctx: C::default(),
+                    inner,
+                })
+            }
+        }
+    };
 }
 
-impl<A: FromImplItemMethod, C: Default> FromImplItemMethod for WithContext<C, A> {
-    fn from_impl_item_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
-        let inner = A::from_impl_item_method(method)?;
-        Ok(WithContext {
-            ctx: C::default(),
-            inner,
-        })
-    }
+macro_rules! impl_mut_for_with_context {
+    ($trayt:ident, $method:ident, $syn:path) => {
+        impl<A: $trayt, C: Default> $trayt for WithContext<C, A> {
+            fn $method(input: &mut $syn) -> darling::Result<Self> {
+                let inner = A::$method(input)?;
+                Ok(WithContext {
+                    ctx: C::default(),
+                    inner,
+                })
+            }
+        }
+    };
 }
 
-impl<A: FromItemImpl, C: Default> FromItemImpl for WithContext<C, A> {
-    fn from_item_impl(item_impl: &mut syn::ItemImpl) -> darling::Result<Self> {
-        let inner = A::from_item_impl(item_impl)?;
-        Ok(WithContext {
-            ctx: C::default(),
-            inner,
-        })
-    }
-}
+impl_for_with_context!(FromDeriveInput, from_derive_input, syn::DeriveInput);
+impl_for_with_context!(FromField, from_field, syn::Field);
+impl_for_with_context!(FromVariant, from_variant, syn::Variant);
 
-impl<A: FromDeriveInput, C: Default> FromDeriveInput for WithContext<C, A> {
-    fn from_derive_input(input: &DeriveInput) -> darling::Result<Self> {
-        let inner = A::from_derive_input(input)?;
-        Ok(WithContext {
-            ctx: C::default(),
-            inner,
-        })
-    }
-}
-
-impl<A: FromField, C: Default> FromField for WithContext<C, A> {
-    fn from_field(field: &Field) -> darling::Result<Self> {
-        let inner = A::from_field(field)?;
-        Ok(WithContext {
-            ctx: C::default(),
-            inner,
-        })
-    }
-}
-
-impl<A: FromVariant, C: Default> FromVariant for WithContext<C, A> {
-    fn from_variant(variant: &Variant) -> darling::Result<Self> {
-        let inner = A::from_variant(variant)?;
-        Ok(WithContext {
-            ctx: C::default(),
-            inner,
-        })
-    }
-}
+impl_mut_for_with_context!(FromFnArg, from_fn_arg, syn::FnArg);
+impl_mut_for_with_context!(
+    FromImplItemMethod,
+    from_impl_item_method,
+    syn::ImplItemMethod
+);
+impl_mut_for_with_context!(FromItemImpl, from_item_impl, syn::ItemImpl);
+impl_mut_for_with_context!(FromItemTrait, from_item_trait, syn::ItemTrait);
+impl_mut_for_with_context!(
+    FromTraitItemMethod,
+    from_trait_item_method,
+    syn::TraitItemMethod
+);

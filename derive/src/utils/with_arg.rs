@@ -48,7 +48,7 @@ impl<D, Arg> SetArg<Arg> for WithArg<Ignored, D> {
     }
 }
 
-macro_rules! impl_set_arg {
+macro_rules! impl_for_with_arg {
     ($trayt:ident, $method:ident, $syn:path) => {
         impl<D: $trayt> $trayt for WithArg<Ignored, D> {
             fn $method(input: &$syn) -> darling::Result<Self> {
@@ -62,11 +62,7 @@ macro_rules! impl_set_arg {
     };
 }
 
-impl_set_arg!(FromDeriveInput, from_derive_input, DeriveInput);
-impl_set_arg!(FromField, from_field, syn::Field);
-impl_set_arg!(FromVariant, from_variant, syn::Variant);
-
-macro_rules! impl_mut_set_arg {
+macro_rules! impl_mut_for_with_arg {
     ($trayt:ident, $method:ident, $syn:path) => {
         impl<D: $trayt> $trayt for WithArg<Ignored, D> {
             fn $method(input: &mut $syn) -> darling::Result<Self> {
@@ -80,15 +76,19 @@ macro_rules! impl_mut_set_arg {
     };
 }
 
-impl_mut_set_arg!(FromFnArg, from_fn_arg, syn::FnArg);
-impl_mut_set_arg!(
+impl_for_with_arg!(FromDeriveInput, from_derive_input, DeriveInput);
+impl_for_with_arg!(FromField, from_field, syn::Field);
+impl_for_with_arg!(FromVariant, from_variant, syn::Variant);
+
+impl_mut_for_with_arg!(FromFnArg, from_fn_arg, syn::FnArg);
+impl_mut_for_with_arg!(
     FromImplItemMethod,
     from_impl_item_method,
     syn::ImplItemMethod
 );
-impl_mut_set_arg!(FromItemImpl, from_item_impl, syn::ItemImpl);
-impl_mut_set_arg!(FromItemTrait, from_item_trait, syn::ItemTrait);
-impl_mut_set_arg!(
+impl_mut_for_with_arg!(FromItemImpl, from_item_impl, syn::ItemImpl);
+impl_mut_for_with_arg!(FromItemTrait, from_item_trait, syn::ItemTrait);
+impl_mut_for_with_arg!(
     FromTraitItemMethod,
     from_trait_item_method,
     syn::TraitItemMethod

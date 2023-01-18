@@ -1,11 +1,13 @@
 use crate::utils::attributes::{Attributes, CleanAttributes};
-use crate::utils::impl_block::{BaseFnArg, FromFnArg, FromImplItemMethod};
+use crate::utils::impl_block::{
+    BaseFnArg, FromFnArg, FromImplItemMethod, FromItemTrait, FromTraitItemMethod,
+};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
 use darling::{FromAttributes, FromDeriveInput, FromField, FromVariant};
 use std::ops::{Deref, DerefMut};
-use syn::{FnArg, ImplItemMethod, ItemImpl};
+use syn::FnArg;
 
 #[derive(Clone, Debug)]
 pub struct WithAttributes<A: FromAttributes, D> {
@@ -28,29 +30,47 @@ impl<A: FromAttributes, D> DerefMut for WithAttributes<A, D> {
     }
 }
 
-impl<A: FromAttributes, D: FromDeriveInput> FromDeriveInput for WithAttributes<A, D> {
-    fn from_derive_input(input: &syn::DeriveInput) -> darling::Result<Self> {
-        let attrs = A::from_attributes(&input.attrs)?;
-        let data = D::from_derive_input(input)?;
-        Ok(WithAttributes { attrs, inner: data })
-    }
+macro_rules! impl_for_with_attributes {
+    ($trayt:ident, $method:ident, $syn:path) => {
+        impl<A: FromAttributes, D: $trayt> $trayt for WithAttributes<A, D> {
+            fn $method(input: &$syn) -> darling::Result<Self> {
+                let attrs = A::from_attributes(&input.attrs)?;
+                let data = D::$method(input)?;
+                Ok(WithAttributes { attrs, inner: data })
+            }
+        }
+    };
 }
 
-impl<A: FromAttributes, D: FromField> FromField for WithAttributes<A, D> {
-    fn from_field(field: &syn::Field) -> darling::Result<Self> {
-        let attrs = A::from_attributes(&field.attrs)?;
-        let data = D::from_field(field)?;
-        Ok(WithAttributes { attrs, inner: data })
-    }
+macro_rules! impl_mut_for_with_attributes {
+    ($trayt:ident, $method:ident, $syn:path) => {
+        impl<A: FromAttributes + Attributes, D: $trayt> $trayt for WithAttributes<A, D> {
+            fn $method(input: &mut $syn) -> darling::Result<Self> {
+                let inner = D::$method(input)?;
+                let attrs = A::from_attributes(&input.attrs)?;
+                A::clean_attributes(&mut input.attrs);
+                Ok(WithAttributes { attrs, inner })
+            }
+        }
+    };
 }
 
-impl<A: FromAttributes, D: FromVariant> FromVariant for WithAttributes<A, D> {
-    fn from_variant(variant: &syn::Variant) -> darling::Result<Self> {
-        let attrs = A::from_attributes(&variant.attrs)?;
-        let data = D::from_variant(variant)?;
-        Ok(WithAttributes { attrs, inner: data })
-    }
-}
+impl_for_with_attributes!(FromDeriveInput, from_derive_input, syn::DeriveInput);
+impl_for_with_attributes!(FromField, from_field, syn::Field);
+impl_for_with_attributes!(FromVariant, from_variant, syn::Variant);
+
+impl_mut_for_with_attributes!(
+    FromImplItemMethod,
+    from_impl_item_method,
+    syn::ImplItemMethod
+);
+impl_mut_for_with_attributes!(FromItemImpl, from_item_impl, syn::ItemImpl);
+impl_mut_for_with_attributes!(FromItemTrait, from_item_trait, syn::ItemTrait);
+impl_mut_for_with_attributes!(
+    FromTraitItemMethod,
+    from_trait_item_method,
+    syn::TraitItemMethod
+);
 
 impl<A: FromAttributes + Attributes, D: FromFnArg> FromFnArg for WithAttributes<A, D> {
     fn from_fn_arg(arg: &mut FnArg) -> darling::Result<Self> {
@@ -58,24 +78,6 @@ impl<A: FromAttributes + Attributes, D: FromFnArg> FromFnArg for WithAttributes<
         let base_attrs = BaseFnArg::get_attrs_mut(arg);
         let attrs = A::from_attributes(base_attrs)?;
         A::clean_attributes(base_attrs);
-        Ok(WithAttributes { attrs, inner })
-    }
-}
-impl<A: FromAttributes + Attributes, D: FromImplItemMethod> FromImplItemMethod
-    for WithAttributes<A, D>
-{
-    fn from_impl_item_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
-        let inner = D::from_impl_item_method(method)?;
-        let attrs = A::from_attributes(&method.attrs)?;
-        A::clean_attributes(&mut method.attrs);
-        Ok(WithAttributes { attrs, inner })
-    }
-}
-impl<A: FromAttributes + Attributes, D: FromItemImpl> FromItemImpl for WithAttributes<A, D> {
-    fn from_item_impl(item_impl: &mut ItemImpl) -> darling::Result<Self> {
-        let inner = D::from_item_impl(item_impl)?;
-        let attrs = A::from_attributes(&item_impl.attrs)?;
-        A::clean_attributes(&mut item_impl.attrs);
         Ok(WithAttributes { attrs, inner })
     }
 }
