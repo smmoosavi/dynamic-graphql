@@ -70,7 +70,7 @@ fn impl_expand_object(object: &ExpandObject) -> darling::Result<TokenStream> {
     let object_ident = &object.ident;
     let target = get_owned_type(&object.data.ty);
     let name = object.ident.to_string();
-    let type_ident = get_type_ident(&object.data.ty);
+    let type_ident = get_type_ident(&object.data.ty)?;
 
     // parse generic
     let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();

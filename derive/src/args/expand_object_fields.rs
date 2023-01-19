@@ -266,9 +266,7 @@ impl FieldImplementor for ExpandObjectFieldsMethod {
         let ty = self.ctx.expand_ty.as_ref().unwrap_or_else(|| {
             unreachable!("ExpandObjectFieldsMethodContext::expand_ty must be set")
         });
-        let type_ident = get_type_ident(ty).ok_or_else(|| {
-            darling::Error::custom("Only simple or reference type accepted").with_span(ty)
-        })?;
+        let type_ident = get_type_ident(ty)?;
         execute_code(type_ident, self)
     }
 

@@ -51,11 +51,11 @@ pub fn get_owned_type(ty: &syn::Type) -> &syn::Type {
     }
 }
 
-pub fn get_type_ident(ty: &syn::Type) -> Option<&syn::Ident> {
+pub fn get_type_ident(ty: &syn::Type) -> darling::Result<&syn::Ident> {
     match ty {
         syn::Type::Reference(ref r) => get_type_ident(&r.elem),
-        syn::Type::Path(ref p) => Some(&p.path.segments[0].ident),
-        _ => None,
+        syn::Type::Path(ref p) => Ok(&p.path.segments[0].ident),
+        _ => Err(darling::Error::custom("Unsupported type").with_span(ty)),
     }
 }
 
