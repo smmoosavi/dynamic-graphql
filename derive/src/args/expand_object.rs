@@ -1,6 +1,7 @@
 use darling::{FromAttributes, ToTokens};
 use proc_macro2::TokenStream;
 use quote::quote;
+use syn::spanned::Spanned;
 use syn::Generics;
 
 use crate::args::common;
@@ -10,6 +11,7 @@ use crate::utils::crate_name::get_create_name;
 use crate::utils::derive_types::{NewtypeStruct, TupleField};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::interface_attr::InterfaceAttr;
+use crate::utils::interface_hash::get_interface_hash;
 use crate::utils::macros::*;
 use crate::utils::type_utils::{get_owned_type, get_type_ident};
 use crate::utils::with_attributes::WithAttributes;
@@ -141,6 +143,69 @@ fn impl_register_interface(object: &impl CommonInterfacable) -> darling::Result<
     })
 }
 
+fn is_generics_contains_type(generics: &Generics, ty: &syn::Type) -> bool {
+    let Ok(type_ident) = get_type_ident(ty) else {
+        return false;
+    };
+    generics.params.iter().any(|param| match param {
+        syn::GenericParam::Type(type_param) => type_param.ident == *type_ident,
+        _ => false,
+    })
+}
+
+fn impl_interface_mark_for_expand_object(object: &ExpandObject) -> darling::Result<TokenStream> {
+    let generics = &object.generics;
+    let target = &object.data.ty;
+
+    if is_generics_contains_type(generics, target) {
+        return Ok(quote! {});
+    }
+
+    let create_name = get_create_name();
+    let object_ident = get_type_ident(target)?;
+    let mark_as: Vec<_> = object
+        .get_mark_as()
+        .iter()
+        .map(|interface| {
+            let name = interface.to_string();
+            let mark = get_interface_hash(&name);
+            quote! {
+                impl #create_name::InterfaceMark<#mark> for #object_ident {}
+            }
+        })
+        .collect();
+
+    let mark_with: Vec<_> = object
+        .get_mark_with()
+        .iter()
+        .map(|interface| {
+            let ident = syn::Ident::new(interface, interface.span());
+            let mark = quote!(<#ident as #create_name::Interface>::MARK);
+            quote! {
+                impl #create_name::InterfaceMark<{#mark}> for #object_ident {}
+            }
+        })
+        .collect();
+
+    let mark_implement: Vec<_> = object
+        .get_implement()
+        .iter()
+        .map(|interface| {
+            let ident = syn::Ident::new(interface, interface.span());
+            let mark = quote!(<#ident as #create_name::Interface>::MARK);
+            quote! {
+                impl #create_name::InterfaceMark<{#mark}> for #object_ident {}
+            }
+        })
+        .collect();
+
+    Ok(quote! {
+        #(#mark_as)*
+        #(#mark_with)*
+        #(#mark_implement)*
+    })
+}
+
 fn impl_register_fns_trait(object: &impl CommonInterfacable) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let object_ident = object.get_ident();
@@ -165,9 +230,11 @@ impl ToTokens for ExpandObject {
         let impl_expand_object = impl_expand_object(self).into_token_stream();
         let impl_parent = impl_parent(self).into_token_stream();
         let impl_from = impl_from(self).into_token_stream();
-        let impl_register_fns_trait = impl_register_fns_trait(self).unwrap();
+        let impl_register_fns_trait = impl_register_fns_trait(self).into_token_stream();
+        let impl_interface_mark = impl_interface_mark_for_expand_object(self).into_token_stream();
         tokens.extend(quote! {
             #impl_expand_object
+            #impl_interface_mark
             #impl_from
             #impl_parent
             #impl_register_fns_trait

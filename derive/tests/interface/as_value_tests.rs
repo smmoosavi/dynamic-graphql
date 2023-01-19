@@ -3,6 +3,7 @@ use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{
     App, FieldValue, Interface, ResolvedObject, ResolvedObjectFields, SimpleObject,
 };
+use dynamic_graphql_derive::{ExpandObject, ExpandObjectFields};
 
 #[tokio::test]
 async fn interface_as_output_value_for_simple_object_with_implement() {
@@ -544,3 +545,285 @@ async fn interface_as_output_value_for_resolved_object_with_mark_as() {
         })
     );
 }
+
+#[tokio::test]
+async fn interface_as_output_value_for_expand_object_with_implement() {
+    #[Interface(NodeInterface)]
+    trait Node {
+        fn the_id(&self) -> String;
+    }
+
+    #[derive(SimpleObject)]
+    struct FooNode;
+
+    #[derive(ExpandObject)]
+    #[graphql(implement = "NodeInterface")]
+    struct NodeNess<'a>(&'a FooNode);
+
+    #[ExpandObjectFields]
+    impl NodeNess<'_> {
+        async fn other_field(&self) -> String {
+            "foo".to_string()
+        }
+    }
+
+    impl Node for NodeNess<'_> {
+        fn the_id(&self) -> String {
+            "foo".to_string()
+        }
+    }
+
+    #[derive(ResolvedObject)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        async fn node(&self) -> NodeInterface {
+            NodeInterface::new_owned(FooNode)
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query, NodeInterface<'static>, FooNode, NodeNess<'static>);
+
+    let registry = dynamic_graphql::Registry::new();
+    let registry = registry.register::<App>().set_root("Query");
+    let schema = registry.create_schema().finish().unwrap();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+
+                type FooNode implements Node {
+                    theId: String!
+                    otherField: String!
+                }
+
+                interface Node {
+                    theId: String!
+                }
+
+                type Query {
+                    node: Node!
+                }
+
+                schema {
+                    query: Query
+                }
+
+            "#
+        ),
+    );
+
+    let query = r#"
+
+        query {
+            node {
+                theId
+                ... on FooNode {
+                    otherField
+                }
+            }
+        }
+
+    "#;
+
+    let root = Query;
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+
+    println!("errors: {:?}", res.errors);
+
+    assert_eq!(
+        res.data.into_json().unwrap(),
+        serde_json::json!({
+            "node": {
+                "theId": "foo",
+                "otherField": "foo",
+            }
+        })
+    );
+}
+//
+// #[tokio::test]
+// async fn interface_as_output_value_for_expand_object_with_mark_with() {
+//     #[Interface(NodeInterface)]
+//     trait Node {
+//         fn the_id(&self) -> String;
+//     }
+//
+//     #[derive(ResolvedObject)]
+//     #[graphql(mark_with = "NodeInterface")]
+//     struct FooNode;
+//
+//     #[ResolvedObjectFields]
+//     impl FooNode {
+//         fn the_id(&self) -> String {
+//             "foo".to_string()
+//         }
+//         async fn other_field(&self) -> String {
+//             "foo".to_string()
+//         }
+//     }
+//
+//     #[derive(ResolvedObject)]
+//     struct Query;
+//
+//     #[ResolvedObjectFields]
+//     impl Query {
+//         async fn node(&self) -> NodeInterface {
+//             NodeInterface::new_owned(FooNode)
+//         }
+//     }
+//
+//     #[derive(App)]
+//     struct App(Query, NodeInterface<'static>, FooNode);
+//
+//     let registry = dynamic_graphql::Registry::new();
+//     let registry = registry.register::<App>().set_root("Query");
+//     let schema = registry.create_schema().finish().unwrap();
+//     let sdl = schema.sdl();
+//     assert_eq!(
+//         normalize_schema(&sdl),
+//         normalize_schema(
+//             r#"
+//
+//                 type FooNode implements Node {
+//                     theId: String!
+//                     otherField: String!
+//                 }
+//
+//                 interface Node {
+//                     theId: String!
+//                 }
+//
+//                 type Query {
+//                     node: Node!
+//                 }
+//
+//                 schema {
+//                     query: Query
+//                 }
+//
+//             "#
+//         ),
+//     );
+//
+//     let query = r#"
+//
+//         query {
+//             node {
+//                 theId
+//                 ... on FooNode {
+//                     otherField
+//                 }
+//             }
+//         }
+//
+//     "#;
+//
+//     let root = Query;
+//     let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+//     let res = schema.execute(req).await;
+//     assert_eq!(
+//         res.data.into_json().unwrap(),
+//         serde_json::json!({
+//             "node": {
+//                 "theId": "foo",
+//                 "otherField": "foo",
+//             }
+//         })
+//     );
+// }
+//
+// #[tokio::test]
+// async fn interface_as_output_value_for_expand_object_with_mark_as() {
+//     #[Interface(NodeInterface)]
+//     trait Node {
+//         fn the_id(&self) -> String;
+//     }
+//
+//     #[derive(ResolvedObject)]
+//     #[graphql(mark_as = "Node")]
+//     struct FooNode;
+//
+//     #[ResolvedObjectFields]
+//     impl FooNode {
+//         fn the_id(&self) -> String {
+//             "foo".to_string()
+//         }
+//         async fn other_field(&self) -> String {
+//             "foo".to_string()
+//         }
+//     }
+//
+//     #[derive(ResolvedObject)]
+//     struct Query;
+//
+//     #[ResolvedObjectFields]
+//     impl Query {
+//         async fn node(&self) -> NodeInterface {
+//             NodeInterface::new_owned(FooNode)
+//         }
+//     }
+//
+//     #[derive(App)]
+//     struct App(Query, NodeInterface<'static>, FooNode);
+//
+//     let registry = dynamic_graphql::Registry::new();
+//     let registry = registry.register::<App>().set_root("Query");
+//     let schema = registry.create_schema().finish().unwrap();
+//     let sdl = schema.sdl();
+//     assert_eq!(
+//         normalize_schema(&sdl),
+//         normalize_schema(
+//             r#"
+//
+//                 type FooNode implements Node {
+//                     theId: String!
+//                     otherField: String!
+//                 }
+//
+//                 interface Node {
+//                     theId: String!
+//                 }
+//
+//                 type Query {
+//                     node: Node!
+//                 }
+//
+//                 schema {
+//                     query: Query
+//                 }
+//
+//             "#
+//         ),
+//     );
+//
+//     let query = r#"
+//
+//         query {
+//             node {
+//                 theId
+//                 ... on FooNode {
+//                     otherField
+//                 }
+//             }
+//         }
+//
+//     "#;
+//
+//     let root = Query;
+//     let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+//     let res = schema.execute(req).await;
+//     assert_eq!(
+//         res.data.into_json().unwrap(),
+//         serde_json::json!({
+//             "node": {
+//                 "theId": "foo",
+//                 "otherField": "foo",
+//             }
+//         })
+//     );
+// }
