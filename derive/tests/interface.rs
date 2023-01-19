@@ -3,4 +3,5 @@ mod interface {
     mod as_value_tests;
     mod implementation_tests;
     mod interface_tests;
+    mod output_types_tests;
 }

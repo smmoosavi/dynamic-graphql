@@ -1,6 +1,13 @@
 use crate::types::{GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputType, OutputType};
 use async_graphql::dynamic;
 use async_graphql::dynamic::TypeRef;
+use std::borrow::Cow;
+
+impl<T: OutputType + Clone> GraphqlType for Cow<'_, T> {
+    const NAME: &'static str = <T as GraphqlType>::NAME;
+}
+
+impl<T: OutputType + Clone> OutputType for Cow<'_, T> {}
 
 impl GraphqlType for String {
     const NAME: &'static str = dynamic::TypeRef::STRING;

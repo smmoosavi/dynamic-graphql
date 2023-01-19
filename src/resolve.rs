@@ -1,4 +1,5 @@
 use crate::{Context, Error, FieldValue, Result, ID};
+use std::borrow::Cow;
 
 pub trait ResolveOwned<'a> {
     fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>>;
@@ -6,6 +7,16 @@ pub trait ResolveOwned<'a> {
 
 pub trait ResolveRef<'a> {
     fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>>;
+}
+
+// implement ResolveOwned for Cow<'a, T>
+impl<'a, T: ResolveOwned<'a> + ResolveRef<'a> + Clone> ResolveOwned<'a> for Cow<'a, T> {
+    fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+        match self {
+            Cow::Owned(value) => value.resolve_owned(ctx),
+            Cow::Borrowed(value) => value.resolve_ref(ctx),
+        }
+    }
 }
 
 impl<'a, T: ResolveOwned<'a>> ResolveOwned<'a> for Option<T> {
