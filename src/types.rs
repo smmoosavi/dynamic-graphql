@@ -62,7 +62,7 @@ pub trait InputObject: InputType {
 
 pub trait Mutation: Object {}
 
-pub trait ExpandObject: InterfaceTarget {
+pub trait ExpandObject {
     const NAME: &'static str;
     type Target: Object;
 }
