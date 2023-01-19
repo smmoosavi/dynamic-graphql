@@ -117,9 +117,11 @@ impl ToTokens for ResolvedObject {
         let impl_resolve_ref = common::impl_resolve_ref(self).into_token_stream();
         let impl_graphql_doc = common::impl_graphql_doc(self).into_token_stream();
         let impl_register_extras = impl_register_fns_trait(self).into_token_stream();
+        let impl_interface_mark = common::impl_interface_mark(self).into_token_stream();
 
         tokens.extend(quote! {
             #impl_object
+            #impl_interface_mark
             #impl_resolve_owned
             #impl_resolve_ref
             #impl_graphql_doc

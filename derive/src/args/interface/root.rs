@@ -9,6 +9,7 @@ use crate::args::{common, Interface};
 use crate::utils::common::{CommonArg, CommonObject, GetArgs, GetFields};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::error::IntoTokenStream;
+use crate::utils::interface_hash::get_interface_hash;
 
 impl FieldImplementor for InterfaceMethod {
     fn define_field(&self) -> darling::Result<TokenStream> {
@@ -76,6 +77,7 @@ impl ArgImplementor for InterfaceMethodArg {
 pub fn define_interface_struct(input: &Interface) -> darling::Result<TokenStream> {
     let create_name = get_create_name();
     let name = get_type_name(input)?;
+    let hash = get_interface_hash(&name);
 
     let ident = &input.arg.ident;
     Ok(quote! {
@@ -84,7 +86,9 @@ pub fn define_interface_struct(input: &Interface) -> darling::Result<TokenStream
             const NAME: &'static str = #name;
         }
         impl #create_name::OutputType for #ident<'static> {}
-        impl #create_name::Interface for #ident<'static> {}
+        impl #create_name::Interface for #ident<'static> {
+            const MARK: u64 = #hash;
+        }
     })
 }
 

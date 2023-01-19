@@ -45,11 +45,14 @@ pub trait Union: OutputType {
 
 pub trait Interface: OutputType {
     const NAME: &'static str = <Self as OutputType>::NAME;
+    const MARK: u64;
 }
 
 pub trait InterfaceTarget {
     const TARGET: &'static str;
 }
+
+pub trait InterfaceMark<const MARK: u64> {}
 
 pub struct InterfaceRoot;
 

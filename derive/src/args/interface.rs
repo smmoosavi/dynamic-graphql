@@ -272,19 +272,21 @@ impl CommonField for InterfaceMethod {
 fn define_new_fns_for_interface(input: &Interface) -> darling::Result<proc_macro2::TokenStream> {
     let create_name = get_create_name();
     let ident = &input.arg.ident;
+
+    let mark = quote!(<#ident <'static> as #create_name::Interface>::MARK);
     Ok(quote! {
 
         impl #ident<'_> {
             fn new_owned<'a, T>(value: T) -> #ident<'a>
             where
-                T: #create_name::Object + #create_name::ResolveOwned<'a> + Send + Sync + 'static,
+                T: #create_name::InterfaceMark<{#mark}> + #create_name::Object + #create_name::ResolveOwned<'a> + Send + Sync + 'static,
             {
                 #ident(Default::default() ,#create_name::AnyBox::new_owned(value, <T as #create_name::Object>::NAME.to_string()))
             }
 
             fn new_borrowed<'a, T>(value: &'a T) -> #ident<'a>
             where
-                T: #create_name::Object + #create_name::ResolveRef<'a> + Send + Sync + 'static,
+                T: #create_name::InterfaceMark<{#mark}> + #create_name::Object + #create_name::ResolveRef<'a> + Send + Sync + 'static,
             {
                 #ident(Default::default() ,#create_name::AnyBox::new_borrowed(value, <T as #create_name::Object>::NAME.to_string()))
             }

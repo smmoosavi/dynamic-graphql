@@ -6,6 +6,7 @@ use crate::args::common::{generics, replace_generic_lifetime_with_static};
 use crate::utils::common::{CommonInterfacable, CommonObject};
 use crate::utils::crate_name::get_create_name;
 use crate::utils::interface_attr::InterfaceAttr;
+use crate::utils::interface_hash::get_interface_hash;
 
 pub fn get_interface_code(obj: &impl CommonInterfacable) -> darling::Result<TokenStream> {
     let mark_with_code = get_add_mark_with_code(obj.get_mark_with())?;
@@ -73,5 +74,51 @@ pub fn get_add_implement_code(
         .collect();
     Ok(quote! {
         #(#implements)*
+    })
+}
+
+pub fn impl_interface_mark(object: &impl CommonInterfacable) -> darling::Result<TokenStream> {
+    let create_name = get_create_name();
+    let object_ident = object.get_ident();
+    let mark_as: Vec<_> = object
+        .get_mark_as()
+        .iter()
+        .map(|interface| {
+            let name = interface.to_string();
+            let mark = get_interface_hash(&name);
+            quote! {
+                impl #create_name::InterfaceMark<#mark> for #object_ident {}
+            }
+        })
+        .collect();
+
+    let mark_with: Vec<_> = object
+        .get_mark_with()
+        .iter()
+        .map(|interface| {
+            let ident = syn::Ident::new(interface, interface.span());
+            let mark = quote!(<#ident as #create_name::Interface>::MARK);
+            quote! {
+                impl #create_name::InterfaceMark<{#mark}> for #object_ident {}
+            }
+        })
+        .collect();
+
+    let mark_implement: Vec<_> = object
+        .get_implement()
+        .iter()
+        .map(|interface| {
+            let ident = syn::Ident::new(interface, interface.span());
+            let mark = quote!(<#ident as #create_name::Interface>::MARK);
+            quote! {
+                impl #create_name::InterfaceMark<{#mark}> for #object_ident {}
+            }
+        })
+        .collect();
+
+    Ok(quote! {
+        #(#mark_as)*
+        #(#mark_with)*
+        #(#mark_implement)*
     })
 }

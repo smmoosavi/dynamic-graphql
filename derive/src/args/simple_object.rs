@@ -261,8 +261,10 @@ impl ToTokens for SimpleObject {
         let impl_resolve_ref = common::impl_resolve_ref(self).into_token_stream();
         let impl_resolvers = impl_resolvers(self).into_token_stream();
         let impl_register = impl_register(self).into_token_stream();
+        let impl_interface_mark = common::impl_interface_mark(self).into_token_stream();
         tokens.extend(quote! {
             #impl_object
+            #impl_interface_mark
             #impl_resolve_owned
             #impl_resolve_ref
             #impl_resolvers

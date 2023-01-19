@@ -891,13 +891,13 @@ fn test_schema_generic_expand_object_with_implement() {
     #[derive(ExpandObject)]
     #[graphql(implement = "NodeInterface")]
     struct WithName<'a, T>(&'a T)
-        where
-            T: GetName + Object;
+    where
+        T: GetName + Object;
 
     #[ExpandObjectFields]
     impl<'a, T> WithName<'a, T>
-        where
-            T: GetName + Object + 'static,
+    where
+        T: GetName + Object + 'static,
     {
         fn other_field(&self) -> String {
             "other_field".to_string()
@@ -908,8 +908,8 @@ fn test_schema_generic_expand_object_with_implement() {
     }
 
     impl<'a, T> Node for WithName<'a, T>
-        where
-            T: GetName + Object + 'static,
+    where
+        T: GetName + Object + 'static,
     {
         fn the_id(&self) -> String {
             "the_id".to_string()
@@ -991,13 +991,13 @@ fn test_schema_generic_expand_object_with_error() {
     #[derive(ExpandObject)]
     #[graphql(mark_with = "NodeInterface")]
     struct WithName<'a, T>(&'a T)
-        where
-            T: GetName + Object;
+    where
+        T: GetName + Object;
 
     #[ExpandObjectFields]
     impl<'a, T> WithName<'a, T>
-        where
-            T: GetName + Object + 'static,
+    where
+        T: GetName + Object + 'static,
     {
         fn name(&self) -> String {
             self.parent().get_name()
