@@ -235,10 +235,11 @@ impl GetFields<ResolvedObjectFieldsMethod> for ResolvedObjectFields {
 
 impl ArgImplementor for ResolvedObjectFieldsArg {
     fn get_self_arg_definition(&self) -> darling::Result<TokenStream> {
+        let create_name = get_create_name();
         let arg_ident = common::get_arg_ident(self);
 
         Ok(quote! {
-            let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
+            let parent = ctx.parent_value.try_downcast_ref::<<Self as #create_name::ParentType>::Type>()?.into();
             let #arg_ident = parent;
         })
     }

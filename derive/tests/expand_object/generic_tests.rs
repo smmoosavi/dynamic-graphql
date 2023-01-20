@@ -1,6 +1,8 @@
 use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, ExpandObject, ExpandObjectFields, FieldValue, Object, SimpleObject};
+use dynamic_graphql::{
+    App, ExpandObject, ExpandObjectFields, FieldValue, Object, ParentType, SimpleObject,
+};
 
 #[test]
 fn test_impl_expand_object_with_generic() {
@@ -22,7 +24,7 @@ fn test_impl_expand_object_with_generic() {
     struct ExpandExample<'a, T: GetName + Object>(&'a T);
 
     assert_eq!(
-        <<ExpandExample<Example> as ExpandObject>::Target as Object>::NAME,
+        <<ExpandExample<Example> as ParentType>::Type as Object>::NAME,
         "Example"
     );
     assert_eq!(
@@ -61,7 +63,7 @@ fn test_impl_expand_object_with_where() {
         T: GetName + Object;
 
     assert_eq!(
-        <<ExpandExample<Example> as ExpandObject>::Target as Object>::NAME,
+        <<ExpandExample<Example> as ParentType>::Type as Object>::NAME,
         "Example"
     );
     assert_eq!(
