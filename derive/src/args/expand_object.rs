@@ -50,9 +50,11 @@ fn impl_expand_object(object: &ExpandObject) -> darling::Result<TokenStream> {
     let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
 
     Ok(quote! {
+        impl #impl_generics #create_name::ParentType for #object_ident #ty_generics #where_clause {
+            type Type = #target;
+        }
         impl #impl_generics #create_name::ExpandObject for #object_ident #ty_generics #where_clause {
             const NAME: &'static str = #name;
-            type Target = #target;
         }
     })
 }
@@ -64,7 +66,7 @@ fn impl_parent(object: &ExpandObject) -> darling::Result<TokenStream> {
 
     Ok(quote! {
         impl #impl_generics #object_ident #ty_generics #where_clause {
-                fn parent(&self) -> &'a <Self as #create_name::ExpandObject>::Target {
+                fn parent(&self) -> &'a <Self as #create_name::ParentType>::Type {
                     self.0
                 }
         }

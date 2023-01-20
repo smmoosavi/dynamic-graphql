@@ -240,7 +240,7 @@ impl ArgImplementor for ExpandObjectFieldsArg {
         let create_name = get_create_name();
         let arg_ident = common::get_arg_ident(self);
         Ok(quote! {
-            let parent = ctx.parent_value.try_downcast_ref::<<Self as #create_name::ExpandObject>::Target>()?.into();
+            let parent = ctx.parent_value.try_downcast_ref::<<Self as #create_name::ParentType>::Type>()?.into();
             let #arg_ident = &parent;
         })
     }
@@ -364,7 +364,7 @@ fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
 
                 #define_fields
                 registry.update_object(
-                    <<Self as #create_name::ExpandObject>::Target as #create_name::Object>::NAME,
+                    <<Self as #create_name::ParentType>::Type as #create_name::Object>::NAME,
                     <Self as #create_name::ExpandObject>::NAME,
                     |object| {
                         #use_fields

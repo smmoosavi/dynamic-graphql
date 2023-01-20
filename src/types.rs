@@ -27,7 +27,7 @@ pub trait InputType: GraphqlType {
     const NAME: &'static str = <Self as GraphqlType>::NAME;
 }
 
-pub trait Object: OutputType + InterfaceTarget {
+pub trait Object: OutputType + InterfaceTarget + ParentType {
     const NAME: &'static str = <Self as OutputType>::NAME;
 }
 
@@ -48,6 +48,10 @@ pub trait Interface: OutputType {
     const MARK: u64;
 }
 
+pub trait ParentType {
+    type Type: Object;
+}
+
 pub trait InterfaceTarget {
     const TARGET: &'static str;
 }
@@ -62,9 +66,8 @@ pub trait InputObject: InputType {
 
 pub trait Mutation: Object {}
 
-pub trait ExpandObject {
+pub trait ExpandObject: ParentType {
     const NAME: &'static str;
-    type Target: Object;
 }
 
 pub trait GetOutputTypeRef {

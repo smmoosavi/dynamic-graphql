@@ -15,7 +15,7 @@ pub use resolve::{ResolveOwned, ResolveRef};
 pub use types::{
     Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, GraphqlDoc, GraphqlType, InputObject,
     InputType, Interface, InterfaceMark, InterfaceRoot, InterfaceTarget, Mutation, Object,
-    OutputType, Register, RegisterFns, Scalar, Union,
+    OutputType, ParentType, Register, RegisterFns, Scalar, Union,
 };
 
 pub use dynamic_graphql_derive::{
