@@ -1,5 +1,6 @@
 use crate::registry::Registry;
 use async_graphql::dynamic::TypeRef;
+use std::borrow::Borrow;
 
 mod common;
 
@@ -50,6 +51,13 @@ pub trait Interface: OutputType {
 
 pub trait ParentType {
     type Type: Object;
+}
+
+pub trait FromParent<T>: Sized {
+    type Output<'a>: Borrow<Self>
+    where
+        T: 'a;
+    fn from_parent(parent: &T) -> Self::Output<'_>;
 }
 
 pub trait InterfaceTarget {

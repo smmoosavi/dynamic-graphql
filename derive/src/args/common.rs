@@ -54,6 +54,12 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
         impl #create_name::ParentType for #object_ident {
             type Type = #object_ident;
         }
+        impl #create_name::FromParent<#object_ident> for #object_ident {
+            type Output<'a> = &'a #object_ident;
+            fn from_parent<'a>(parent: &'a #object_ident) -> Self::Output<'a> {
+                parent
+            }
+        }
         impl #create_name::GraphqlType for #object_ident {
             const NAME: &'static str = #name;
         }
