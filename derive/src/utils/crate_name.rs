@@ -2,7 +2,7 @@ use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_crate::{crate_name, FoundCrate};
 use quote::quote;
 
-pub fn get_create_name() -> TokenStream {
+pub fn get_crate_name() -> TokenStream {
     let found_crate =
         crate_name("dynamic-graphql").expect("dynamic-graphql is present in `Cargo.toml`");
 

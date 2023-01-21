@@ -7,19 +7,19 @@ use crate::args::common::{
 use crate::args::interface::{InterfaceMethod, InterfaceMethodArg};
 use crate::args::{common, Interface};
 use crate::utils::common::{CommonArg, CommonObject, GetArgs, GetFields};
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::interface_hash::get_interface_hash;
 
 impl FieldImplementor for InterfaceMethod {
     fn define_field(&self) -> darling::Result<TokenStream> {
-        let create_name = get_create_name();
+        let crate_name = get_crate_name();
         let field_name = get_field_name(self)?;
         let field_type = get_field_type(self)?;
         Ok(quote! {
-            let field = #create_name::dynamic::InterfaceField::new(
+            let field = #crate_name::dynamic::InterfaceField::new(
                 #field_name,
-                <#field_type as #create_name::GetOutputTypeRef>::get_output_type_ref(),
+                <#field_type as #crate_name::GetOutputTypeRef>::get_output_type_ref(),
             );
         })
     }
@@ -75,18 +75,18 @@ impl ArgImplementor for InterfaceMethodArg {
 }
 
 pub fn define_interface_struct(input: &Interface) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let name = get_type_name(input)?;
     let hash = get_interface_hash(&name);
 
     let ident = &input.arg.ident;
     Ok(quote! {
-        pub struct #ident<'a, T=#create_name::InterfaceRoot>(::std::marker::PhantomData<T>, #create_name::AnyBox<'a>);
-        impl #create_name::GraphqlType for #ident<'static> {
+        pub struct #ident<'a, T=#crate_name::InterfaceRoot>(::std::marker::PhantomData<T>, #crate_name::AnyBox<'a>);
+        impl #crate_name::GraphqlType for #ident<'static> {
             const NAME: &'static str = #name;
         }
-        impl #create_name::OutputType for #ident<'static> {}
-        impl #create_name::Interface for #ident<'static> {
+        impl #crate_name::OutputType for #ident<'static> {}
+        impl #crate_name::Interface for #ident<'static> {
             const MARK: u64 = #hash;
         }
     })
@@ -107,17 +107,17 @@ where
 }
 
 pub fn impl_register(input: &Interface) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ident = &input.arg.ident;
 
     let description = common::object_description(input.get_doc()?.as_deref())?;
     let define_fields = get_define_fields_code(input)?;
     let register_code = common::register_object_code();
     Ok(quote! {
-        impl #create_name::Register for #ident <'static> {
-            fn register(registry: #create_name::Registry) -> #create_name::Registry {
+        impl #crate_name::Register for #ident <'static> {
+            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 // todo rename to interface
-                let object = #create_name::dynamic::Interface::new(<Self as #create_name::Interface>::NAME);
+                let object = #crate_name::dynamic::Interface::new(<Self as #crate_name::Interface>::NAME);
 
                 #description
                 #define_fields

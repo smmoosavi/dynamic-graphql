@@ -1,6 +1,6 @@
 use crate::args::common::{ArgImplementor, FieldImplementor};
 use crate::utils::common::{CommonField, GetArgs};
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::rename_rule::calc_field_name;
@@ -79,7 +79,7 @@ where
     F: FieldImplementor + GetArgs<A>,
     A: ArgImplementor,
 {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
 
     let field_name = get_field_name(method)?;
     let field_type = get_field_type(method)?;
@@ -87,8 +87,8 @@ where
     let execute = method.get_execute_code()?;
     let resolve = method.get_resolve_code()?;
     Ok(quote! {
-        let field = #create_name::dynamic::Field::new(#field_name, <#field_type as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
-            #create_name::dynamic::FieldFuture::new(async move {
+        let field = #crate_name::dynamic::Field::new(#field_name, <#field_type as #crate_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
+            #crate_name::dynamic::FieldFuture::new(async move {
                 #graphql_args_definition
                 #execute
                 #resolve
@@ -118,7 +118,7 @@ where
 }
 
 pub fn resolve_value_code(ty: &syn::Type) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
 
     let is_str = is_type_str(ty);
     let is_slice = is_type_slice(ty);
@@ -126,10 +126,10 @@ pub fn resolve_value_code(ty: &syn::Type) -> darling::Result<TokenStream> {
     let is_owned = !is_ref;
 
     let resolve_ref = quote! {
-        #create_name::ResolveRef::resolve_ref(value, &ctx)
+        #crate_name::ResolveRef::resolve_ref(value, &ctx)
     };
     let resolve_owned = quote! {
-        #create_name::ResolveOwned::resolve_owned(value, &ctx)
+        #crate_name::ResolveOwned::resolve_owned(value, &ctx)
     };
     if is_owned || is_str || is_slice {
         Ok(resolve_owned)

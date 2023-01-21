@@ -1,7 +1,7 @@
 use crate::args::common;
 use crate::args::common::{field_deprecation_code, get_enum_item_name, get_type_name};
 use crate::utils::common::{CommonField, CommonObject, GetFields};
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseEnum, UnitVariant};
 use crate::utils::error::IntoTokenStream;
@@ -126,17 +126,17 @@ impl GetFields<EnumVariant> for Enum {
 }
 
 fn impl_enum(enm: &impl CommonObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let enum_ident = enm.get_ident();
     let name = get_type_name(enm)?;
 
     Ok(quote! {
-         impl #create_name::GraphqlType for #enum_ident {
+         impl #crate_name::GraphqlType for #enum_ident {
             const NAME: &'static str = #name;
         }
-        impl #create_name::InputType for #enum_ident {}
-        impl #create_name::OutputType for #enum_ident {}
-        impl #create_name::Enum for #enum_ident {}
+        impl #crate_name::InputType for #enum_ident {}
+        impl #crate_name::OutputType for #enum_ident {}
+        impl #crate_name::Enum for #enum_ident {}
     })
 }
 
@@ -144,15 +144,15 @@ fn impl_into_value_match_item(
     enm: &impl CommonObject,
     variant: &impl CommonField,
 ) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ty = enm.get_ident();
     let variant_ident = variant.get_ident()?;
     let variant_name = get_enum_item_name(variant)?;
 
     Ok(quote! {
         #ty::#variant_ident => {
-            #create_name::Value::Enum(
-                #create_name::Name::new(#variant_name)
+            #crate_name::Value::Enum(
+                #crate_name::Name::new(#variant_name)
             )
         }
     })
@@ -175,12 +175,12 @@ where
     T: GetFields<F> + CommonObject,
     F: CommonField,
 {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let enum_ident = enm.get_ident();
     let match_items = impl_into_value_match_items(enm)?;
 
     Ok(quote! {
-        impl From<&#enum_ident> for #create_name::Value {
+        impl From<&#enum_ident> for #crate_name::Value {
             fn from(value: &#enum_ident) -> Self {
                 match value {
                     #match_items
@@ -218,18 +218,18 @@ where
 }
 
 fn impl_from_value(enm: &Enum) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let enum_ident = enm.get_ident();
     let match_items = get_from_value_match_items(enm)?;
 
     Ok(quote! {
-        impl #create_name::FromValue for #enum_ident {
-            fn from_value(__value: #create_name::dynamic::ValueAccessor) -> #create_name::Result<Self> {
+        impl #crate_name::FromValue for #enum_ident {
+            fn from_value(__value: #crate_name::dynamic::ValueAccessor) -> #crate_name::Result<Self> {
                 let string_value = __value.enum_name()?;
                 match string_value {
                     #match_items
-                    _ => Err(#create_name::Error::new(
-                        format!("Unknown variant `{}` for enum `{}`", string_value, <#enum_ident as #create_name::Enum>::NAME)
+                    _ => Err(#crate_name::Error::new(
+                        format!("Unknown variant `{}` for enum `{}`", string_value, <#enum_ident as #crate_name::Enum>::NAME)
                     )),
                 }
             }
@@ -311,13 +311,13 @@ fn impl_remote(enm: &Enum) -> darling::Result<TokenStream> {
 }
 
 fn register_item(variant: &impl CommonField) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let name = get_enum_item_name(variant)?;
     let description = common::field_description(variant)?;
     let deprecated = field_deprecation_code(variant)?;
     // todo rename field to item
     Ok(quote! {
-        let field = #create_name::dynamic::EnumItem::new(#name);
+        let field = #crate_name::dynamic::EnumItem::new(#name);
         #description
         #deprecated
         let object = object.item(field);
@@ -337,15 +337,15 @@ where
 }
 
 fn impl_register(enm: &Enum) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let enum_ident = enm.get_ident();
     let items = register_items(enm)?;
     let description = common::object_description(enm.get_doc()?.as_deref())?;
     // todo rename object to enm
     Ok(quote! {
-        impl #create_name::Register for #enum_ident {
-            fn register(registry: #create_name::Registry) -> #create_name::Registry {
-                let object = #create_name::dynamic::Enum::new(<#enum_ident as #create_name::GraphqlType>::NAME);
+        impl #crate_name::Register for #enum_ident {
+            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+                let object = #crate_name::dynamic::Enum::new(<#enum_ident as #crate_name::GraphqlType>::NAME);
                 #description
                 #items
                 registry.register_type(object)

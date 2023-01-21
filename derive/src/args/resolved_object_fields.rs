@@ -9,7 +9,7 @@ use crate::utils::attributes::Attributes;
 use crate::utils::common::{
     CommonArg, CommonField, CommonMethod, CommonObject, GetArgs, GetFields,
 };
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::{BaseFnArg, BaseItemImpl, BaseMethod};
@@ -235,11 +235,11 @@ impl GetFields<ResolvedObjectFieldsMethod> for ResolvedObjectFields {
 
 impl ArgImplementor for ResolvedObjectFieldsArg {
     fn get_self_arg_definition(&self) -> darling::Result<TokenStream> {
-        let create_name = get_create_name();
+        let crate_name = get_crate_name();
         let arg_ident = common::get_arg_ident(self);
 
         Ok(quote! {
-            let parent = ctx.parent_value.try_downcast_ref::<<Self as #create_name::ParentType>::Type>()?.into();
+            let parent = ctx.parent_value.try_downcast_ref::<<Self as #crate_name::ParentType>::Type>()?.into();
             let #arg_ident = parent;
         })
     }
@@ -310,10 +310,10 @@ where
 }
 
 fn impl_object_description() -> TokenStream {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
 
     quote! {
-        let object = <Self as #create_name::GraphqlDoc>::DOC.iter().fold(object, |object, doc| {
+        let object = <Self as #crate_name::GraphqlDoc>::DOC.iter().fold(object, |object, doc| {
             object.description(doc.to_owned())
         });
     }
@@ -334,7 +334,7 @@ where
 }
 
 fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ty = &object.ty;
     let define_object = common::impl_define_object();
     let description = impl_object_description();
@@ -343,8 +343,8 @@ fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> 
     let register_fns = common::call_register_fns();
 
     Ok(quote! {
-        impl #create_name::Register for #ty {
-            fn register(registry: #create_name::Registry) -> #create_name::Registry {
+        impl #crate_name::Register for #ty {
+            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #define_object
 
                 #define_fields

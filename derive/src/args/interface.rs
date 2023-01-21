@@ -9,7 +9,7 @@ use syn::{Generics, ItemTrait, Meta, Path, Type};
 use crate::args::interface::others::impl_others_register;
 use crate::utils::attributes::Attributes;
 use crate::utils::common::{CommonArg, CommonField, CommonObject, GetArgs, GetFields};
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::{BaseFnArg, BaseItemTrait, BaseMethod, FromItemTrait};
@@ -270,25 +270,25 @@ impl CommonField for InterfaceMethod {
 }
 
 fn define_new_fns_for_interface(input: &Interface) -> darling::Result<proc_macro2::TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ident = &input.arg.ident;
 
-    let mark = quote!(<#ident <'static> as #create_name::Interface>::MARK);
+    let mark = quote!(<#ident <'static> as #crate_name::Interface>::MARK);
     Ok(quote! {
 
         impl #ident<'_> {
             fn new_owned<'a, T>(value: T) -> #ident<'a>
             where
-                T: #create_name::InterfaceMark<{#mark}> + #create_name::Object + #create_name::ResolveOwned<'a> + Send + Sync + 'static,
+                T: #crate_name::InterfaceMark<{#mark}> + #crate_name::Object + #crate_name::ResolveOwned<'a> + Send + Sync + 'static,
             {
-                #ident(Default::default() ,#create_name::AnyBox::new_owned(value, <T as #create_name::Object>::NAME.to_string()))
+                #ident(Default::default() ,#crate_name::AnyBox::new_owned(value, <T as #crate_name::Object>::NAME.to_string()))
             }
 
             fn new_borrowed<'a, T>(value: &'a T) -> #ident<'a>
             where
-                T: #create_name::InterfaceMark<{#mark}> + #create_name::Object + #create_name::ResolveRef<'a> + Send + Sync + 'static,
+                T: #crate_name::InterfaceMark<{#mark}> + #crate_name::Object + #crate_name::ResolveRef<'a> + Send + Sync + 'static,
             {
-                #ident(Default::default() ,#create_name::AnyBox::new_borrowed(value, <T as #create_name::Object>::NAME.to_string()))
+                #ident(Default::default() ,#crate_name::AnyBox::new_borrowed(value, <T as #crate_name::Object>::NAME.to_string()))
             }
         }
 
@@ -298,12 +298,12 @@ fn define_new_fns_for_interface(input: &Interface) -> darling::Result<proc_macro
 fn define_resolve_owned_for_interface(
     input: &Interface,
 ) -> darling::Result<proc_macro2::TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ident = &input.arg.ident;
 
     Ok(quote! {
-        impl<'a> #create_name::ResolveOwned<'a> for #ident<'a> {
-            fn resolve_owned(self, ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
+        impl<'a> #crate_name::ResolveOwned<'a> for #ident<'a> {
+            fn resolve_owned(self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
                 self.1.resolve_owned(ctx)
             }
         }

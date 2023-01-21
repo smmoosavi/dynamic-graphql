@@ -1,6 +1,6 @@
 use crate::args::common;
 use crate::utils::common::{CommonField, CommonObject, GetFields};
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
@@ -141,15 +141,15 @@ where
 }
 
 fn impl_register(object: &InputObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ident = &object.ident;
     let define_object = common::impl_define_input_object();
     let define_fields = get_define_fields(object)?;
     let description = common::object_description(object.get_doc()?.as_deref())?;
     let register_object_code = common::register_object_code();
     Ok(quote! {
-        impl #create_name::Register for #ident {
-            fn register(registry: #create_name::Registry) -> #create_name::Registry {
+        impl #crate_name::Register for #ident {
+            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #define_object
 
                 #description
@@ -167,7 +167,7 @@ fn get_item_ident(index: usize, ident: &syn::Ident) -> syn::Ident {
 }
 
 fn get_field_value(index: usize, field: &InputObjectField) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let field_ident = field.get_ident()?;
     let item = get_item_ident(index, field_ident);
     let field_name = common::get_input_field_name(field)?;
@@ -177,7 +177,7 @@ fn get_field_value(index: usize, field: &InputObjectField) -> darling::Result<To
         });
     }
     Ok(quote! {
-        let #item = #create_name::FromValue::from_value(__object.try_get(#field_name)?)?;
+        let #item = #crate_name::FromValue::from_value(__object.try_get(#field_name)?)?;
     })
 }
 
@@ -219,13 +219,13 @@ where
 }
 
 fn impl_from_value(object: &InputObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ident = object.get_ident();
     let fields_value = get_fields_value(object);
     let fields_usage = get_fields_usage(object)?;
     Ok(quote!(
-        impl #create_name::FromValue for #ident {
-            fn from_value(__value: #create_name::dynamic::ValueAccessor) -> #create_name::Result<Self> {
+        impl #crate_name::FromValue for #ident {
+            fn from_value(__value: #crate_name::dynamic::ValueAccessor) -> #crate_name::Result<Self> {
                 let __object = __value.object()?;
                 #fields_value
                 #fields_usage

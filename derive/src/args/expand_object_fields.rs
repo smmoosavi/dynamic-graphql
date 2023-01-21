@@ -9,7 +9,7 @@ use crate::utils::attributes::Attributes;
 use crate::utils::common::{
     CommonArg, CommonField, CommonMethod, CommonObject, GetArgs, GetFields,
 };
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::{BaseFnArg, BaseItemImpl, BaseMethod};
@@ -237,10 +237,10 @@ impl GetFields<ExpandObjectFieldsMethod> for ExpandObjectFields {
 
 impl ArgImplementor for ExpandObjectFieldsArg {
     fn get_self_arg_definition(&self) -> darling::Result<TokenStream> {
-        let create_name = get_create_name();
+        let crate_name = get_crate_name();
         let arg_ident = common::get_arg_ident(self);
         Ok(quote! {
-            let parent = ctx.parent_value.try_downcast_ref::<<Self as #create_name::ParentType>::Type>()?.into();
+            let parent = ctx.parent_value.try_downcast_ref::<<Self as #crate_name::ParentType>::Type>()?.into();
             let #arg_ident = &parent;
         })
     }
@@ -348,7 +348,7 @@ fn use_fields_code(expand: &ExpandObjectFields) -> darling::Result<TokenStream> 
 }
 
 fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let (impl_generics, _, where_clause) = expand.generics.split_for_impl();
     let ty = &expand.ty;
 
@@ -358,14 +358,14 @@ fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
 
     let register_fns = common::call_register_fns();
     Ok(quote! {
-        impl #impl_generics #create_name::Register for #ty #where_clause {
-            fn register(registry: #create_name::Registry) -> #create_name::Registry {
+        impl #impl_generics #crate_name::Register for #ty #where_clause {
+            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #register_fns
 
                 #define_fields
                 registry.update_object(
-                    <<Self as #create_name::ParentType>::Type as #create_name::Object>::NAME,
-                    <Self as #create_name::ExpandObject>::NAME,
+                    <<Self as #crate_name::ParentType>::Type as #crate_name::Object>::NAME,
+                    <Self as #crate_name::ExpandObject>::NAME,
                     |object| {
                         #use_fields
                         object

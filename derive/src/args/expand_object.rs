@@ -5,7 +5,7 @@ use syn::Generics;
 
 use crate::args::common;
 use crate::utils::common::CommonObject;
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{NewtypeStruct, TupleField};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
@@ -41,7 +41,7 @@ impl CommonObject for ExpandObject {
 }
 
 fn impl_expand_object(object: &ExpandObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = &object.ident;
     let target = get_owned_type(&object.data.ty);
     let name = object.ident.to_string();
@@ -50,23 +50,23 @@ fn impl_expand_object(object: &ExpandObject) -> darling::Result<TokenStream> {
     let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
 
     Ok(quote! {
-        impl #impl_generics #create_name::ParentType for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::ParentType for #object_ident #ty_generics #where_clause {
             type Type = #target;
         }
-        impl #impl_generics #create_name::ExpandObject for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::ExpandObject for #object_ident #ty_generics #where_clause {
             const NAME: &'static str = #name;
         }
     })
 }
 
 fn impl_parent(object: &ExpandObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = &object.ident;
     let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
 
     Ok(quote! {
         impl #impl_generics #object_ident #ty_generics #where_clause {
-                fn parent(&self) -> &'a <Self as #create_name::ParentType>::Type {
+                fn parent(&self) -> &'a <Self as #crate_name::ParentType>::Type {
                     self.0
                 }
         }
@@ -88,7 +88,7 @@ fn impl_from(object: &ExpandObject) -> darling::Result<TokenStream> {
 }
 
 fn impl_register_fns_trait(object: &impl CommonObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = object.get_ident();
 
     let generics = common::add_static_to_types_in_where_clause(object.get_generics()?);
@@ -96,8 +96,8 @@ fn impl_register_fns_trait(object: &impl CommonObject) -> darling::Result<TokenS
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let q = quote! {
-        impl #impl_generics #create_name::RegisterFns for #object_ident #ty_generics #where_clause {
-            const REGISTER_FNS: &'static [fn (registry: #create_name::Registry) -> #create_name::Registry] = &[];
+        impl #impl_generics #crate_name::RegisterFns for #object_ident #ty_generics #where_clause {
+            const REGISTER_FNS: &'static [fn (registry: #crate_name::Registry) -> #crate_name::Registry] = &[];
         }
     };
 

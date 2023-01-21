@@ -5,7 +5,7 @@ use syn::{Generics, Path};
 
 use crate::args::common;
 use crate::utils::common::{CommonField, CommonInterfacable, CommonObject, GetFields};
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::IntoTokenStream;
@@ -194,15 +194,15 @@ where
     let field_name = common::get_field_name(field)?;
     let ty = field.get_type()?;
     let resolver_ident = get_resolver_ident(field)?;
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let description = common::field_description(field)?;
     let deprecation = common::field_deprecation_code(field)?;
     Ok(quote! {
-        let field = #create_name::dynamic::Field::new(#field_name, <#ty as #create_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
-            #create_name::dynamic::FieldFuture::new(async move {
+        let field = #crate_name::dynamic::Field::new(#field_name, <#ty as #crate_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
+            #crate_name::dynamic::FieldFuture::new(async move {
                 let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
                 let value = Self::#resolver_ident(parent);
-                #create_name::ResolveRef::resolve_ref(value, &ctx)
+                #crate_name::ResolveRef::resolve_ref(value, &ctx)
             })
         });
         #description
@@ -225,7 +225,7 @@ where
 }
 
 fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ident = &object.ident;
     let define_object = common::impl_define_object();
     let add_interfaces = common::get_interface_code(object)?;
@@ -236,8 +236,8 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     let register_object_code = common::register_object_code();
 
     Ok(quote! {
-        impl #create_name::Register for #ident {
-            fn register(registry: #create_name::Registry) -> #create_name::Registry {
+        impl #crate_name::Register for #ident {
+            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #define_object
 
                 #implement

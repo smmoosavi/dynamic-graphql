@@ -4,7 +4,7 @@ use syn::spanned::Spanned;
 
 use crate::args::common::{generics, replace_generic_lifetime_with_static};
 use crate::utils::common::{CommonInterfacable, CommonObject};
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::interface_attr::InterfaceAttr;
 use crate::utils::interface_hash::get_interface_hash;
 
@@ -19,13 +19,13 @@ pub fn get_interface_code(obj: &impl CommonInterfacable) -> darling::Result<Toke
 }
 
 fn get_add_mark_with_code(mark_with: &[InterfaceAttr]) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let implements: Vec<TokenStream> = mark_with
         .iter()
         .map(|interface| {
             let ident = syn::Ident::new(interface, interface.span());
             quote! {
-                let object = object.implement(<#ident as #create_name::Interface>::NAME);
+                let object = object.implement(<#ident as #crate_name::Interface>::NAME);
             }
         })
         .collect();
@@ -78,7 +78,7 @@ pub fn get_add_implement_code(
 }
 
 pub fn impl_interface_mark(object: &impl CommonInterfacable) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = object.get_ident();
     let mark_as: Vec<_> = object
         .get_mark_as()
@@ -87,7 +87,7 @@ pub fn impl_interface_mark(object: &impl CommonInterfacable) -> darling::Result<
             let name = interface.to_string();
             let mark = get_interface_hash(&name);
             quote! {
-                impl #create_name::InterfaceMark<#mark> for #object_ident {}
+                impl #crate_name::InterfaceMark<#mark> for #object_ident {}
             }
         })
         .collect();
@@ -97,9 +97,9 @@ pub fn impl_interface_mark(object: &impl CommonInterfacable) -> darling::Result<
         .iter()
         .map(|interface| {
             let ident = syn::Ident::new(interface, interface.span());
-            let mark = quote!(<#ident as #create_name::Interface>::MARK);
+            let mark = quote!(<#ident as #crate_name::Interface>::MARK);
             quote! {
-                impl #create_name::InterfaceMark<{#mark}> for #object_ident {}
+                impl #crate_name::InterfaceMark<{#mark}> for #object_ident {}
             }
         })
         .collect();
@@ -109,9 +109,9 @@ pub fn impl_interface_mark(object: &impl CommonInterfacable) -> darling::Result<
         .iter()
         .map(|interface| {
             let ident = syn::Ident::new(interface, interface.span());
-            let mark = quote!(<#ident as #create_name::Interface>::MARK);
+            let mark = quote!(<#ident as #crate_name::Interface>::MARK);
             quote! {
-                impl #create_name::InterfaceMark<{#mark}> for #object_ident {}
+                impl #crate_name::InterfaceMark<{#mark}> for #object_ident {}
             }
         })
         .collect();

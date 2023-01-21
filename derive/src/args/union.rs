@@ -1,6 +1,6 @@
 use crate::args::common;
 use crate::utils::common::CommonObject;
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{BaseEnum, NewtypeVariant};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
@@ -49,15 +49,15 @@ impl CommonObject for Union {
 }
 
 fn impl_union(union: &Union) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let name = common::get_type_name(union)?;
     let ident = union.get_ident();
     Ok(quote! {
-        impl #create_name::GraphqlType for #ident {
+        impl #crate_name::GraphqlType for #ident {
             const NAME: &'static str = #name;
         }
-        impl #create_name::OutputType for #ident {}
-        impl #create_name::Union for #ident {}
+        impl #crate_name::OutputType for #ident {}
+        impl #crate_name::Union for #ident {}
     })
 }
 
@@ -65,19 +65,19 @@ fn define_resolve_owned_match_pattern(
     union: &Union,
     item: &UnionItem,
 ) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let union_ident = union.get_ident();
     let variant_ident = &item.ident;
     let variant_type = get_type_ident(&item.fields.ty)?;
     Ok(quote! {
         #union_ident::#variant_ident(value) => {
-            #create_name::ResolveOwned::resolve_owned(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #create_name::Object>::NAME)))
+            #crate_name::ResolveOwned::resolve_owned(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::Object>::NAME)))
         }
     })
 }
 
 fn define_resolve_owned_for_union(union: &Union) -> darling::Result<proc_macro2::TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ident = union.get_ident();
 
     let match_patterns = union
@@ -87,8 +87,8 @@ fn define_resolve_owned_for_union(union: &Union) -> darling::Result<proc_macro2:
         .collect::<Vec<_>>();
 
     Ok(quote! {
-        impl<'a> #create_name::ResolveOwned<'a> for #ident {
-            fn resolve_owned(self, ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
+        impl<'a> #crate_name::ResolveOwned<'a> for #ident {
+            fn resolve_owned(self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
                 match self {
                     #(#match_patterns),*
                 }
@@ -101,7 +101,7 @@ fn define_resolve_ref_match_pattern(
     union: &Union,
     item: &UnionItem,
 ) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let create_name = get_crate_name();
     let union_ident = union.get_ident();
     let variant_ident = &item.ident;
     let variant_type = get_type_ident(&item.fields.ty)?;
@@ -113,7 +113,7 @@ fn define_resolve_ref_match_pattern(
 }
 
 fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::TokenStream> {
-    let create_name = get_create_name();
+    let create_name = get_crate_name();
     let ident = union.get_ident();
 
     let match_patterns = union
@@ -134,7 +134,7 @@ fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::T
 }
 
 fn define_union_code(union: &Union) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let create_name = get_crate_name();
     let name = common::get_type_name(union)?;
     Ok(quote! {
         let object = #create_name::dynamic::Union::new(#name);
@@ -142,7 +142,7 @@ fn define_union_code(union: &Union) -> darling::Result<TokenStream> {
 }
 
 fn define_item(item: &UnionItem) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let create_name = get_crate_name();
     let ty = get_owned_type(&item.fields.ty);
     Ok(quote! {
         let object = object.possible_type(<#ty as #create_name::Object>::NAME);
@@ -161,7 +161,7 @@ fn define_items(union: &Union) -> darling::Result<TokenStream> {
 }
 
 fn impl_register(union: &Union) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let create_name = get_crate_name();
     let ident = union.get_ident();
     let define_union = define_union_code(union).into_token_stream();
     let description = union

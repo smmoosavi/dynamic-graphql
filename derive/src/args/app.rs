@@ -1,4 +1,4 @@
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{BaseStruct, TupleField};
 use darling::ToTokens;
 use proc_macro2::TokenStream;
@@ -8,7 +8,7 @@ use syn::Generics;
 pub type App = BaseStruct<TupleField, Generics>;
 
 fn impl_register(app: &App) -> TokenStream {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ident = &app.ident;
     let registers: TokenStream = app
         .data
@@ -23,8 +23,8 @@ fn impl_register(app: &App) -> TokenStream {
         .collect();
     let (impl_generics, ty_generics, where_clause) = app.generics.split_for_impl();
     quote! {
-        impl #impl_generics #create_name::Register for #ident #ty_generics #where_clause {
-            fn register(registry: #create_name::Registry) -> #create_name::Registry {
+        impl #impl_generics #crate_name::Register for #ident #ty_generics #where_clause {
+            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #registers
                 registry
             }

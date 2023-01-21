@@ -6,7 +6,7 @@ use crate::args::common::{ArgImplementor, FieldImplementor};
 use crate::args::interface::{InterfaceMethod, InterfaceMethodArg};
 use crate::args::{common, Interface};
 use crate::utils::common::{CommonArg, CommonField, CommonMethod, GetArgs, GetFields};
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::rename_rule::RenameRule;
@@ -146,7 +146,7 @@ fn use_fields_code(input: &Interface) -> darling::Result<TokenStream> {
 }
 
 pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let ident = &input.arg.ident;
     let trait_ident = &input.ident;
 
@@ -156,15 +156,15 @@ pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
 
     Ok(quote! {
 
-        impl <I> #create_name::Register for #ident<'static, I> where I: #trait_ident + #create_name::InterfaceTarget + 'static {
-            fn register(registry: #create_name::Registry) -> #create_name::Registry {
+        impl <I> #crate_name::Register for #ident<'static, I> where I: #trait_ident + #crate_name::InterfaceTarget + 'static {
+            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #define_fields
                 registry.update_object(
-                    <I as #create_name::InterfaceTarget>::TARGET,
-                    <#ident as #create_name::Interface>::NAME,
+                    <I as #crate_name::InterfaceTarget>::TARGET,
+                    <#ident as #crate_name::Interface>::NAME,
                     |object| {
                         #use_fields
-                        let object = object.implement(<#ident as #create_name::Interface>::NAME);
+                        let object = object.implement(<#ident as #crate_name::Interface>::NAME);
                         object
                     },
                 )

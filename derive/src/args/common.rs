@@ -7,7 +7,7 @@ pub use generics::*;
 pub use interfaces::*;
 
 use crate::utils::common::{CommonArg, CommonField, CommonObject};
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::impl_block::BaseFnArg;
 use crate::utils::rename_rule::{calc_enum_item_name, calc_input_field_name, calc_type_name};
 use crate::utils::type_utils::get_owned_type;
@@ -49,17 +49,17 @@ pub trait FieldImplementor: CommonField {
 pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let object_ident = obj.get_ident();
     let name = get_type_name(obj)?;
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     Ok(quote! {
-        impl #create_name::ParentType for #object_ident {
+        impl #crate_name::ParentType for #object_ident {
             type Type = #object_ident;
         }
-        impl #create_name::GraphqlType for #object_ident {
+        impl #crate_name::GraphqlType for #object_ident {
             const NAME: &'static str = #name;
         }
-        impl #create_name::OutputType for #object_ident {}
-        impl #create_name::Object for #object_ident {}
-        impl #create_name::InterfaceTarget for #object_ident {
+        impl #crate_name::OutputType for #object_ident {}
+        impl #crate_name::Object for #object_ident {}
+        impl #crate_name::InterfaceTarget for #object_ident {
             const TARGET: &'static str = #name;
         }
     })
@@ -68,77 +68,77 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
 pub fn impl_input_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let object_ident = obj.get_ident();
     let name = get_type_name(obj)?;
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     Ok(quote! {
-        impl #create_name::GraphqlType for #object_ident {
+        impl #crate_name::GraphqlType for #object_ident {
             const NAME: &'static str = #name;
         }
-        impl #create_name::InputType for #object_ident {}
-        impl #create_name::InputObject for #object_ident {}
+        impl #crate_name::InputType for #object_ident {}
+        impl #crate_name::InputObject for #object_ident {}
     })
 }
 
 pub fn impl_graphql_doc(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let doc = obj.get_doc()?;
     let object_ident = obj.get_ident();
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let doc = match doc {
         None => quote!(None),
         Some(ref doc) => quote!(Some(#doc)),
     };
 
     Ok(quote! {
-        impl #create_name::GraphqlDoc for #object_ident {
+        impl #crate_name::GraphqlDoc for #object_ident {
             const DOC: Option<&'static str> = #doc;
         }
     })
 }
 
 pub fn impl_resolve_owned(obj: &impl CommonObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
 
     Ok(quote! {
-        impl<'a> #create_name::ResolveOwned<'a> for #object_ident {
-            fn resolve_owned(self, _ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
-                Ok(Some(#create_name::FieldValue::owned_any(self)))
+        impl<'a> #crate_name::ResolveOwned<'a> for #object_ident {
+            fn resolve_owned(self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
+                Ok(Some(#crate_name::FieldValue::owned_any(self)))
             }
         }
     })
 }
 
 pub fn impl_resolve_ref(obj: &impl CommonObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
     Ok(quote! {
-        impl<'a> #create_name::ResolveRef<'a> for #object_ident {
-            fn resolve_ref(&'a self, _ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
-                Ok(Some(#create_name::FieldValue::borrowed_any(self)))
+        impl<'a> #crate_name::ResolveRef<'a> for #object_ident {
+            fn resolve_ref(&'a self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
+                Ok(Some(#crate_name::FieldValue::borrowed_any(self)))
             }
         }
     })
 }
 
 pub fn impl_resolve_owned_by_value(obj: &impl CommonObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
 
     Ok(quote! {
-        impl<'a> #create_name::ResolveOwned<'a> for #object_ident {
-            fn resolve_owned(self, _ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
-                Ok(Some(#create_name::FieldValue::value(&self)))
+        impl<'a> #crate_name::ResolveOwned<'a> for #object_ident {
+            fn resolve_owned(self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
+                Ok(Some(#crate_name::FieldValue::value(&self)))
             }
         }
     })
 }
 
 pub fn impl_resolve_ref_by_value(obj: &impl CommonObject) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
     Ok(quote! {
-        impl<'a> #create_name::ResolveRef<'a> for #object_ident {
-            fn resolve_ref(&'a self, _ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
-                Ok(Some(#create_name::FieldValue::value(self)))
+        impl<'a> #crate_name::ResolveRef<'a> for #object_ident {
+            fn resolve_ref(&'a self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
+                Ok(Some(#crate_name::FieldValue::value(self)))
             }
         }
     })
@@ -146,17 +146,17 @@ pub fn impl_resolve_ref_by_value(obj: &impl CommonObject) -> darling::Result<Tok
 
 pub fn impl_define_object() -> TokenStream {
     // todo get "object" from input
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     quote! {
-        let object = #create_name::dynamic::Object::new(<Self as #create_name::Object>::NAME);
+        let object = #crate_name::dynamic::Object::new(<Self as #crate_name::Object>::NAME);
     }
 }
 
 pub fn impl_define_input_object() -> TokenStream {
     // todo get "object" from input
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     quote! {
-        let object = #create_name::dynamic::InputObject::new(<Self as #create_name::InputObject>::NAME);
+        let object = #crate_name::dynamic::InputObject::new(<Self as #crate_name::InputObject>::NAME);
     }
 }
 
@@ -198,27 +198,27 @@ pub fn get_input_field_name(field: &impl CommonField) -> darling::Result<String>
 }
 
 pub fn get_input_type_ref_code(field: &impl CommonField) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let field_type = get_owned_type(field.get_type()?);
     Ok(quote! {
-        <#field_type as #create_name::GetInputTypeRef>::get_input_type_ref()
+        <#field_type as #crate_name::GetInputTypeRef>::get_input_type_ref()
     })
 }
 
 pub fn get_new_input_value_code(field: &impl CommonField) -> darling::Result<TokenStream> {
     // todo get "field" from input
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let field_name = get_input_field_name(field)?;
     let get_input_type_ref_code = get_input_type_ref_code(field)?;
 
     Ok(quote! {
-        let field = #create_name::dynamic::InputValue::new(#field_name, #get_input_type_ref_code);
+        let field = #crate_name::dynamic::InputValue::new(#field_name, #get_input_type_ref_code);
     })
 }
 
 pub fn call_register_fns() -> TokenStream {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     quote!(
-        let registry = <Self as #create_name::RegisterFns>::REGISTER_FNS.iter().fold(registry, |registry, f| f(registry));
+        let registry = <Self as #crate_name::RegisterFns>::REGISTER_FNS.iter().fold(registry, |registry, f| f(registry));
     )
 }

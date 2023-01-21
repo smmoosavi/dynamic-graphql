@@ -1,4 +1,4 @@
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{NewtypeStruct, TupleField};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
@@ -20,22 +20,22 @@ from_derive_input!(
 
 fn impl_mutation(mutation: &Mutation) -> darling::Result<TokenStream> {
     let ident = &mutation.ident;
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = &mutation.ident;
     let target = get_owned_type(&mutation.data.ty);
     let name = mutation.ident.to_string();
     let (impl_generics, ty_generics, where_clause) = mutation.generics.split_for_impl();
 
     Ok(quote! {
-        impl #impl_generics #create_name::ParentType for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::ParentType for #object_ident #ty_generics #where_clause {
             type Type = #target;
         }
-        impl #impl_generics #create_name::ExpandObject for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::ExpandObject for #object_ident #ty_generics #where_clause {
             const NAME: &'static str = #name;
         }
-        impl #create_name::Mutation for #ident {}
-        impl #create_name::RegisterFns for #object_ident {
-            const REGISTER_FNS: &'static [fn (registry: #create_name::Registry) -> #create_name::Registry] = &[];
+        impl #crate_name::Mutation for #ident {}
+        impl #crate_name::RegisterFns for #object_ident {
+            const REGISTER_FNS: &'static [fn (registry: #crate_name::Registry) -> #crate_name::Registry] = &[];
         }
     })
 }

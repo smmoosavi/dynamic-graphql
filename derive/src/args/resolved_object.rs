@@ -7,7 +7,7 @@ use syn::{Generics, Path};
 use crate::args::common;
 use crate::args::common::{get_add_implement_code, get_interface_code};
 use crate::utils::common::{CommonInterfacable, CommonObject};
-use crate::utils::crate_name::get_create_name;
+use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::BaseStruct;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::interface_attr::InterfaceAttr;
@@ -73,7 +73,7 @@ impl CommonInterfacable for ResolvedObject {
 }
 
 fn impl_register_interface(object: &impl CommonInterfacable) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = object.get_ident();
     let add_interfaces = get_interface_code(object)?;
     let implement = get_add_implement_code(object, object.get_implement())?;
@@ -81,11 +81,11 @@ fn impl_register_interface(object: &impl CommonInterfacable) -> darling::Result<
 
     Ok(quote! {
         impl #impl_generics #object_ident #ty_generics #where_clause {
-            fn __register_interface(registry: #create_name::Registry) -> #create_name::Registry {
+            fn __register_interface(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #implement
                 let registry = registry.update_object(
-                    <Self as #create_name::Object>::NAME,
-                    <Self as #create_name::Object>::NAME,
+                    <Self as #crate_name::Object>::NAME,
+                    <Self as #crate_name::Object>::NAME,
                     |object| {
                         #add_interfaces
                         object
@@ -98,14 +98,14 @@ fn impl_register_interface(object: &impl CommonInterfacable) -> darling::Result<
 }
 
 fn impl_register_fns_trait(obj: &impl CommonInterfacable) -> darling::Result<TokenStream> {
-    let create_name = get_create_name();
+    let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
     let register_interface = impl_register_interface(obj).into_token_stream();
     Ok(quote! {
         #register_interface
 
-        impl #create_name::RegisterFns for #object_ident {
-            const REGISTER_FNS: &'static [fn (registry: #create_name::Registry) -> #create_name::Registry] = &[#object_ident::__register_interface];
+        impl #crate_name::RegisterFns for #object_ident {
+            const REGISTER_FNS: &'static [fn (registry: #crate_name::Registry) -> #crate_name::Registry] = &[#object_ident::__register_interface];
         }
     })
 }
