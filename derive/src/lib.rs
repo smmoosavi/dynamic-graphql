@@ -160,3 +160,11 @@ pub fn MutationFields(
     })
     .into()
 }
+
+#[proc_macro_derive(NewObject, attributes(graphql))]
+pub fn drive_new_object(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match args::NewObject::from_derive_input(&parse_macro_input!(input as DeriveInput)) {
+        Ok(object_args) => object_args.into_token_stream().into(),
+        Err(err) => err.write_errors().into(),
+    }
+}
