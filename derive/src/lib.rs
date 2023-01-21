@@ -141,3 +141,22 @@ pub fn drive_mutation(input: proc_macro::TokenStream) -> proc_macro::TokenStream
         Err(err) => err.write_errors().into(),
     }
 }
+
+#[proc_macro_attribute]
+#[allow(non_snake_case)]
+pub fn MutationFields(
+    _attr: proc_macro::TokenStream,
+    item: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    let mut item = parse_macro_input!(item as syn::ItemImpl);
+    let data = args::MutationFields::from_item_impl(&mut item);
+    let extension = match data {
+        Ok(obj) => obj.into_token_stream(),
+        Err(err) => err.write_errors(),
+    };
+    (quote! {
+        #item
+        #extension
+    })
+    .into()
+}

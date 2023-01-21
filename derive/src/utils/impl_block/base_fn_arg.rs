@@ -53,7 +53,7 @@ impl FromFnArg for BaseFnArg {
             syn::FnArg::Receiver(receiver) => Ok(Self::Receiver(SelfArg {
                 is_mut: receiver.mutability.is_some(),
                 is_ref: receiver.reference.is_some(),
-                span: receiver.span(),
+                span: receiver.self_token.span(),
             })),
             syn::FnArg::Typed(typed) => Ok({
                 let ident = match *typed.pat {
