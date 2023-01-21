@@ -2,7 +2,6 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::spanned::Spanned;
 
-use crate::args::common::{generics, replace_generic_lifetime_with_static};
 use crate::utils::common::{CommonInterfacable, CommonObject};
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::interface_attr::InterfaceAttr;
@@ -58,17 +57,14 @@ pub fn get_add_implement_code(
     }
     let object_type = object.get_type()?;
 
-    let object_type = generics::replace_path_lifetime_with_static(&object_type);
-
-    let static_generics = replace_generic_lifetime_with_static(object.get_generics()?);
-    let (_, static_ty_generics, _) = static_generics.split_for_impl();
+    let (_, ty_generics, _) = object.get_generics()?.split_for_impl();
 
     let implements: Vec<TokenStream> = implement
         .iter()
         .map(|interface| {
             let ident = syn::Ident::new(interface, interface.span());
             quote! {
-                let registry = registry.register::<#ident<#object_type #static_ty_generics>>();
+                let registry = registry.register::<#ident<#object_type #ty_generics>>();
             }
         })
         .collect();

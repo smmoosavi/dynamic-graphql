@@ -3,7 +3,6 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Generics;
 
-use crate::args::common;
 use crate::utils::common::CommonObject;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{NewtypeStruct, TupleField};
@@ -91,9 +90,7 @@ fn impl_register_fns_trait(object: &impl CommonObject) -> darling::Result<TokenS
     let crate_name = get_crate_name();
     let object_ident = object.get_ident();
 
-    let generics = common::add_static_to_types_in_where_clause(object.get_generics()?);
-
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+    let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
 
     let q = quote! {
         impl #impl_generics #crate_name::RegisterFns for #object_ident #ty_generics #where_clause {
