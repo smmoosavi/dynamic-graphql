@@ -180,8 +180,9 @@ where
         .map(impl_resolver)
         .map(|r| r.into_token_stream())
         .collect::<Vec<TokenStream>>();
+    let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
     Ok(quote! {
-        impl #ident {
+        impl #impl_generics #ident #ty_generics #where_clause {
             #(#fields)*
         }
     })
@@ -235,8 +236,10 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     let define_fields = get_define_fields(object)?;
     let register_object_code = common::register_object_code();
 
+    let (impl_generics, ty_generics, where_clause) = object.generics.split_for_impl();
+
     Ok(quote! {
-        impl #crate_name::Register for #ident {
+        impl #impl_generics #crate_name::Register for #ident #ty_generics #where_clause {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #define_object
 
