@@ -1,7 +1,7 @@
 macro_rules! define {
     ($name:ident, $ty:ty) => {
         #[derive(Debug, Clone)]
-        pub struct $name($ty);
+        pub struct $name(pub $ty);
     };
 }
 
