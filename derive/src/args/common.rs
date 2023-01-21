@@ -50,16 +50,18 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let object_ident = obj.get_ident();
     let name = get_type_name(obj)?;
     let crate_name = get_crate_name();
+    let (impl_generics, ty_generics, where_clause) = obj.get_generics()?.split_for_impl();
+
     Ok(quote! {
-        impl #crate_name::ParentType for #object_ident {
-            type Type = #object_ident;
+        impl #impl_generics #crate_name::ParentType for #object_ident #ty_generics #where_clause {
+            type Type = #object_ident #ty_generics;
         }
-        impl #crate_name::GraphqlType for #object_ident {
+        impl #impl_generics #crate_name::GraphqlType for #object_ident #ty_generics #where_clause {
             const NAME: &'static str = #name;
         }
-        impl #crate_name::OutputType for #object_ident {}
-        impl #crate_name::Object for #object_ident {}
-        impl #crate_name::InterfaceTarget for #object_ident {
+        impl #impl_generics #crate_name::OutputType for #object_ident #ty_generics #where_clause {}
+        impl #impl_generics #crate_name::Object for #object_ident #ty_generics #where_clause {}
+        impl #impl_generics #crate_name::InterfaceTarget for #object_ident #ty_generics #where_clause {
             const TARGET: &'static str = #name;
         }
     })
@@ -86,9 +88,10 @@ pub fn impl_graphql_doc(obj: &impl CommonObject) -> darling::Result<TokenStream>
         None => quote!(None),
         Some(ref doc) => quote!(Some(#doc)),
     };
+    let (impl_generics, ty_generics, where_clause) = obj.get_generics()?.split_for_impl();
 
     Ok(quote! {
-        impl #crate_name::GraphqlDoc for #object_ident {
+        impl #impl_generics #crate_name::GraphqlDoc for #object_ident #ty_generics #where_clause {
             const DOC: Option<&'static str> = #doc;
         }
     })
@@ -97,10 +100,13 @@ pub fn impl_graphql_doc(obj: &impl CommonObject) -> darling::Result<TokenStream>
 pub fn impl_resolve_owned(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
+    let (_, ty_generics, where_clause) = obj.get_generics()?.split_for_impl();
+    let (generics_with_lifetime, lifetime) = add_new_lifetime_to_generics(obj.get_generics()?);
+    let (impl_generics, _, _) = generics_with_lifetime.split_for_impl();
 
     Ok(quote! {
-        impl<'a> #crate_name::ResolveOwned<'a> for #object_ident {
-            fn resolve_owned(self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
+        impl #impl_generics #crate_name::ResolveOwned<#lifetime> for #object_ident #ty_generics #where_clause {
+            fn resolve_owned(self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<#lifetime>>> {
                 Ok(Some(#crate_name::FieldValue::owned_any(self)))
             }
         }
@@ -110,9 +116,13 @@ pub fn impl_resolve_owned(obj: &impl CommonObject) -> darling::Result<TokenStrea
 pub fn impl_resolve_ref(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
+    let (_, ty_generics, where_clause) = obj.get_generics()?.split_for_impl();
+    let (generics_with_lifetime, lifetime) = add_new_lifetime_to_generics(obj.get_generics()?);
+    let (impl_generics, _, _) = generics_with_lifetime.split_for_impl();
+
     Ok(quote! {
-        impl<'a> #crate_name::ResolveRef<'a> for #object_ident {
-            fn resolve_ref(&'a self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
+        impl #impl_generics #crate_name::ResolveRef<#lifetime> for #object_ident #ty_generics #where_clause {
+            fn resolve_ref(&#lifetime self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<#lifetime>>> {
                 Ok(Some(#crate_name::FieldValue::borrowed_any(self)))
             }
         }

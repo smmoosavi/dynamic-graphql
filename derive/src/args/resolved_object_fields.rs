@@ -15,7 +15,7 @@ use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::{BaseFnArg, BaseItemImpl, BaseMethod};
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
-use crate::utils::type_utils::get_type_path;
+use crate::utils::type_utils::{get_type_ident, get_type_path};
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
@@ -335,15 +335,16 @@ where
 
 fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
-    let ty = &object.ty;
+    let ty = get_type_ident(&object.ty)?;
     let define_object = common::impl_define_object();
     let description = impl_object_description();
     let define_fields = get_define_fields_code(object)?;
     let register_object_code = common::register_object_code();
     let register_fns = common::call_register_fns();
+    let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
 
     Ok(quote! {
-        impl #crate_name::Register for #ty {
+        impl #impl_generics #crate_name::Register for #ty #ty_generics #where_clause {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #define_object
 

@@ -1,5 +1,5 @@
 use darling::ast::GenericParamExt;
-use syn::{parse_quote, Generics, WherePredicate};
+use syn::{parse_quote, GenericParam, Generics, WherePredicate};
 
 pub fn add_static_to_types_in_where_clause(generics: &Generics) -> Generics {
     let mut generics = generics.clone();
@@ -41,4 +41,11 @@ pub fn replace_path_lifetime_with_static(path: &syn::Path) -> syn::Path {
         }
     });
     path
+}
+
+pub fn add_new_lifetime_to_generics(generics: &Generics) -> (Generics, GenericParam) {
+    let mut generics = generics.clone();
+    let lifetime: GenericParam = parse_quote!('__dynamic_graphql_lifetime);
+    generics.params.push(lifetime.clone());
+    (generics, lifetime)
 }
