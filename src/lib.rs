@@ -20,5 +20,5 @@ pub use types::{
 
 pub use dynamic_graphql_derive::{
     App, Enum, ExpandObject, ExpandObjectFields, InputObject, Interface, ResolvedObject,
-    ResolvedObjectFields, SimpleObject,
+    ResolvedObjectFields, SimpleObject, Union,
 };

@@ -117,3 +117,11 @@ pub fn Interface(
     })
     .into()
 }
+
+#[proc_macro_derive(Union, attributes(graphql))]
+pub fn drive_union(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match args::Union::from_derive_input(&parse_macro_input!(input as DeriveInput)) {
+        Ok(object_args) => object_args.into_token_stream().into(),
+        Err(err) => err.write_errors().into(),
+    }
+}

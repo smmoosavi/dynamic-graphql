@@ -7,6 +7,7 @@ pub use interface::{Interface, InterfaceArg};
 pub use resolved_object::ResolvedObject;
 pub use resolved_object_fields::ResolvedObjectFields;
 pub use simple_object::SimpleObject;
+pub use union::Union;
 
 mod app;
 mod common;
@@ -18,3 +19,4 @@ mod interface;
 mod resolved_object;
 mod resolved_object_fields;
 mod simple_object;
+mod union;
