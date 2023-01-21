@@ -1,4 +1,4 @@
-use dynamic_graphql::{MutationRoot, Object};
+use dynamic_graphql::{ExpandObject, Mutation, MutationRoot, Object, ParentType};
 
 #[test]
 fn test_mutation_root() {
@@ -15,4 +15,19 @@ fn test_mutation_root_with_rename() {
     struct MutationRoot;
 
     assert_eq!(<MutationRoot as Object>::NAME, "Mutation");
+}
+
+#[test]
+fn test_mutation() {
+    #[derive(MutationRoot)]
+    struct MutationRoot;
+
+    #[derive(Mutation)]
+    struct MyMutation(MutationRoot);
+
+    assert_eq!(<MyMutation as ExpandObject>::NAME, "MyMutation");
+    assert_eq!(
+        <<MyMutation as ParentType>::Type as Object>::NAME,
+        "MutationRoot"
+    );
 }

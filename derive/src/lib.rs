@@ -133,3 +133,11 @@ pub fn drive_mutation_root(input: proc_macro::TokenStream) -> proc_macro::TokenS
         Err(err) => err.write_errors().into(),
     }
 }
+
+#[proc_macro_derive(Mutation, attributes(graphql))]
+pub fn drive_mutation(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match args::Mutation::from_derive_input(&parse_macro_input!(input as DeriveInput)) {
+        Ok(object_args) => object_args.into_token_stream().into(),
+        Err(err) => err.write_errors().into(),
+    }
+}

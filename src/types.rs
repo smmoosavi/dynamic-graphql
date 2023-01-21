@@ -64,7 +64,7 @@ pub trait InputObject: InputType {
     const NAME: &'static str = <Self as InputType>::NAME;
 }
 
-pub trait Mutation: Object {}
+pub trait Mutation: ExpandObject {}
 
 pub trait ExpandObject: ParentType {
     const NAME: &'static str;
