@@ -124,6 +124,7 @@ fn test_schema_with_generic() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: Foo,
         bar: Bar,
@@ -132,9 +133,7 @@ fn test_schema_with_generic() {
     #[derive(App)]
     struct App(Query, Bar, Foo);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -164,9 +163,8 @@ fn test_schema_with_generic() {
     #[derive(App)]
     struct AppWithName<'a>(Query, Bar, Foo, WithName<'a, Foo>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<AppWithName<'_>>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = AppWithName::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -197,9 +195,8 @@ fn test_schema_with_generic() {
     #[derive(App)]
     struct AppBothWithName<'a>(Query, Bar, Foo, WithName<'a, Foo>, WithName<'a, Bar>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<AppBothWithName<'_>>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = AppBothWithName::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -265,13 +262,12 @@ async fn test_query_with_generic() {
     struct AppBothWithName<'a>(Query, Foo, WithName<'a, Foo>);
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: Foo,
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<AppBothWithName<'_>>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = AppBothWithName::create_schema().finish().unwrap();
 
     let query = r#"
         query {
@@ -344,13 +340,12 @@ async fn test_query_with_generic_and_args() {
     struct App<'a>(Query, Foo, WithGreeting<'a, Foo>);
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: Foo,
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App<'_>>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
 
     let query = r#"
         query {

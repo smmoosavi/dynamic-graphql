@@ -50,6 +50,7 @@ fn test_app_with_generic() {
         value: String,
     }
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         #[graphql(name = "other")]
         pub string: Foo,
@@ -77,9 +78,7 @@ fn test_app_with_generic() {
     #[derive(App)]
     struct App<T: GetFoo>(Query, Foo, Other<T>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App<()>>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::<()>::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -108,6 +107,7 @@ fn test_app_with_lifetime() {
         value: String,
     }
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         #[graphql(name = "other")]
         pub string: Foo,
@@ -123,9 +123,8 @@ fn test_app_with_lifetime() {
     #[derive(App)]
     struct App<'a>(Query, Foo, Other<'a>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App<'_>>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -154,6 +153,7 @@ fn test_app_with_generic_and_lifetime() {
         value: String,
     }
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         #[graphql(name = "other")]
         pub string: Foo,
@@ -185,9 +185,7 @@ fn test_app_with_generic_and_lifetime() {
     where
         T: GetFoo + 'a;
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App<'_, ()>>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::<()>::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -224,6 +222,7 @@ fn test_nested_app() {
     struct FooBar(Foo, Bar);
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pub foo: Foo,
         pub bar: Bar,
@@ -232,9 +231,7 @@ fn test_nested_app() {
     #[derive(App)]
     struct App(Query, FooBar);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -277,6 +274,7 @@ mod test_in_mod {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pub foo: foo::Foo,
     }
@@ -286,9 +284,7 @@ mod test_in_mod {
 
     #[tokio::test]
     async fn test() {
-        let registry = dynamic_graphql::Registry::new();
-        let registry = registry.register::<App>().set_root("Query");
-        let schema = registry.create_schema().finish().unwrap();
+        let schema = App::create_schema().finish().unwrap();
         let sdl = schema.sdl();
         assert_eq!(
             normalize_schema(&sdl),

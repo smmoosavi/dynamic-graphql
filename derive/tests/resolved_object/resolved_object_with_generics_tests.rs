@@ -18,6 +18,7 @@ async fn test_query_static_generic() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query<G: Greeter + Send + Sync + 'static>(PhantomData<G>);
 
     #[ResolvedObjectFields]
@@ -30,9 +31,7 @@ async fn test_query_static_generic() {
     #[derive(App)]
     struct App(Query<Hi>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -78,6 +77,7 @@ async fn test_query_generic_with_self() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query<G: Greeter + Send + Sync + 'static>(G);
 
     #[ResolvedObjectFields]
@@ -90,9 +90,7 @@ async fn test_query_generic_with_self() {
     #[derive(App)]
     struct App(Query<Greet>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -132,6 +130,7 @@ async fn test_query_graphql_generic() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query<G>(G)
     where
         G: OutputType + 'static,
@@ -153,9 +152,7 @@ async fn test_query_graphql_generic() {
     #[derive(App)]
     struct App(Query<Foo>, Foo);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(

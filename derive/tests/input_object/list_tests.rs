@@ -2,6 +2,7 @@ use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{FieldValue, InputObject, Variables};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql_derive::App;
 
 #[tokio::test]
 async fn test_option() {
@@ -11,6 +12,7 @@ async fn test_option() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -26,12 +28,11 @@ async fn test_option() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<ExampleInput>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, ExampleInput);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -95,6 +96,7 @@ async fn test_list() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -108,12 +110,11 @@ async fn test_list() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<ExampleInput>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, ExampleInput);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -169,6 +170,7 @@ async fn test_optional_list() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -187,12 +189,11 @@ async fn test_optional_list() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<ExampleInput>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, ExampleInput);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -259,6 +260,7 @@ async fn test_optional_items() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -277,12 +279,11 @@ async fn test_optional_items() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<ExampleInput>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, ExampleInput);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -338,6 +339,7 @@ async fn test_optional_items_and_value() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -360,12 +362,11 @@ async fn test_optional_items_and_value() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<ExampleInput>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, ExampleInput);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),

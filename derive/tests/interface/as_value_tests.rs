@@ -24,6 +24,7 @@ async fn interface_as_output_value_for_simple_object_with_implement() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -38,9 +39,7 @@ async fn interface_as_output_value_for_simple_object_with_implement() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -110,6 +109,7 @@ async fn interface_as_output_value_for_simple_object_with_mark_with() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -125,9 +125,7 @@ async fn interface_as_output_value_for_simple_object_with_mark_with() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -197,6 +195,7 @@ async fn interface_as_output_value_for_simple_object_with_mark_as() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -212,9 +211,7 @@ async fn interface_as_output_value_for_simple_object_with_mark_as() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -294,6 +291,7 @@ async fn interface_as_output_value_for_resolved_object_with_implement() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -306,9 +304,7 @@ async fn interface_as_output_value_for_resolved_object_with_implement() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -385,6 +381,7 @@ async fn interface_as_output_value_for_resolved_object_with_mark_with() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -397,9 +394,7 @@ async fn interface_as_output_value_for_resolved_object_with_mark_with() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -476,6 +471,7 @@ async fn interface_as_output_value_for_resolved_object_with_mark_as() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -488,9 +484,7 @@ async fn interface_as_output_value_for_resolved_object_with_mark_as() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),

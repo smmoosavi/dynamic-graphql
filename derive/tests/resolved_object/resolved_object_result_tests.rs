@@ -2,6 +2,7 @@ use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql_derive::App;
 
 #[derive(thiserror::Error, Debug)]
 enum MyError {
@@ -12,6 +13,7 @@ enum MyError {
 #[test]
 fn test_schema() {
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -24,9 +26,11 @@ fn test_schema() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -47,6 +51,7 @@ fn test_schema() {
 #[tokio::test]
 async fn test_query() {
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query {
         fail: bool,
     }
@@ -69,9 +74,11 @@ async fn test_query() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let query = r#"
         query {
             string

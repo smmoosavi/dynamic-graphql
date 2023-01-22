@@ -11,6 +11,7 @@ async fn test_query_simple_generic() {
 
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query<F>
     where
         F: OutputType + 'static,
@@ -23,9 +24,7 @@ async fn test_query_simple_generic() {
     #[derive(App)]
     struct App(Query<Foo>, Foo);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(

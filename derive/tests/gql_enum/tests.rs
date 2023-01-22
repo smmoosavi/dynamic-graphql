@@ -1,7 +1,7 @@
 use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{Enum, FieldValue, Variables};
-use dynamic_graphql_derive::{ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql_derive::{App, ResolvedObject, ResolvedObjectFields};
 
 #[test]
 fn test_impl_object() {
@@ -44,6 +44,7 @@ async fn test_schema() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query {
         example: Example,
     }
@@ -58,12 +59,11 @@ async fn test_schema() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<Example>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, Example);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -95,8 +95,6 @@ async fn test_schema() {
     };
     let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
     let res = schema.execute(req).await;
-
-    println!("errors: {:?}", res.errors);
 
     let data = res.data.into_json().unwrap();
 
@@ -138,6 +136,7 @@ async fn test_rename() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query {
         example: Example,
     }
@@ -152,12 +151,11 @@ async fn test_rename() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<Example>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, Example);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -189,8 +187,6 @@ async fn test_rename() {
     };
     let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
     let res = schema.execute(req).await;
-
-    println!("errors: {:?}", res.errors);
 
     let data = res.data.into_json().unwrap();
 
@@ -231,6 +227,7 @@ async fn test_deprecation() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query {
         example: Example,
     }
@@ -245,12 +242,11 @@ async fn test_deprecation() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<Example>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, Example);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -283,6 +279,7 @@ async fn test_doc() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query {
         example: Example,
     }
@@ -297,12 +294,11 @@ async fn test_doc() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<Example>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, Example);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),

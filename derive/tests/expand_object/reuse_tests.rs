@@ -74,14 +74,13 @@ async fn test_base_list() {
     // main app
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query;
 
     #[derive(App)]
     struct App(Query, FooApp);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(

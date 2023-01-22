@@ -1,5 +1,6 @@
 use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::SimpleObject;
 
@@ -7,12 +8,15 @@ use dynamic_graphql::SimpleObject;
 async fn test_list() {
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pub strings: Vec<String>,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -56,12 +60,14 @@ async fn test_list() {
 async fn test_optional_list() {
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pub maybe_list_of_strings: Option<Vec<String>>,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -110,12 +116,14 @@ async fn test_optional_list() {
 async fn test_list_of_optional() {
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pub list_of_maybe_strings: Vec<Option<String>>,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -155,12 +163,14 @@ async fn test_list_of_optional() {
 async fn test_optional_list_of_optional() {
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pub maybe_list_of_maybe_strings: Option<Vec<Option<String>>>,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(

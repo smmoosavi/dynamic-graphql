@@ -30,6 +30,7 @@ fn test_schema() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -37,9 +38,8 @@ fn test_schema() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -73,6 +73,7 @@ fn test_schema_with_name() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -80,9 +81,8 @@ fn test_schema_with_name() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -118,6 +118,7 @@ fn test_schema_with_rename() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -125,9 +126,8 @@ fn test_schema_with_rename() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -162,6 +162,7 @@ fn test_schema_description() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -169,9 +170,8 @@ fn test_schema_description() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -213,6 +213,7 @@ fn test_schema_with_deprecation() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -220,9 +221,8 @@ fn test_schema_with_deprecation() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -257,6 +257,7 @@ fn test_schema_with_skip() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -264,9 +265,8 @@ fn test_schema_with_skip() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -327,6 +327,7 @@ mod in_mod {
         }
 
         #[derive(ResolvedObject)]
+        #[graphql(root)]
         pub struct Query;
 
         #[ResolvedObjectFields]
@@ -349,9 +350,8 @@ mod in_mod {
 
         #[tokio::test]
         async fn test_in_mode() {
-            let registry = dynamic_graphql::Registry::new();
-            let registry = registry.register::<App>().set_root("Query");
-            let schema = registry.create_schema().finish().unwrap();
+            let schema = App::create_schema().finish().unwrap();
+
             let sdl = schema.sdl();
             assert_eq!(
                 normalize_schema(&sdl),

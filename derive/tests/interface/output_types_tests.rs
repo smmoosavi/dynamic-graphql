@@ -37,6 +37,7 @@ async fn interface_string_ref_types() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -52,9 +53,8 @@ async fn interface_string_ref_types() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -161,6 +161,7 @@ async fn interface_object_ref_types() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -178,9 +179,7 @@ async fn interface_object_ref_types() {
     #[derive(App)]
     struct App(Query, BazInterface<'static>, FooNode, Bar);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),

@@ -2,6 +2,7 @@ use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::SimpleObject;
+use dynamic_graphql_derive::App;
 
 #[test]
 fn test_impl_object() {
@@ -70,12 +71,14 @@ fn test_schema_with_rename() {
     #[allow(dead_code)]
     #[derive(SimpleObject)]
     #[graphql(name = "Other")]
+    #[graphql(root)]
     struct Query {
         pub string: String,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Other");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -96,14 +99,17 @@ fn test_schema_with_rename() {
 fn test_schema_with_skip() {
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pub string: String,
         #[graphql(skip)]
         pub other: String,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -124,13 +130,16 @@ fn test_schema_with_skip() {
 fn test_schema_with_rename_field() {
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         #[graphql(name = "other")]
         pub string: String,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -151,12 +160,14 @@ fn test_schema_with_rename_field() {
 async fn test_query() {
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pub string: String,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
     let query = r#"
         query {
             string
@@ -176,12 +187,14 @@ async fn test_query() {
 async fn test_optional() {
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pub maybe_string: Option<String>,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -226,13 +239,15 @@ fn test_schema_with_doc() {
     /// this is the query object
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         /// this is the string field
         pub string: String,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -259,15 +274,18 @@ fn test_schema_with_doc() {
 fn test_schema_with_deprecation() {
     #[allow(dead_code)]
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         #[graphql(deprecation)]
         pub deprecated: String,
         #[graphql(deprecation = "this is the old one")]
         pub with_reason: String,
     }
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -291,13 +309,15 @@ fn test_rename_fields() {
     #[derive(SimpleObject)]
     #[graphql(rename_fields = "snake_case")]
     #[allow(non_camel_case_types)]
+    #[graphql(root)]
     struct the_query {
         pub the_string: String,
     }
     assert_eq!(<the_query as dynamic_graphql::Object>::NAME, "TheQuery");
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<the_query>().set_root("TheQuery");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(the_query);
+
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -318,17 +338,20 @@ mod in_mod {
     use dynamic_graphql::dynamic::DynamicRequestExt;
     use dynamic_graphql::FieldValue;
     use dynamic_graphql::SimpleObject;
+    use dynamic_graphql_derive::App;
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     pub struct Query {
         pub string: String,
     }
 
     #[tokio::test]
     async fn test_query() {
-        let registry = dynamic_graphql::Registry::new();
-        let registry = registry.register::<Query>().set_root("Query");
-        let schema = registry.create_schema().finish().unwrap();
+        #[derive(App)]
+        struct App(Query);
+
+        let schema = App::create_schema().finish().unwrap();
         let query = r#"
             query {
                 string

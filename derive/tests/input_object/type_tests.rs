@@ -2,6 +2,7 @@ use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{FieldValue, InputObject, Variables};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql_derive::App;
 
 #[tokio::test]
 async fn test_types() {
@@ -26,6 +27,7 @@ async fn test_types() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -35,12 +37,11 @@ async fn test_types() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<ExampleInput>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, ExampleInput);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -102,8 +103,6 @@ async fn test_types() {
         .root_value(FieldValue::owned_any(root));
     let res = schema.execute(req).await;
 
-    println!("errors: {:#?}", res.errors);
-
     let data = res.data.into_json().unwrap();
 
     let example = data.get("example").unwrap().as_str().unwrap();
@@ -144,6 +143,7 @@ async fn test_object_type() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -153,13 +153,11 @@ async fn test_object_type() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<Query>()
-        .register::<ExampleInput>()
-        .register::<FooInput>()
-        .set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query, ExampleInput, FooInput);
+
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),

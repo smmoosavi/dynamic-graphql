@@ -23,6 +23,7 @@ async fn test_interface_as_optional_value() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -37,9 +38,8 @@ async fn test_interface_as_optional_value() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -126,6 +126,7 @@ async fn test_interface_as_list_value() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -145,9 +146,8 @@ async fn test_interface_as_list_value() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode, BarNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),

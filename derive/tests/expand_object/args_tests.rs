@@ -30,6 +30,7 @@ fn test_schema() {
     struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -37,9 +38,7 @@ fn test_schema() {
     #[derive(App)]
     struct App<'a>(Query, ExampleApp<'a>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -95,6 +94,7 @@ fn test_schema_with_ctx() {
     struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -102,9 +102,7 @@ fn test_schema_with_ctx() {
     #[derive(App)]
     struct App<'a>(Query, ExampleApp<'a>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -150,6 +148,7 @@ fn test_schema_rename_args() {
     struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -157,9 +156,7 @@ fn test_schema_rename_args() {
     #[derive(App)]
     struct App<'a>(Query, ExampleApp<'a>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -199,6 +196,7 @@ fn test_schema_with_arg_ref() {
     struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -206,9 +204,7 @@ fn test_schema_with_arg_ref() {
     #[derive(App)]
     struct App<'a>(Query, ExampleApp<'a>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -251,6 +247,7 @@ fn test_schema_with_arg_option() {
     struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -258,9 +255,7 @@ fn test_schema_with_arg_option() {
     #[derive(App)]
     struct App<'a>(Query, ExampleApp<'a>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -305,6 +300,7 @@ async fn test_query() {
     struct ExampleApp<'a>(ExampleQuery<'a>);
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         greeting: String,
     }
@@ -312,9 +308,7 @@ async fn test_query() {
     #[derive(App)]
     struct App<'a>(Query, ExampleApp<'a>);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
 
     let query = r#"{
         greeting

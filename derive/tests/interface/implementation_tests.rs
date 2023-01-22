@@ -16,6 +16,7 @@ fn test_schema_simple_object_mark_as() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: FooNode,
     }
@@ -23,9 +24,8 @@ fn test_schema_simple_object_mark_as() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -67,6 +67,7 @@ fn test_schema_simple_object_mark_with() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: FooNode,
     }
@@ -74,9 +75,8 @@ fn test_schema_simple_object_mark_with() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -125,9 +125,8 @@ fn test_schema_simple_object_with_implement() {
         }
     }
 
-    println!("==============================================");
-
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: FooNode,
     }
@@ -135,9 +134,8 @@ fn test_schema_simple_object_with_implement() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -181,6 +179,7 @@ fn test_schema_simple_object_with_error() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: FooNode,
     }
@@ -188,9 +187,8 @@ fn test_schema_simple_object_with_error() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish();
+    let schema = App::create_schema().finish();
+
     assert!(schema.is_err());
     assert_eq!(
         schema.err().unwrap().to_string(),
@@ -216,6 +214,7 @@ fn test_schema_resolved_object_mark_as() {
         }
     }
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: FooNode,
     }
@@ -223,9 +222,8 @@ fn test_schema_resolved_object_mark_as() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -272,6 +270,7 @@ fn test_schema_resolved_object_mark_with() {
         }
     }
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: FooNode,
     }
@@ -279,9 +278,8 @@ fn test_schema_resolved_object_mark_with() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -335,6 +333,7 @@ fn test_schema_resolved_object_with_implement() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: FooNode,
     }
@@ -342,9 +341,8 @@ fn test_schema_resolved_object_with_implement() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -393,6 +391,7 @@ fn test_schema_resolved_object_with_error() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: FooNode,
     }
@@ -400,9 +399,8 @@ fn test_schema_resolved_object_with_error() {
     #[derive(App)]
     struct App(Query, NodeInterface<'static>, FooNode);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish();
+    let schema = App::create_schema().finish();
+
     assert!(schema.is_err());
     assert_eq!(
         schema.err().unwrap().to_string(),

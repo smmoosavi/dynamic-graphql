@@ -53,6 +53,7 @@ fn test_schema() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -60,9 +61,8 @@ fn test_schema() {
     #[derive(App)]
     struct App(Query, MutationRoot, MyMutation);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -104,6 +104,7 @@ fn test_schema_with_rename() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -111,9 +112,8 @@ fn test_schema_with_rename() {
     #[derive(App)]
     struct App(Query, MutationRoot, MyMutation);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -155,6 +155,7 @@ fn test_schema_with_doc() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -162,9 +163,8 @@ fn test_schema_with_doc() {
     #[derive(App)]
     struct App(Query, MutationRoot, MyMutation);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -206,6 +206,7 @@ async fn test_query() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -213,9 +214,8 @@ async fn test_query() {
     #[derive(App)]
     struct App(Query, MutationRoot, MyMutation);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let query = r#"
         mutation {
             theExample
@@ -262,6 +262,7 @@ mod in_mod {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         foo: String,
     }
@@ -271,9 +272,8 @@ mod in_mod {
 
     #[tokio::test]
     async fn test_in_mod() {
-        let registry = dynamic_graphql::Registry::new();
-        let registry = registry.register::<App>().set_root("Query");
-        let schema = registry.create_schema().finish().unwrap();
+        let schema = App::create_schema().finish().unwrap();
+
         let query = r#"
             mutation {
                 theExample

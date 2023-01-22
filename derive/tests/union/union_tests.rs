@@ -74,6 +74,7 @@ fn test_schema() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pet: Animal,
     }
@@ -81,9 +82,8 @@ fn test_schema() {
     #[derive(App)]
     struct App(Query, Animal, Dog, Cat);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -136,6 +136,7 @@ fn test_schema_with_rename() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pet: Animal,
     }
@@ -143,9 +144,8 @@ fn test_schema_with_rename() {
     #[derive(App)]
     struct App(Query, Animal, Dog, Cat);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -199,6 +199,7 @@ fn test_schema_with_doc() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pet: Animal,
     }
@@ -206,9 +207,8 @@ fn test_schema_with_doc() {
     #[derive(App)]
     struct App(Query, Animal, Dog, Cat);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
+
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -264,6 +264,7 @@ async fn test_query() {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pet: Animal,
     }
@@ -271,9 +272,7 @@ async fn test_query() {
     #[derive(App)]
     struct App(Query, Animal, Dog, Cat);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
 
     let root = Query {
         pet: Animal::Dog(Dog {
@@ -330,6 +329,7 @@ async fn test_query_owned() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -345,9 +345,7 @@ async fn test_query_owned() {
     #[derive(App)]
     struct App(Query, Animal, Dog, Cat);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
 
     let root = Query;
 
@@ -411,6 +409,7 @@ mod in_mod {
     }
 
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         pet: Animal,
     }
@@ -420,9 +419,8 @@ mod in_mod {
 
     #[tokio::test]
     async fn test_schema() {
-        let registry = dynamic_graphql::Registry::new();
-        let registry = registry.register::<App>().set_root("Query");
-        let schema = registry.create_schema().finish().unwrap();
+        let schema = App::create_schema().finish().unwrap();
+
         let sdl = schema.sdl();
         assert_eq!(
             normalize_schema(&sdl),

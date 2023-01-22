@@ -2,10 +2,12 @@ use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql_derive::App;
 
 #[tokio::test]
 async fn test_list() {
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query {
         pub strings: Vec<String>,
     }
@@ -22,9 +24,10 @@ async fn test_list() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -78,6 +81,7 @@ async fn test_list() {
 async fn test_optional_list() {
     #[allow(dead_code)]
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query {
         pub maybe_list_of_strings: Option<Vec<String>>,
     }
@@ -92,9 +96,10 @@ async fn test_optional_list() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -148,6 +153,7 @@ async fn test_optional_list() {
 async fn test_list_of_optional() {
     #[allow(dead_code)]
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query {
         pub list_of_maybe_strings: Vec<Option<String>>,
     }
@@ -165,9 +171,10 @@ async fn test_list_of_optional() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
@@ -215,6 +222,7 @@ async fn test_list_of_optional() {
 async fn test_optional_list_of_optional() {
     #[allow(dead_code)]
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query {
         pub maybe_list_of_maybe_strings: Option<Vec<Option<String>>>,
     }
@@ -229,9 +237,10 @@ async fn test_optional_list_of_optional() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
     assert_eq!(
