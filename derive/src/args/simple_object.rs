@@ -46,6 +46,12 @@ from_field!(
 #[darling(attributes(graphql))]
 pub struct SimpleObjectAttrs {
     #[darling(default)]
+    pub root: bool,
+
+    #[darling(skip)]
+    pub mutation_root: bool,
+
+    #[darling(default)]
     pub name: Option<String>,
 
     #[darling(default)]
@@ -225,8 +231,31 @@ where
         .collect())
 }
 
+fn root_register_code(object: &SimpleObject) -> TokenStream {
+    let root = if object.attrs.root {
+        let crate_name = get_crate_name();
+        Some(quote! {
+            let registry = registry.set_root(<Self as #crate_name::Object>::NAME);
+        })
+    } else {
+        None
+    };
+    let mutation_root = if object.attrs.mutation_root {
+        let crate_name = get_crate_name();
+        Some(quote! {
+            let registry = registry.set_mutation(<Self as #crate_name::Object>::NAME);
+        })
+    } else {
+        None
+    };
+    quote!(#root #mutation_root)
+}
+
 fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
+
+    let root_register = root_register_code(object);
+
     let ident = &object.ident;
     let define_object = common::impl_define_object();
     let add_interfaces = common::get_interface_code(object)?;
@@ -241,6 +270,9 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     Ok(quote! {
         impl #impl_generics #crate_name::Register for #ident #ty_generics #where_clause {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+
+                #root_register
+
                 #define_object
 
                 #implement

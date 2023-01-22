@@ -34,6 +34,8 @@ impl From<MutationRoot> for SimpleObject {
             attrs: WithDoc {
                 doc,
                 inner: SimpleObjectAttrs {
+                    root: false,
+                    mutation_root: true,
                     name,
                     rename_fields: None,
                     mark_as: vec![],

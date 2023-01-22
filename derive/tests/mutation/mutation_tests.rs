@@ -61,10 +61,7 @@ fn test_schema() {
     struct App(Query, MutationRoot, MyMutation);
 
     let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<App>()
-        .set_root("Query")
-        .set_mutation("MutationRoot");
+    let registry = registry.register::<App>().set_root("Query");
     let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
@@ -115,10 +112,7 @@ fn test_schema_with_rename() {
     struct App(Query, MutationRoot, MyMutation);
 
     let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<App>()
-        .set_root("Query")
-        .set_mutation("Mutation");
+    let registry = registry.register::<App>().set_root("Query");
     let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
@@ -169,10 +163,7 @@ fn test_schema_with_doc() {
     struct App(Query, MutationRoot, MyMutation);
 
     let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<App>()
-        .set_root("Query")
-        .set_mutation("MutationRoot");
+    let registry = registry.register::<App>().set_root("Query");
     let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
@@ -223,10 +214,7 @@ async fn test_query() {
     struct App(Query, MutationRoot, MyMutation);
 
     let registry = dynamic_graphql::Registry::new();
-    let registry = registry
-        .register::<App>()
-        .set_root("Query")
-        .set_mutation("MutationRoot");
+    let registry = registry.register::<App>().set_root("Query");
     let schema = registry.create_schema().finish().unwrap();
     let query = r#"
         mutation {
@@ -284,10 +272,7 @@ mod in_mod {
     #[tokio::test]
     async fn test_in_mod() {
         let registry = dynamic_graphql::Registry::new();
-        let registry = registry
-            .register::<App>()
-            .set_root("Query")
-            .set_mutation("MutationRoot");
+        let registry = registry.register::<App>().set_root("Query");
         let schema = registry.create_schema().finish().unwrap();
         let query = r#"
             mutation {

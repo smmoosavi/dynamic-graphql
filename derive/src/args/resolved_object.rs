@@ -19,6 +19,9 @@ use crate::utils::with_doc::WithDoc;
 #[darling(attributes(graphql))]
 pub struct ResolvedObjectAttrs {
     #[darling(default)]
+    pub root: bool,
+
+    #[darling(default)]
     pub name: Option<String>,
 
     #[darling(default, multiple)]
@@ -97,6 +100,30 @@ fn impl_register_interface(object: &impl CommonInterfacable) -> darling::Result<
     })
 }
 
+fn impl_register_root(object: &ResolvedObject) -> darling::Result<TokenStream> {
+    let crate_name = get_crate_name();
+    let object_ident = object.get_ident();
+    let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
+
+    let root = if object.attrs.root {
+        let crate_name = get_crate_name();
+        Some(quote! {
+            let registry = registry.set_root(<Self as #crate_name::Object>::NAME);
+        })
+    } else {
+        None
+    };
+
+    Ok(quote! {
+        impl #impl_generics #object_ident #ty_generics #where_clause {
+            fn __register_root(registry: #crate_name::Registry) -> #crate_name::Registry {
+                #root
+                registry
+            }
+        }
+    })
+}
+
 fn impl_register_fns_trait(obj: &impl CommonInterfacable) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
@@ -107,7 +134,10 @@ fn impl_register_fns_trait(obj: &impl CommonInterfacable) -> darling::Result<Tok
 
     Ok(quote! {
         impl #impl_generics #crate_name::RegisterFns for #object_ident #ty_generics #where_clause {
-            const REGISTER_FNS: &'static [fn (registry: #crate_name::Registry) -> #crate_name::Registry] = &[#object_ident #turbofish_generics ::__register_interface];
+            const REGISTER_FNS: &'static [fn (registry: #crate_name::Registry) -> #crate_name::Registry] = &[
+                #object_ident #turbofish_generics ::__register_interface,
+                #object_ident #turbofish_generics ::__register_root,
+            ];
         }
     })
 }
@@ -119,6 +149,7 @@ impl ToTokens for ResolvedObject {
         let impl_resolve_ref = common::impl_resolve_ref(self).into_token_stream();
         let impl_graphql_doc = common::impl_graphql_doc(self).into_token_stream();
         let register_interface = impl_register_interface(self).into_token_stream();
+        let register_root = impl_register_root(self).into_token_stream();
         let impl_register_extras = impl_register_fns_trait(self).into_token_stream();
         let impl_interface_mark = common::impl_interface_mark(self).into_token_stream();
 
@@ -129,6 +160,7 @@ impl ToTokens for ResolvedObject {
             #impl_resolve_ref
             #impl_graphql_doc
             #register_interface
+            #register_root
             #impl_register_extras
         });
     }

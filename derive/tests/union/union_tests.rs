@@ -377,11 +377,11 @@ async fn test_query_owned() {
 }
 
 mod in_mod {
+    use crate::schema_utils::normalize_schema;
     use dog::Dog;
     use dynamic_graphql::dynamic::DynamicRequestExt;
     use dynamic_graphql::FieldValue;
     use dynamic_graphql_derive::{App, SimpleObject, Union};
-    use crate::schema_utils::normalize_schema;
 
     mod cat {
         use dynamic_graphql_derive::SimpleObject;

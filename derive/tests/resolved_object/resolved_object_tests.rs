@@ -23,6 +23,7 @@ fn test_impl_resolved_object_with_name() {
 #[test]
 fn test_schema() {
     #[derive(ResolvedObject)]
+    #[graphql(root)]
     struct Query;
 
     #[ResolvedObjectFields]
@@ -33,7 +34,7 @@ fn test_schema() {
     }
 
     let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<Query>().set_root("Query");
+    let registry = registry.register::<Query>();
     let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
