@@ -2,6 +2,10 @@
 name = "dynamic-graphql-derive"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "Dynamic GraphQL schema macro"
+homepage = "https://github.com/smmoosavi/dynamic-graphql"
+repository = "https://github.com/smmoosavi/dynamic-graphql"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
