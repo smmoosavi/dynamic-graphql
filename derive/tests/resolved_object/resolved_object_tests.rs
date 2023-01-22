@@ -1,8 +1,9 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::App;
 use dynamic_graphql::{FieldValue, Object};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
-use dynamic_graphql_derive::App;
+
+use crate::schema_utils::normalize_schema;
 
 #[test]
 fn test_impl_resolved_object() {
@@ -387,9 +388,10 @@ async fn test_async_query() {
 }
 
 mod in_mod {
-    use crate::schema_utils::normalize_schema;
+    use dynamic_graphql::App;
     use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
-    use dynamic_graphql_derive::App;
+
+    use crate::schema_utils::normalize_schema;
 
     #[derive(ResolvedObject)]
     #[graphql(root)]

@@ -1,7 +1,9 @@
+use std::ops::{Deref, DerefMut};
+
+use syn::{FnArg, ImplItemMethod, TraitItemMethod};
+
 use crate::utils::impl_block::{FromFnArg, FromImplItemMethod, FromTraitItemMethod};
 use crate::utils::with_context::SetContext;
-use std::ops::{Deref, DerefMut};
-use syn::{FnArg, ImplItemMethod, TraitItemMethod};
 
 pub trait SetIndex: Sized {
     fn with_index(self, index: usize) -> Self;

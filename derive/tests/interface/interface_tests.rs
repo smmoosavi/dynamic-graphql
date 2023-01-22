@@ -1,5 +1,6 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::{App, Interface, SimpleObject};
+
+use crate::schema_utils::normalize_schema;
 
 #[test]
 fn test_impl_interface() {
@@ -301,11 +302,13 @@ mod in_mod {
     }
 
     mod foo {
-        use super::node::Node;
-        use crate::schema_utils::normalize_schema;
         use dynamic_graphql::dynamic::DynamicRequestExt;
         use dynamic_graphql::{FieldValue, SimpleObject};
-        use dynamic_graphql_derive::{ResolvedObject, ResolvedObjectFields};
+        use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+
+        use crate::schema_utils::normalize_schema;
+
+        use super::node::Node;
 
         #[derive(SimpleObject)]
         #[graphql(mark_with = "super::node::NodeInterface")]

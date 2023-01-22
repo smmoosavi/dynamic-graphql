@@ -1,8 +1,10 @@
-use crate::schema_utils::normalize_schema;
+use std::marker::PhantomData;
+
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{App, FieldValue, OutputType, ResolveOwned, ResolveRef, SimpleObject};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
-use std::marker::PhantomData;
+
+use crate::schema_utils::normalize_schema;
 
 #[tokio::test]
 async fn test_query_static_generic() {

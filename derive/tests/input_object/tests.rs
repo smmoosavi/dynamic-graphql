@@ -1,8 +1,9 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::App;
 use dynamic_graphql::{FieldValue, InputObject};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
-use dynamic_graphql_derive::App;
+
+use crate::schema_utils::normalize_schema;
 
 #[test]
 fn test_impl_object() {
@@ -311,9 +312,10 @@ async fn test_rename_fields() {
 }
 
 mod in_mod {
-    use crate::schema_utils::normalize_schema;
     use dynamic_graphql::dynamic::DynamicRequestExt;
     use dynamic_graphql::{App, FieldValue, ResolvedObject, ResolvedObjectFields};
+
+    use crate::schema_utils::normalize_schema;
 
     mod foo {
         use dynamic_graphql::InputObject;

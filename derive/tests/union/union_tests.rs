@@ -1,7 +1,8 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::{App, ResolvedObject, ResolvedObjectFields, SimpleObject};
 use dynamic_graphql::{FieldValue, Union};
-use dynamic_graphql_derive::{App, ResolvedObject, ResolvedObjectFields, SimpleObject};
+
+use crate::schema_utils::normalize_schema;
 
 #[test]
 fn test_impl_union() {
@@ -375,14 +376,15 @@ async fn test_query_owned() {
 }
 
 mod in_mod {
-    use crate::schema_utils::normalize_schema;
     use dog::Dog;
     use dynamic_graphql::dynamic::DynamicRequestExt;
     use dynamic_graphql::FieldValue;
-    use dynamic_graphql_derive::{App, SimpleObject, Union};
+    use dynamic_graphql::{App, SimpleObject, Union};
+
+    use crate::schema_utils::normalize_schema;
 
     mod cat {
-        use dynamic_graphql_derive::SimpleObject;
+        use dynamic_graphql::SimpleObject;
 
         #[derive(SimpleObject)]
         pub struct Cat {
@@ -392,7 +394,7 @@ mod in_mod {
     }
 
     mod dog {
-        use dynamic_graphql_derive::SimpleObject;
+        use dynamic_graphql::SimpleObject;
 
         #[derive(SimpleObject)]
         pub struct Dog {

@@ -1,8 +1,9 @@
+use darling::util::Ignored;
+use syn::spanned::Spanned;
+
 use crate::utils::impl_block::{FromFnArg, SelfArg, TypedArg};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
-use darling::util::Ignored;
-use syn::spanned::Spanned;
 
 #[derive(Debug, Clone)]
 pub enum BaseFnArg {

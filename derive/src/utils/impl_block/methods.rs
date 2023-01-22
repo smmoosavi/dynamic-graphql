@@ -1,7 +1,8 @@
+use std::ops::Deref;
+
 use crate::utils::impl_block::{FromImplItemMethod, FromTraitItemMethod};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
-use std::ops::Deref;
 
 #[derive(Debug, Clone)]
 pub struct Methods<Method> {

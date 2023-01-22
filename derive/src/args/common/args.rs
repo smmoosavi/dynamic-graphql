@@ -1,11 +1,12 @@
+use proc_macro2::TokenStream;
+use quote::quote;
+use syn::spanned::Spanned;
+
 use crate::utils::common::CommonArg;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::impl_block::{BaseFnArg, TypedArg};
 use crate::utils::rename_rule::calc_arg_name;
 use crate::utils::type_utils::{get_owned_type, get_value_type, is_type_ref};
-use proc_macro2::TokenStream;
-use quote::quote;
-use syn::spanned::Spanned;
 
 pub fn get_arg_ident(arg: &impl CommonArg) -> syn::Ident {
     syn::Ident::new(&format!("arg{}", arg.get_index()), arg.get_arg().span())

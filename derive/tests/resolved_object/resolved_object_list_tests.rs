@@ -1,8 +1,9 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
-use dynamic_graphql_derive::App;
+
+use crate::schema_utils::normalize_schema;
 
 #[tokio::test]
 async fn test_list() {

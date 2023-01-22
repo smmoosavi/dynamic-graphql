@@ -1,5 +1,6 @@
-use darling::FromAttributes;
 use std::ops::Deref;
+
+use darling::FromAttributes;
 
 pub fn get_rustdoc(attrs: &[syn::Attribute]) -> Result<Option<String>, darling::Error> {
     let mut full_docs = String::new();

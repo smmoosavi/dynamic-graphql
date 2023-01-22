@@ -1,8 +1,10 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{
     App, FieldValue, Interface, ResolvedObject, ResolvedObjectFields, SimpleObject,
 };
+
+use crate::schema_utils::normalize_schema;
+
 #[tokio::test]
 async fn test_interface_as_optional_value() {
     #[Interface(NodeInterface)]

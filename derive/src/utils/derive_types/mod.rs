@@ -1,3 +1,20 @@
+pub use base::{Base, BaseField, BaseVariant};
+pub use base_enum::BaseEnum;
+pub use base_struct::BaseStruct;
+pub use named_enum::NamedEnum;
+pub use named_field::NamedField;
+pub use named_struct::NamedStruct;
+pub use named_variant::NamedVariant;
+pub use newtype_enum::NewTypeEnum;
+pub use newtype_struct::NewtypeStruct;
+pub use newtype_variant::NewtypeVariant;
+pub use tuple_enum::TupleEnum;
+pub use tuple_field::TupleField;
+pub use tuple_struct::TupleStruct;
+pub use unit_enum::UnitEnum;
+pub use unit_struct::UnitStruct;
+pub use unit_variant::UnitVariant;
+
 mod base;
 
 mod base_enum;
@@ -18,20 +35,3 @@ mod tuple_field;
 mod named_variant;
 mod newtype_variant;
 mod unit_variant;
-
-pub use base::{Base, BaseField, BaseVariant};
-pub use base_enum::BaseEnum;
-pub use base_struct::BaseStruct;
-pub use named_enum::NamedEnum;
-pub use named_field::NamedField;
-pub use named_struct::NamedStruct;
-pub use named_variant::NamedVariant;
-pub use newtype_enum::NewTypeEnum;
-pub use newtype_struct::NewtypeStruct;
-pub use newtype_variant::NewtypeVariant;
-pub use tuple_enum::TupleEnum;
-pub use tuple_field::TupleField;
-pub use tuple_struct::TupleStruct;
-pub use unit_enum::UnitEnum;
-pub use unit_struct::UnitStruct;
-pub use unit_variant::UnitVariant;

@@ -1,5 +1,5 @@
 use dynamic_graphql::Registry;
-use dynamic_graphql_derive::{App, SimpleObject};
+use dynamic_graphql::{App, SimpleObject};
 
 use crate::schema_utils::normalize_schema;
 

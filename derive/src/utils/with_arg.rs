@@ -1,12 +1,14 @@
+use std::ops::Deref;
+
+use darling::util::Ignored;
+use darling::{FromDeriveInput, FromField, FromVariant};
+use syn::DeriveInput;
+
 use crate::utils::impl_block::{
     FromFnArg, FromImplItemMethod, FromItemImpl, FromItemTrait, FromTraitItemMethod,
 };
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
-use darling::util::Ignored;
-use darling::{FromDeriveInput, FromField, FromVariant};
-use std::ops::Deref;
-use syn::DeriveInput;
 
 pub trait SetArg<Arg> {
     type Output: Sized;

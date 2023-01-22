@@ -1,6 +1,7 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::{App, Interface, SimpleObject};
-use dynamic_graphql_derive::{ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+
+use crate::schema_utils::normalize_schema;
 
 #[test]
 fn test_schema_simple_object_mark_as() {

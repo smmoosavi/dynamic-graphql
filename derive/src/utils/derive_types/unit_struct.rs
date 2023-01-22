@@ -1,7 +1,9 @@
-use super::BaseStruct;
-use crate::utils::with_context::SetContext;
 use darling::util::Ignored;
 use darling::FromDeriveInput;
+
+use crate::utils::with_context::SetContext;
+
+use super::BaseStruct;
 
 #[derive(Debug, Clone)]
 pub struct UnitStruct {

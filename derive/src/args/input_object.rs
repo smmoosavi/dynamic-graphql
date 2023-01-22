@@ -1,3 +1,8 @@
+use darling::{FromAttributes, ToTokens};
+use proc_macro2::TokenStream;
+use quote::quote;
+use syn::{Generics, Path};
+
 use crate::args::common;
 use crate::utils::common::{CommonField, CommonObject, GetFields};
 use crate::utils::crate_name::get_crate_name;
@@ -8,10 +13,6 @@ use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
-use darling::{FromAttributes, ToTokens};
-use proc_macro2::TokenStream;
-use quote::quote;
-use syn::{Generics, Path};
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]

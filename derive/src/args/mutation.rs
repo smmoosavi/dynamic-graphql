@@ -1,13 +1,14 @@
+use darling::FromAttributes;
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens};
+use syn::Generics;
+
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{NewtypeStruct, TupleField};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
 use crate::utils::type_utils::get_owned_type;
 use crate::utils::with_attributes::WithAttributes;
-use darling::FromAttributes;
-use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
-use syn::Generics;
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]

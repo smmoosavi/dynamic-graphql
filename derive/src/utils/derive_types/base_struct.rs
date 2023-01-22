@@ -1,7 +1,9 @@
-use super::Base;
-use crate::utils::with_context::SetContext;
 use darling::{FromDeriveInput, FromField, FromGenerics};
 use syn::DeriveInput;
+
+use crate::utils::with_context::SetContext;
+
+use super::Base;
 
 #[derive(Debug, Clone)]
 pub struct BaseStruct<F: FromField, G: FromGenerics = ()> {

@@ -1,9 +1,10 @@
-use crate::args::ExpandObjectFields;
-use crate::utils::common::CommonArg;
-use crate::utils::impl_block::{BaseFnArg, FromItemImpl};
 use proc_macro2::TokenStream;
 use quote::quote;
 use quote::ToTokens;
+
+use crate::args::ExpandObjectFields;
+use crate::utils::common::CommonArg;
+use crate::utils::impl_block::{BaseFnArg, FromItemImpl};
 
 pub struct MutationFields(ExpandObjectFields);
 

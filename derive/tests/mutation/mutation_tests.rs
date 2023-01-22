@@ -1,9 +1,10 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{
     App, ExpandObject, FieldValue, Mutation, MutationFields, MutationRoot, Object, ParentType,
     SimpleObject,
 };
+
+use crate::schema_utils::normalize_schema;
 
 #[test]
 fn test_mutation_root() {

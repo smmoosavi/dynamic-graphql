@@ -1,9 +1,10 @@
-use crate::utils::crate_name::get_crate_name;
-use crate::utils::derive_types::{BaseStruct, TupleField};
 use darling::ToTokens;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Generics;
+
+use crate::utils::crate_name::get_crate_name;
+use crate::utils::derive_types::{BaseStruct, TupleField};
 
 pub type App = BaseStruct<TupleField, Generics>;
 

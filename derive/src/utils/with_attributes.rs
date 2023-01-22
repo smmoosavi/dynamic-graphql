@@ -1,3 +1,8 @@
+use std::ops::{Deref, DerefMut};
+
+use darling::{FromAttributes, FromDeriveInput, FromField, FromVariant};
+use syn::FnArg;
+
 use crate::utils::attributes::{Attributes, CleanAttributes};
 use crate::utils::impl_block::{
     BaseFnArg, FromFnArg, FromImplItemMethod, FromItemTrait, FromTraitItemMethod,
@@ -5,9 +10,6 @@ use crate::utils::impl_block::{
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
-use darling::{FromAttributes, FromDeriveInput, FromField, FromVariant};
-use std::ops::{Deref, DerefMut};
-use syn::FnArg;
 
 #[derive(Clone, Debug)]
 pub struct WithAttributes<A: FromAttributes, D> {

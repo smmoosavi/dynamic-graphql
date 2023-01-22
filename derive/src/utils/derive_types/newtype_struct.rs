@@ -1,6 +1,8 @@
-use super::{BaseStruct, TupleField};
-use crate::utils::with_context::SetContext;
 use darling::{FromDeriveInput, FromField, FromGenerics};
+
+use crate::utils::with_context::SetContext;
+
+use super::{BaseStruct, TupleField};
 
 #[derive(Debug, Clone)]
 pub struct NewtypeStruct<F: FromField = TupleField, G: FromGenerics = ()> {

@@ -1,7 +1,8 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::{App, ResolvedObject, ResolvedObjectFields};
 use dynamic_graphql::{Enum, FieldValue, Variables};
-use dynamic_graphql_derive::{App, ResolvedObject, ResolvedObjectFields};
+
+use crate::schema_utils::normalize_schema;
 
 #[test]
 fn test_impl_object() {

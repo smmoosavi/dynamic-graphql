@@ -1,10 +1,12 @@
-use crate::utils::impl_block::{FromFnArg, FromImplItemMethod, FromItemTrait, FromTraitItemMethod};
-use crate::utils::with_index::SetIndex;
-use crate::FromItemImpl;
+use std::ops::{Deref, DerefMut};
+
 use darling::ast::Data;
 use darling::util::Ignored;
 use darling::{FromDeriveInput, FromField, FromVariant};
-use std::ops::{Deref, DerefMut};
+
+use crate::utils::impl_block::{FromFnArg, FromImplItemMethod, FromItemTrait, FromTraitItemMethod};
+use crate::utils::with_index::SetIndex;
+use crate::FromItemImpl;
 
 pub trait MakeContext<C: Clone> {
     fn make_context(&self) -> C;

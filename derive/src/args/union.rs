@@ -1,3 +1,8 @@
+use darling::FromAttributes;
+use proc_macro2::{Ident, TokenStream};
+use quote::{quote, ToTokens};
+use syn::{Generics, Path};
+
 use crate::args::common;
 use crate::utils::common::CommonObject;
 use crate::utils::crate_name::get_crate_name;
@@ -7,10 +12,6 @@ use crate::utils::macros::*;
 use crate::utils::type_utils::{get_owned_type, get_type_path};
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
-use darling::FromAttributes;
-use proc_macro2::{Ident, TokenStream};
-use quote::{quote, ToTokens};
-use syn::{Generics, Path};
 
 from_variant!(UnionItem, NewtypeVariant,);
 

@@ -1,7 +1,9 @@
+use std::ops::{Deref, DerefMut};
+
+use darling::FromAttributes;
+
 use crate::utils::attributes::Attributes;
 use crate::utils::docs_utils::get_rustdoc;
-use darling::FromAttributes;
-use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, Clone)]
 pub struct WithDoc<D> {

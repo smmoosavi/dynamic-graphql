@@ -1,3 +1,6 @@
+use proc_macro2::TokenStream;
+use quote::quote;
+
 use crate::args::common::{ArgImplementor, FieldImplementor};
 use crate::utils::common::{CommonField, GetArgs};
 use crate::utils::crate_name::get_crate_name;
@@ -5,8 +8,6 @@ use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::rename_rule::calc_field_name;
 use crate::utils::type_utils::{get_owned_type, is_type_ref, is_type_slice, is_type_str};
-use proc_macro2::TokenStream;
-use quote::quote;
 
 pub fn get_field_type(field: &impl CommonField) -> darling::Result<&syn::Type> {
     let ty = field.get_type()?;

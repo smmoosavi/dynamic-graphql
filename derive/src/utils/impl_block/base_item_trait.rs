@@ -1,9 +1,10 @@
+use darling::FromGenerics;
+
 use crate::utils::impl_block::from_item_trait::FromItemTrait;
 use crate::utils::impl_block::from_trait_item_method::FromTraitItemMethod;
 use crate::utils::impl_block::{BaseMethod, Methods};
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
-use darling::FromGenerics;
 
 #[derive(Clone, Debug)]
 pub struct BaseItemTrait<Method = BaseMethod, Generics = ()> {

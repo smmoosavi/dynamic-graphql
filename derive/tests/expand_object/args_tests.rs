@@ -1,6 +1,7 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{App, Context, ExpandObject, ExpandObjectFields, FieldValue, SimpleObject};
+
+use crate::schema_utils::normalize_schema;
 
 #[test]
 fn test_schema() {
