@@ -13,7 +13,7 @@ categories = ["network-programming"]
 
 [dependencies]
 async-graphql = { version= "5", features = ["dynamic-schema"] }
-dynamic-graphql-derive = { path = "./derive" }
+dynamic-graphql-derive = { path = "./derive", version = "0.1.0" }
 
 [workspace]
 members = [
