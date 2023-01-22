@@ -12,6 +12,7 @@ fn test_app() {
         value: String,
     }
     #[derive(SimpleObject)]
+    #[graphql(root)]
     struct Query {
         #[graphql(name = "other")]
         pub string: Foo,
@@ -20,9 +21,7 @@ fn test_app() {
     #[derive(App)]
     struct App(Query, Foo);
 
-    let registry = dynamic_graphql::Registry::new();
-    let registry = registry.register::<App>().set_root("Query");
-    let schema = registry.create_schema().finish().unwrap();
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),

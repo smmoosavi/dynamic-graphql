@@ -7,6 +7,22 @@ use syn::Generics;
 
 pub type App = BaseStruct<TupleField, Generics>;
 
+fn impl_create_schema(app: &App) -> TokenStream {
+    let crate_name = get_crate_name();
+    let ident = &app.ident;
+    let (impl_generics, ty_generics, where_clause) = app.generics.split_for_impl();
+
+    quote! {
+        impl #impl_generics #ident #ty_generics #where_clause {
+            pub fn create_schema() -> #crate_name::dynamic::SchemaBuilder {
+                let registry = #crate_name::Registry::new();
+                let registry = registry.register::<Self>();
+                registry.create_schema()
+            }
+        }
+    }
+}
+
 fn impl_register(app: &App) -> TokenStream {
     let crate_name = get_crate_name();
     let ident = &app.ident;
@@ -35,6 +51,10 @@ fn impl_register(app: &App) -> TokenStream {
 impl ToTokens for App {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let impl_register = impl_register(self);
-        tokens.extend(impl_register);
+        let impl_create_schema = impl_create_schema(self);
+        tokens.extend(quote! {
+            #impl_register
+            #impl_create_schema
+        });
     }
 }
