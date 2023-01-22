@@ -375,3 +375,113 @@ async fn test_query_owned() {
         serde_json::json!({ "pet": { "name": "dog", "power": 100 } })
     );
 }
+
+mod in_mod {
+    use dog::Dog;
+    use dynamic_graphql::dynamic::DynamicRequestExt;
+    use dynamic_graphql::FieldValue;
+    use dynamic_graphql_derive::{App, SimpleObject, Union};
+    use crate::schema_utils::normalize_schema;
+
+    mod cat {
+        use dynamic_graphql_derive::SimpleObject;
+
+        #[derive(SimpleObject)]
+        pub struct Cat {
+            pub name: String,
+            pub life: i32,
+        }
+    }
+
+    mod dog {
+        use dynamic_graphql_derive::SimpleObject;
+
+        #[derive(SimpleObject)]
+        pub struct Dog {
+            pub name: String,
+            pub power: i32,
+        }
+    }
+
+    #[allow(dead_code)]
+    #[derive(Union)]
+    enum Animal {
+        Dog(Dog),
+        Cat(cat::Cat),
+    }
+
+    #[derive(SimpleObject)]
+    struct Query {
+        pet: Animal,
+    }
+
+    #[derive(App)]
+    struct App(Query, Animal, Dog, cat::Cat);
+
+    #[tokio::test]
+    async fn test_schema() {
+        let registry = dynamic_graphql::Registry::new();
+        let registry = registry.register::<App>().set_root("Query");
+        let schema = registry.create_schema().finish().unwrap();
+        let sdl = schema.sdl();
+        assert_eq!(
+            normalize_schema(&sdl),
+            normalize_schema(
+                r#"
+
+                    union Animal = Dog | Cat
+
+                    type Cat {
+                      name: String!
+                      life: Int!
+                    }
+
+                    type Dog {
+                      name: String!
+                      power: Int!
+                    }
+
+                    type Query {
+                      pet: Animal!
+                    }
+
+                    schema {
+                      query: Query
+                    }
+
+                "#
+            ),
+        );
+
+        let query = r#"
+        query {
+            pet {
+                ... on Dog {
+                    name
+                    power
+                }
+                ... on Cat {
+                    name
+                    life
+                }
+            }
+        }
+    "#;
+
+        let root = Query {
+            pet: Animal::Dog(Dog {
+                name: "dog".to_string(),
+                power: 100,
+            }),
+        };
+
+        let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+        let res = schema.execute(req).await;
+        let data = res.data.into_json().unwrap();
+
+        assert_eq!(
+            data,
+            serde_json::json!({ "pet": { "name": "dog", "power": 100 } })
+        );
+    }
+}

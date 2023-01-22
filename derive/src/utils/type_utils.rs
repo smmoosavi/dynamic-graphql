@@ -59,11 +59,11 @@ pub fn get_type_ident(ty: &syn::Type) -> darling::Result<&syn::Ident> {
     }
 }
 
-pub fn get_type_path(ty: &syn::Type) -> Option<&syn::Path> {
+pub fn get_type_path(ty: &syn::Type) -> darling::Result<&syn::Path> {
     match ty {
         syn::Type::Reference(ref r) => get_type_path(&r.elem),
-        syn::Type::Path(ref p) => Some(&p.path),
-        _ => None,
+        syn::Type::Path(ref p) => Ok(&p.path),
+        _ => Err(darling::Error::custom("Unsupported type").with_span(ty)),
     }
 }
 

@@ -277,14 +277,14 @@ fn define_new_fns_for_interface(input: &Interface) -> darling::Result<proc_macro
     Ok(quote! {
 
         impl #ident<'_> {
-            fn new_owned<'a, T>(value: T) -> #ident<'a>
+            pub fn new_owned<'a, T>(value: T) -> #ident<'a>
             where
                 T: #crate_name::InterfaceMark<{#mark}> + #crate_name::Object + #crate_name::ResolveOwned<'a> + Send + Sync + 'static,
             {
                 #ident(Default::default() ,#crate_name::AnyBox::new_owned(value, <T as #crate_name::Object>::NAME.to_string()))
             }
 
-            fn new_borrowed<'a, T>(value: &'a T) -> #ident<'a>
+            pub fn new_borrowed<'a, T>(value: &'a T) -> #ident<'a>
             where
                 T: #crate_name::InterfaceMark<{#mark}> + #crate_name::Object + #crate_name::ResolveRef<'a> + Send + Sync + 'static,
             {

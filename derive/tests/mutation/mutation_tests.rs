@@ -251,3 +251,65 @@ async fn test_query() {
         )
     );
 }
+
+mod in_mod {
+    use dynamic_graphql::dynamic::DynamicRequestExt;
+    use dynamic_graphql::{App, FieldValue, Mutation, MutationFields, SimpleObject};
+
+    mod root {
+        use dynamic_graphql::MutationRoot;
+
+        #[derive(MutationRoot)]
+        pub struct MutationRoot;
+    }
+
+    #[derive(Mutation)]
+    struct MyMutation(root::MutationRoot);
+
+    #[MutationFields]
+    impl MyMutation {
+        fn the_example() -> String {
+            "field".to_string()
+        }
+    }
+
+    #[derive(SimpleObject)]
+    struct Query {
+        foo: String,
+    }
+
+    #[derive(App)]
+    struct App(Query, root::MutationRoot, MyMutation);
+
+    #[tokio::test]
+    async fn test_in_mod() {
+        let registry = dynamic_graphql::Registry::new();
+        let registry = registry
+            .register::<App>()
+            .set_root("Query")
+            .set_mutation("MutationRoot");
+        let schema = registry.create_schema().finish().unwrap();
+        let query = r#"
+            mutation {
+                theExample
+            }
+        "#;
+
+        let root = Query {
+            foo: "foo".to_string(),
+        };
+        let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+
+        let res = schema.execute(req).await;
+        let data = res.data.into_json().unwrap();
+
+        assert_eq!(
+            data,
+            serde_json::json!(
+                {
+                    "theExample": "field"
+                }
+            )
+        );
+    }
+}

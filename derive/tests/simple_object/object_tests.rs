@@ -312,3 +312,34 @@ fn test_rename_fields() {
         ),
     );
 }
+
+mod in_mod {
+    use dynamic_graphql::dynamic::DynamicRequestExt;
+    use dynamic_graphql::FieldValue;
+    use dynamic_graphql::SimpleObject;
+
+    #[derive(SimpleObject)]
+    pub struct Query {
+        pub string: String,
+    }
+
+    #[tokio::test]
+    async fn test_query() {
+        let registry = dynamic_graphql::Registry::new();
+        let registry = registry.register::<Query>().set_root("Query");
+        let schema = registry.create_schema().finish().unwrap();
+        let query = r#"
+            query {
+                string
+            }
+        "#;
+        let root = Query {
+            string: "Hello".to_string(),
+        };
+        let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+        let res = schema.execute(req).await;
+        let data = res.data.into_json().unwrap();
+
+        assert_eq!(data, serde_json::json!({ "string": "Hello" }));
+    }
+}

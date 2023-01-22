@@ -4,7 +4,7 @@ use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{BaseEnum, NewtypeVariant};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
-use crate::utils::type_utils::{get_owned_type, get_type_ident};
+use crate::utils::type_utils::{get_owned_type, get_type_path};
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
 use darling::FromAttributes;
@@ -68,7 +68,7 @@ fn define_resolve_owned_match_pattern(
     let crate_name = get_crate_name();
     let union_ident = union.get_ident();
     let variant_ident = &item.ident;
-    let variant_type = get_type_ident(&item.fields.ty)?;
+    let variant_type = get_type_path(&item.fields.ty)?;
     Ok(quote! {
         #union_ident::#variant_ident(value) => {
             #crate_name::ResolveOwned::resolve_owned(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::Object>::NAME)))
@@ -104,7 +104,7 @@ fn define_resolve_ref_match_pattern(
     let create_name = get_crate_name();
     let union_ident = union.get_ident();
     let variant_ident = &item.ident;
-    let variant_type = get_type_ident(&item.fields.ty)?;
+    let variant_type = get_type_path(&item.fields.ty)?;
     Ok(quote! {
         #union_ident::#variant_ident(value) => {
             #create_name::ResolveRef::resolve_ref(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #create_name::Object>::NAME)))

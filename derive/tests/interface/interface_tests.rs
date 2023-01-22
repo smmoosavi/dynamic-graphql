@@ -289,3 +289,130 @@ fn test_schema_with_skip() {
         ),
     );
 }
+
+mod in_mod {
+    mod node {
+        use dynamic_graphql::Interface;
+
+        #[Interface(NodeInterface)]
+        pub trait Node {
+            fn id(&self) -> String;
+        }
+    }
+
+    mod foo {
+        use super::node::Node;
+        use crate::schema_utils::normalize_schema;
+        use dynamic_graphql::dynamic::DynamicRequestExt;
+        use dynamic_graphql::{FieldValue, SimpleObject};
+        use dynamic_graphql_derive::{ResolvedObject, ResolvedObjectFields};
+
+        #[derive(SimpleObject)]
+        #[graphql(mark_with = "super::node::NodeInterface")]
+        struct Bar {
+            id: String,
+            other: String,
+        }
+
+        #[derive(SimpleObject)]
+        #[graphql(implement = "super::node::NodeInterface")]
+        struct Foo {
+            other: String,
+        }
+
+        impl Node for Foo {
+            fn id(&self) -> String {
+                "foo".to_string()
+            }
+        }
+
+        #[derive(ResolvedObject)]
+        pub struct Query;
+
+        #[ResolvedObjectFields]
+        impl Query {
+            async fn foo(&self) -> super::node::NodeInterface {
+                super::node::NodeInterface::new_owned(Foo {
+                    other: "foo".to_string(),
+                })
+            }
+            async fn bar(&self) -> super::node::NodeInterface {
+                super::node::NodeInterface::new_owned(Bar {
+                    id: "bar".to_string(),
+                    other: "bar".to_string(),
+                })
+            }
+        }
+
+        #[derive(dynamic_graphql::App)]
+        pub struct App(Query, super::node::NodeInterface<'static>, Bar, Foo);
+
+        #[tokio::test]
+        async fn test_in_mode() {
+            let registry = dynamic_graphql::Registry::new();
+            let registry = registry.register::<App>().set_root("Query");
+            let schema = registry.create_schema().finish().unwrap();
+            let sdl = schema.sdl();
+            assert_eq!(
+                normalize_schema(&sdl),
+                normalize_schema(
+                    r#"
+                        type Bar implements Node {
+                          id: String!
+                          other: String!
+                        }
+
+                        type Foo implements Node {
+                          other: String!
+                          id: String!
+                        }
+
+                        interface Node {
+                          id: String!
+                        }
+
+                        type Query {
+                          foo: Node!
+                          bar: Node!
+                        }
+
+                        schema {
+                          query: Query
+                        }
+                "#
+                ),
+            );
+
+            let query = r#"
+                query {
+                    foo {
+                        id
+                        ... on Foo {
+                            other
+                        }
+                    }
+                    bar {
+                        id
+                        ... on Bar {
+                            other
+                        }
+                    }
+                }
+            "#;
+
+            let root = Query;
+            let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+
+            let res = schema.execute(req).await;
+            let data = res.data.into_json().unwrap();
+
+            assert_eq!(
+                data,
+                serde_json::json!({
+                    "foo": { "id": "foo", "other": "foo" },
+                    "bar": { "id": "bar", "other": "bar" },
+                })
+            );
+        }
+    }
+}

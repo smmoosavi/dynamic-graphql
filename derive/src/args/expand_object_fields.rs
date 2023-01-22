@@ -134,12 +134,7 @@ impl CommonObject for ExpandObjectFields {
     }
 
     fn get_type(&self) -> darling::Result<syn::Path> {
-        get_type_path(&self.ty)
-            .ok_or_else(|| {
-                darling::Error::custom("ExpandObjectFields must be implemented for a struct")
-                    .with_span(&self.ty)
-            })
-            .cloned()
+        get_type_path(&self.ty).cloned()
     }
 
     fn get_generics(&self) -> darling::Result<&Generics> {

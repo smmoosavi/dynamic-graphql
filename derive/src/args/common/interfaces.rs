@@ -1,9 +1,9 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::spanned::Spanned;
 
 use crate::utils::common::{CommonInterfacable, CommonObject};
 use crate::utils::crate_name::get_crate_name;
+use crate::utils::error::IntoTokenStream;
 use crate::utils::interface_attr::InterfaceAttr;
 use crate::utils::interface_hash::get_interface_hash;
 
@@ -22,11 +22,12 @@ fn get_add_mark_with_code(mark_with: &[InterfaceAttr]) -> darling::Result<TokenS
     let implements: Vec<TokenStream> = mark_with
         .iter()
         .map(|interface| {
-            let ident = syn::Ident::new(interface, interface.span());
-            quote! {
-                let object = object.implement(<#ident as #crate_name::Interface>::NAME);
-            }
+            let path = interface.to_path()?;
+            Ok(quote! {
+                let object = object.implement(<#path as #crate_name::Interface>::NAME);
+            })
         })
+        .map(|x| x.into_token_stream())
         .collect();
     Ok(quote! {
         #(#implements)*
@@ -62,11 +63,12 @@ pub fn get_add_implement_code(
     let implements: Vec<TokenStream> = implement
         .iter()
         .map(|interface| {
-            let ident = syn::Ident::new(interface, interface.span());
-            quote! {
-                let registry = registry.register::<#ident<#object_type #ty_generics>>();
-            }
+            let path = interface.to_path()?;
+            Ok(quote! {
+                let registry = registry.register::<#path<#object_type #ty_generics>>();
+            })
         })
+        .map(|x| x.into_token_stream())
         .collect();
     Ok(quote! {
         #(#implements)*
@@ -92,24 +94,26 @@ pub fn impl_interface_mark(object: &impl CommonInterfacable) -> darling::Result<
         .get_mark_with()
         .iter()
         .map(|interface| {
-            let ident = syn::Ident::new(interface, interface.span());
-            let mark = quote!(<#ident as #crate_name::Interface>::MARK);
-            quote! {
+            let path = interface.to_path()?;
+            let mark = quote!(<#path as #crate_name::Interface>::MARK);
+            Ok(quote! {
                 impl #crate_name::InterfaceMark<{#mark}> for #object_ident {}
-            }
+            })
         })
+        .map(|x| x.into_token_stream())
         .collect();
 
     let mark_implement: Vec<_> = object
         .get_implement()
         .iter()
         .map(|interface| {
-            let ident = syn::Ident::new(interface, interface.span());
+            let ident = interface.to_path()?;
             let mark = quote!(<#ident as #crate_name::Interface>::MARK);
-            quote! {
+            Ok(quote! {
                 impl #crate_name::InterfaceMark<{#mark}> for #object_ident {}
-            }
+            })
         })
+        .map(|x| x.into_token_stream())
         .collect();
 
     Ok(quote! {

@@ -25,6 +25,14 @@ impl Spanned for InterfaceAttr {
     }
 }
 
+impl InterfaceAttr {
+    pub fn to_path(&self) -> darling::Result<syn::Path> {
+        syn::parse_str(&self.inner).map_err(|e| {
+            darling::Error::custom(format!("failed to parse `{}` as a path: {}", self.inner, e))
+        })
+    }
+}
+
 impl FromMeta for InterfaceAttr {
     fn from_value(value: &Lit) -> darling::Result<Self> {
         match value {

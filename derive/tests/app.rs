@@ -1,8 +1,9 @@
-mod schema_utils;
-
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::Registry;
 use dynamic_graphql_derive::{App, SimpleObject};
+
+use crate::schema_utils::normalize_schema;
+
+mod schema_utils;
 
 #[test]
 fn test_app() {
@@ -259,4 +260,54 @@ fn test_nested_app() {
             "#
         ),
     );
+}
+
+mod test_in_mod {
+    use dynamic_graphql::App;
+    use dynamic_graphql::SimpleObject;
+
+    use crate::schema_utils::normalize_schema;
+
+    mod foo {
+        use dynamic_graphql::SimpleObject;
+
+        #[derive(SimpleObject)]
+        pub struct Foo {
+            value: String,
+        }
+    }
+
+    #[derive(SimpleObject)]
+    struct Query {
+        pub foo: foo::Foo,
+    }
+
+    #[derive(App)]
+    struct App(Query, foo::Foo);
+
+    #[tokio::test]
+    async fn test() {
+        let registry = dynamic_graphql::Registry::new();
+        let registry = registry.register::<App>().set_root("Query");
+        let schema = registry.create_schema().finish().unwrap();
+        let sdl = schema.sdl();
+        assert_eq!(
+            normalize_schema(&sdl),
+            normalize_schema(
+                r#"
+                type Foo {
+                  value: String!
+                }
+
+                type Query {
+                  foo: Foo!
+                }
+
+                schema {
+                  query: Query
+                }
+                "#
+            ),
+        );
+    }
 }

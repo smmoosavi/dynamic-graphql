@@ -397,3 +397,60 @@ async fn test_query() {
         )
     );
 }
+
+mod test_in_mod {
+    use dynamic_graphql::dynamic::DynamicRequestExt;
+    use dynamic_graphql::FieldValue;
+
+    pub mod query {
+        use dynamic_graphql::SimpleObject;
+
+        #[derive(SimpleObject)]
+        pub struct Query;
+    }
+
+    pub mod foo {
+        use dynamic_graphql::ExpandObject;
+        use dynamic_graphql::ExpandObjectFields;
+
+        #[derive(ExpandObject)]
+        pub struct FooQuery<'a>(&'a super::query::Query);
+
+        #[ExpandObjectFields]
+        impl FooQuery<'_> {
+            fn foo(&self) -> String {
+                "foo".to_string()
+            }
+        }
+    }
+    #[derive(dynamic_graphql::App)]
+    pub struct App(query::Query, foo::FooQuery<'static>);
+
+    #[tokio::test]
+    async fn test_query() {
+        let registry = dynamic_graphql::Registry::new();
+        let registry = registry.register::<App>().set_root("Query");
+        let schema = registry.create_schema().finish().unwrap();
+
+        let query = r#"
+            query {
+                foo
+            }
+        "#;
+
+        let root = query::Query;
+        let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+
+        let res = schema.execute(req).await;
+        let data = res.data.into_json().unwrap();
+
+        assert_eq!(
+            data,
+            serde_json::json!(
+                {
+                    "foo": "foo"
+                }
+            )
+        );
+    }
+}

@@ -362,3 +362,39 @@ async fn test_async_query() {
         )
     );
 }
+
+mod in_mod {
+    use crate::schema_utils::normalize_schema;
+    use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+
+    #[derive(ResolvedObject)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        fn the_string(&self) -> String {
+            "Hello".to_string()
+        }
+    }
+
+    #[test]
+    fn test_schema() {
+        let registry = dynamic_graphql::Registry::new();
+        let registry = registry.register::<Query>().set_root("Query");
+        let schema = registry.create_schema().finish().unwrap();
+        let sdl = schema.sdl();
+        assert_eq!(
+            normalize_schema(&sdl),
+            normalize_schema(
+                r#"
+                    type Query {
+                      theString: String!
+                    }
+                    schema {
+                      query: Query
+                    }
+                "#
+            ),
+        );
+    }
+}
