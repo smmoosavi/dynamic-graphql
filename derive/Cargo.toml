@@ -23,6 +23,7 @@ dynamic-graphql = { path = ".." }
 graphql-parser = "0.4"
 tokio = { version = "1", features = ["full"] }
 serde_json = "1"
+async-trait = "0.1"
 
 [lib]
 proc-macro = true

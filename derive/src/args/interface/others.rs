@@ -156,7 +156,11 @@ pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
 
     Ok(quote! {
 
-        impl <I> #crate_name::Register for #ident<'static, I> where I: #trait_ident + #crate_name::InterfaceTarget + 'static {
+        impl <I> #crate_name::Register for #ident<'static, I>
+            where
+        I: #trait_ident + #crate_name::InterfaceTarget + 'static,
+        I: Send + Sync,
+        {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #define_fields
                 registry.update_object(
