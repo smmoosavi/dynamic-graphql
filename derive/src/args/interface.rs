@@ -277,16 +277,16 @@ fn define_new_fns_for_interface(input: &Interface) -> darling::Result<proc_macro
     Ok(quote! {
 
         impl #ident<'_> {
-            pub fn new_owned<'a, T>(value: T) -> #ident<'a>
+            pub fn new_owned<'__dynamic_graphql_lifetime, T>(value: T) -> #ident<'__dynamic_graphql_lifetime>
             where
-                T: #crate_name::InterfaceMark<{#mark}> + #crate_name::Object + #crate_name::ResolveOwned<'a> + Send + Sync + 'static,
+                T: #crate_name::InterfaceMark<{#mark}> + #crate_name::Object + #crate_name::ResolveOwned<'__dynamic_graphql_lifetime> + Send + Sync + 'static,
             {
                 #ident(Default::default() ,#crate_name::AnyBox::new_owned(value, <T as #crate_name::Object>::NAME.to_string()))
             }
 
-            pub fn new_borrowed<'a, T>(value: &'a T) -> #ident<'a>
+            pub fn new_borrowed<'__dynamic_graphql_lifetime, T>(value: &'__dynamic_graphql_lifetime T) -> #ident<'__dynamic_graphql_lifetime>
             where
-                T: #crate_name::InterfaceMark<{#mark}> + #crate_name::Object + #crate_name::ResolveRef<'a> + Send + Sync + 'static,
+                T: #crate_name::InterfaceMark<{#mark}> + #crate_name::Object + #crate_name::ResolveRef<'__dynamic_graphql_lifetime> + Send + Sync + 'static,
             {
                 #ident(Default::default() ,#crate_name::AnyBox::new_borrowed(value, <T as #crate_name::Object>::NAME.to_string()))
             }
@@ -302,8 +302,8 @@ fn define_resolve_owned_for_interface(
     let ident = &input.arg.ident;
 
     Ok(quote! {
-        impl<'a> #crate_name::ResolveOwned<'a> for #ident<'a> {
-            fn resolve_owned(self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
+        impl<'__dynamic_graphql_lifetime> #crate_name::ResolveOwned<'__dynamic_graphql_lifetime> for #ident<'__dynamic_graphql_lifetime> {
+            fn resolve_owned(self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'__dynamic_graphql_lifetime>>> {
                 self.1.resolve_owned(ctx)
             }
         }

@@ -134,8 +134,8 @@ pub fn impl_resolve_owned_by_value(obj: &impl CommonObject) -> darling::Result<T
     let object_ident = obj.get_ident();
 
     Ok(quote! {
-        impl<'a> #crate_name::ResolveOwned<'a> for #object_ident {
-            fn resolve_owned(self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
+        impl<'__dynamic_graphql_lifetime> #crate_name::ResolveOwned<'__dynamic_graphql_lifetime> for #object_ident {
+            fn resolve_owned(self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'__dynamic_graphql_lifetime>>> {
                 Ok(Some(#crate_name::FieldValue::value(&self)))
             }
         }
@@ -146,8 +146,8 @@ pub fn impl_resolve_ref_by_value(obj: &impl CommonObject) -> darling::Result<Tok
     let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
     Ok(quote! {
-        impl<'a> #crate_name::ResolveRef<'a> for #object_ident {
-            fn resolve_ref(&'a self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
+        impl<'__dynamic_graphql_lifetime> #crate_name::ResolveRef<'__dynamic_graphql_lifetime> for #object_ident {
+            fn resolve_ref(&'__dynamic_graphql_lifetime self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'__dynamic_graphql_lifetime>>> {
                 Ok(Some(#crate_name::FieldValue::value(self)))
             }
         }

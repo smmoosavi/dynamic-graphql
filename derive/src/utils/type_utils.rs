@@ -76,3 +76,10 @@ pub fn get_value_type(ty: &syn::Type) -> Option<TokenStream> {
     }
     None
 }
+
+pub fn get_ref_type_lifetime(ty: &syn::Type) -> Option<&syn::Lifetime> {
+    match ty {
+        syn::Type::Reference(ty) => ty.lifetime.as_ref(),
+        _ => None,
+    }
+}

@@ -81,7 +81,7 @@ pub fn define_interface_struct(input: &Interface) -> darling::Result<TokenStream
 
     let ident = &input.arg.ident;
     Ok(quote! {
-        pub struct #ident<'a, T=#crate_name::InterfaceRoot>(::std::marker::PhantomData<T>, #crate_name::AnyBox<'a>);
+        pub struct #ident<'__dynamic_graphql_lifetime, T=#crate_name::InterfaceRoot>(::std::marker::PhantomData<T>, #crate_name::AnyBox<'__dynamic_graphql_lifetime>);
         impl #crate_name::GraphqlType for #ident<'static> {
             const NAME: &'static str = #name;
         }

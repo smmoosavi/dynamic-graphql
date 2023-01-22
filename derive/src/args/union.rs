@@ -88,8 +88,8 @@ fn define_resolve_owned_for_union(union: &Union) -> darling::Result<proc_macro2:
         .collect::<Vec<_>>();
 
     Ok(quote! {
-        impl<'a> #crate_name::ResolveOwned<'a> for #ident {
-            fn resolve_owned(self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'a>>> {
+        impl<'__dynamic_graphql_lifetime> #crate_name::ResolveOwned<'__dynamic_graphql_lifetime> for #ident {
+            fn resolve_owned(self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'__dynamic_graphql_lifetime>>> {
                 match self {
                     #(#match_patterns),*
                 }
@@ -124,8 +124,8 @@ fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::T
         .collect::<Vec<_>>();
 
     Ok(quote! {
-        impl<'a> #create_name::ResolveRef<'a> for #ident {
-            fn resolve_ref(&'a self, ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'a>>> {
+        impl<'__dynamic_graphql_lifetime> #create_name::ResolveRef<'__dynamic_graphql_lifetime> for #ident {
+            fn resolve_ref(&'__dynamic_graphql_lifetime self, ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'__dynamic_graphql_lifetime>>> {
                 match self {
                     #(#match_patterns),*
                 }
