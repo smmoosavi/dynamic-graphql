@@ -13,9 +13,9 @@ pub use from_value::FromValue;
 pub use registry::Registry;
 pub use resolve::{ResolveOwned, ResolveRef};
 pub use types::{
-    Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, GraphqlDoc, GraphqlType, InputObject,
-    InputType, Interface, InterfaceMark, InterfaceRoot, InterfaceTarget, Mutation, Object,
-    OutputType, ParentType, Register, RegisterFns, Scalar, Union,
+    Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputObject, InputType,
+    Interface, InterfaceMark, InterfaceRoot, InterfaceTarget, Mutation, Object, OutputType,
+    ParentType, Register, RegisterFns, Scalar, Union,
 };
 
 pub use dynamic_graphql_derive::{

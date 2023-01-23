@@ -15,10 +15,6 @@ pub trait GraphqlType {
     const NAME: &'static str;
 }
 
-pub trait GraphqlDoc {
-    const DOC: Option<&'static str>;
-}
-
 pub trait OutputType: GraphqlType {
     const NAME: &'static str = <Self as GraphqlType>::NAME;
 }

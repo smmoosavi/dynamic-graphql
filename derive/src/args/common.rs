@@ -80,23 +80,6 @@ pub fn impl_input_object(obj: &impl CommonObject) -> darling::Result<TokenStream
     })
 }
 
-pub fn impl_graphql_doc(obj: &impl CommonObject) -> darling::Result<TokenStream> {
-    let doc = obj.get_doc()?;
-    let object_ident = obj.get_ident();
-    let crate_name = get_crate_name();
-    let doc = match doc {
-        None => quote!(None),
-        Some(ref doc) => quote!(Some(#doc)),
-    };
-    let (impl_generics, ty_generics, where_clause) = obj.get_generics()?.split_for_impl();
-
-    Ok(quote! {
-        impl #impl_generics #crate_name::GraphqlDoc for #object_ident #ty_generics #where_clause {
-            const DOC: Option<&'static str> = #doc;
-        }
-    })
-}
-
 pub fn impl_resolve_owned(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = obj.get_ident();

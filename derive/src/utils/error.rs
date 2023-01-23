@@ -14,6 +14,15 @@ impl IntoTokenStream for darling::Result<TokenStream> {
     }
 }
 
+impl IntoTokenStream for darling::Result<Option<TokenStream>> {
+    fn into_token_stream(self) -> TokenStream {
+        match self {
+            Ok(tokens) => tokens.unwrap_or_default(),
+            Err(err) => err.write_errors(),
+        }
+    }
+}
+
 pub trait WithSpan {
     fn with_span<T: Spanned>(self, node: &T) -> Self;
 }

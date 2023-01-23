@@ -304,16 +304,6 @@ where
     }
 }
 
-fn impl_object_description() -> TokenStream {
-    let crate_name = get_crate_name();
-
-    quote! {
-        let object = <Self as #crate_name::GraphqlDoc>::DOC.iter().fold(object, |object, doc| {
-            object.description(doc.to_owned())
-        });
-    }
-}
-
 fn get_define_fields_code<O, F, A>(object: &O) -> darling::Result<TokenStream>
 where
     O: GetFields<F>,
@@ -332,7 +322,6 @@ fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> 
     let crate_name = get_crate_name();
     let ty = get_type_ident(&object.ty)?;
     let define_object = common::impl_define_object();
-    let description = impl_object_description();
     let define_fields = get_define_fields_code(object)?;
     let register_object_code = common::register_object_code();
     let register_fns = common::call_register_fns();
@@ -344,8 +333,6 @@ fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> 
                 #define_object
 
                 #define_fields
-
-                #description
 
                 #register_fns
 
