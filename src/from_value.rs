@@ -1,36 +1,36 @@
 use crate::{dynamic, Result};
 
 pub trait FromValue: Sized {
-    fn from_value(value: dynamic::ValueAccessor) -> Result<Self>;
+    fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self>;
 }
 
 impl FromValue for String {
-    fn from_value(value: dynamic::ValueAccessor) -> Result<Self> {
-        value.string().map(|s| s.to_string())
+    fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self> {
+        value?.string().map(|s| s.to_string())
     }
 }
 
 impl FromValue for async_graphql::ID {
-    fn from_value(value: dynamic::ValueAccessor) -> Result<Self> {
-        value.string().map(|s| async_graphql::ID(s.to_string()))
+    fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self> {
+        value?.string().map(|s| async_graphql::ID(s.to_string()))
     }
 }
 
 impl FromValue for bool {
-    fn from_value(value: dynamic::ValueAccessor) -> Result<Self> {
-        value.boolean()
+    fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self> {
+        value?.boolean()
     }
 }
 
 impl FromValue for f32 {
-    fn from_value(value: dynamic::ValueAccessor) -> Result<Self> {
-        value.f32()
+    fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self> {
+        value?.f32()
     }
 }
 
 impl FromValue for f64 {
-    fn from_value(value: dynamic::ValueAccessor) -> Result<Self> {
-        value.f64()
+    fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self> {
+        value?.f64()
     }
 }
 
@@ -38,8 +38,8 @@ macro_rules! uint_from_value {
     ($($t:ty),*) => {
         $(
             impl FromValue for $t {
-                fn from_value(value: dynamic::ValueAccessor) -> Result<Self> {
-                    value.u64().map(|v| v as $t)
+                fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self> {
+                    value?.u64().map(|v| v as $t)
                 }
             }
         )*
@@ -49,8 +49,8 @@ macro_rules! int_from_value {
     ($($t:ty),*) => {
         $(
             impl FromValue for $t {
-                fn from_value(value: dynamic::ValueAccessor) -> Result<Self> {
-                    value.i64().map(|v| v as $t)
+                fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self> {
+                    value?.i64().map(|v| v as $t)
                 }
             }
         )*
@@ -64,11 +64,16 @@ impl<T> FromValue for Option<T>
 where
     T: FromValue,
 {
-    fn from_value(value: dynamic::ValueAccessor) -> Result<Self> {
-        if value.is_null() {
-            Ok(None)
-        } else {
-            Ok(Some(T::from_value(value)?))
+    fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self> {
+        match value.ok() {
+            Some(value) => {
+                if value.is_null() {
+                    Ok(None)
+                } else {
+                    Ok(Some(T::from_value(Ok(value))?))
+                }
+            }
+            None => Ok(None),
         }
     }
 }
@@ -77,7 +82,11 @@ impl<T> FromValue for Vec<T>
 where
     T: FromValue,
 {
-    fn from_value(value: dynamic::ValueAccessor) -> Result<Self> {
-        value.list()?.iter().map(|v| T::from_value(v)).collect()
+    fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self> {
+        value?
+            .list()?
+            .iter()
+            .map(|v| T::from_value(Ok(v)))
+            .collect()
     }
 }

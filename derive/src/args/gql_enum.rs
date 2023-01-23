@@ -225,7 +225,8 @@ fn impl_from_value(enm: &Enum) -> darling::Result<TokenStream> {
 
     Ok(quote! {
         impl #crate_name::FromValue for #enum_ident {
-            fn from_value(__value: #crate_name::dynamic::ValueAccessor) -> #crate_name::Result<Self> {
+            fn from_value(__value: #crate_name::Result<#crate_name::dynamic::ValueAccessor>) -> #crate_name::Result<Self> {
+                let __value = __value?;
                 let string_value = __value.enum_name()?;
                 match string_value {
                     #match_items

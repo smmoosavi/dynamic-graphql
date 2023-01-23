@@ -80,10 +80,10 @@ pub fn get_typed_arg_definition(arg: &impl CommonArg) -> darling::Result<TokenSt
         let value_type = get_value_type(&typed.ty);
         match value_type {
             None => Ok(quote! {
-                let #arg_ident = #crate_name::FromValue::from_value(ctx.args.try_get(#arg_name)?)?;
+                let #arg_ident = #crate_name::FromValue::from_value(ctx.args.try_get(#arg_name))?;
             }),
             Some(ty) => Ok(quote! {
-                let #arg_ident: #ty = #crate_name::FromValue::from_value(ctx.args.try_get(#arg_name)?)?;
+                let #arg_ident: #ty = #crate_name::FromValue::from_value(ctx.args.try_get(#arg_name))?;
             }),
         }
     }

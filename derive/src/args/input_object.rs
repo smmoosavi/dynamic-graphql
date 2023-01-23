@@ -178,7 +178,7 @@ fn get_field_value(index: usize, field: &InputObjectField) -> darling::Result<To
         });
     }
     Ok(quote! {
-        let #item = #crate_name::FromValue::from_value(__object.try_get(#field_name)?)?;
+        let #item = #crate_name::FromValue::from_value(__object.try_get(#field_name))?;
     })
 }
 
@@ -226,7 +226,8 @@ fn impl_from_value(object: &InputObject) -> darling::Result<TokenStream> {
     let fields_usage = get_fields_usage(object)?;
     Ok(quote!(
         impl #crate_name::FromValue for #ident {
-            fn from_value(__value: #crate_name::dynamic::ValueAccessor) -> #crate_name::Result<Self> {
+            fn from_value(__value: #crate_name::Result<#crate_name::dynamic::ValueAccessor>) -> #crate_name::Result<Self> {
+                let __value = __value?;
                 let __object = __value.object()?;
                 #fields_value
                 #fields_usage
