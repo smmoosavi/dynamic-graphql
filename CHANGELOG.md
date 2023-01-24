@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.1] - 2023-01-24
+
 ### Added
 
 - support for `MaybeUndefined` input type
@@ -21,3 +23,6 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - remove `GraphqlDoc` trait
 - change `FromValue` argument to `Result<dynamic::ValueAccessor>`
 - add `Output` associated type to `GetOutputTypeRef` and `GetInputTypeRef`
+
+[unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.1.1...main
+[0.1.1]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.1.0...v0.1.1
