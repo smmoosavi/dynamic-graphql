@@ -83,156 +83,169 @@ impl<T, E> GetOutputTypeRef for Result<T, E>
 where
     T: GetOutputTypeRef,
 {
-    fn get_output_type_ref() -> TypeRef {
+    type Output = T::Output;
+    #[inline]
+    fn get_output_type_ref() -> Self::Output {
         T::get_output_type_ref()
     }
 }
 
 impl<T: OutputType> GetOutputTypeRef for T {
+    type Output = TypeRef;
     #[inline]
-    fn get_output_type_ref() -> TypeRef {
+    fn get_output_type_ref() -> Self::Output {
         TypeRef::named_nn(<T as OutputType>::NAME)
     }
 }
 
 impl<T: OutputType> GetOutputTypeRef for Option<T> {
+    type Output = TypeRef;
     #[inline]
-    fn get_output_type_ref() -> TypeRef {
+    fn get_output_type_ref() -> Self::Output {
         TypeRef::named(<T as OutputType>::NAME)
     }
 }
 
 impl<T: OutputType> GetOutputTypeRef for Vec<T> {
+    type Output = TypeRef;
     #[inline]
-    fn get_output_type_ref() -> TypeRef {
+    fn get_output_type_ref() -> Self::Output {
         TypeRef::named_nn_list_nn(<T as OutputType>::NAME)
     }
 }
 
 impl<T: OutputType> GetOutputTypeRef for Option<Vec<T>> {
+    type Output = TypeRef;
     #[inline]
-    fn get_output_type_ref() -> TypeRef {
+    fn get_output_type_ref() -> Self::Output {
         TypeRef::named_nn_list(<T as OutputType>::NAME)
     }
 }
 
 impl<T: OutputType> GetOutputTypeRef for Vec<Option<T>> {
+    type Output = TypeRef;
     #[inline]
-    fn get_output_type_ref() -> TypeRef {
+    fn get_output_type_ref() -> Self::Output {
         TypeRef::named_list_nn(<T as OutputType>::NAME)
     }
 }
 
 impl<T: OutputType> GetOutputTypeRef for Option<Vec<Option<T>>> {
+    type Output = TypeRef;
     #[inline]
-    fn get_output_type_ref() -> TypeRef {
+    fn get_output_type_ref() -> Self::Output {
         TypeRef::named_list(<T as OutputType>::NAME)
     }
 }
 
 impl<T: OutputType> GetOutputTypeRef for &[T] {
+    type Output = TypeRef;
     #[inline]
-    fn get_output_type_ref() -> TypeRef {
+    fn get_output_type_ref() -> Self::Output {
         TypeRef::named_nn_list_nn(<T as OutputType>::NAME)
     }
 }
 
 impl<T: OutputType> GetOutputTypeRef for Option<&[T]> {
+    type Output = TypeRef;
     #[inline]
-    fn get_output_type_ref() -> TypeRef {
+    fn get_output_type_ref() -> Self::Output {
         TypeRef::named_nn_list(<T as OutputType>::NAME)
     }
 }
 
 impl<T: OutputType> GetOutputTypeRef for &[Option<T>] {
+    type Output = TypeRef;
     #[inline]
-    fn get_output_type_ref() -> TypeRef {
+    fn get_output_type_ref() -> Self::Output {
         TypeRef::named_list_nn(<T as OutputType>::NAME)
     }
 }
 
-impl<T, E> GetInputTypeRef for Result<T, E>
-where
-    T: GetInputTypeRef,
-{
-    fn get_input_type_ref() -> TypeRef {
-        T::get_input_type_ref()
-    }
-}
-
 impl<T: OutputType> GetOutputTypeRef for Option<&[Option<T>]> {
+    type Output = TypeRef;
     #[inline]
-    fn get_output_type_ref() -> TypeRef {
+    fn get_output_type_ref() -> Self::Output {
         TypeRef::named_list(<T as OutputType>::NAME)
     }
 }
 
 impl<T: InputType> GetInputTypeRef for T {
+    type Output = TypeRef;
     #[inline]
-    fn get_input_type_ref() -> TypeRef {
+    fn get_input_type_ref() -> Self::Output {
         TypeRef::named_nn(<T as InputType>::NAME)
     }
 }
 
 impl<T: InputType> GetInputTypeRef for Option<T> {
+    type Output = TypeRef;
     #[inline]
-    fn get_input_type_ref() -> TypeRef {
+    fn get_input_type_ref() -> Self::Output {
         TypeRef::named(<T as InputType>::NAME)
     }
 }
 
 impl<T: InputType> GetInputTypeRef for Vec<T> {
+    type Output = TypeRef;
     #[inline]
-    fn get_input_type_ref() -> TypeRef {
+    fn get_input_type_ref() -> Self::Output {
         TypeRef::named_nn_list_nn(<T as InputType>::NAME)
     }
 }
 
 impl<T: InputType> GetInputTypeRef for Option<Vec<T>> {
+    type Output = TypeRef;
     #[inline]
-    fn get_input_type_ref() -> TypeRef {
+    fn get_input_type_ref() -> Self::Output {
         TypeRef::named_nn_list(<T as InputType>::NAME)
     }
 }
 
 impl<T: InputType> GetInputTypeRef for Vec<Option<T>> {
+    type Output = TypeRef;
     #[inline]
-    fn get_input_type_ref() -> TypeRef {
+    fn get_input_type_ref() -> Self::Output {
         TypeRef::named_list_nn(<T as InputType>::NAME)
     }
 }
 
 impl<T: InputType> GetInputTypeRef for Option<Vec<Option<T>>> {
+    type Output = TypeRef;
     #[inline]
-    fn get_input_type_ref() -> TypeRef {
+    fn get_input_type_ref() -> Self::Output {
         TypeRef::named_list(<T as InputType>::NAME)
     }
 }
 
 impl<T: InputType> GetInputTypeRef for &[T] {
+    type Output = TypeRef;
     #[inline]
-    fn get_input_type_ref() -> TypeRef {
+    fn get_input_type_ref() -> Self::Output {
         TypeRef::named_nn_list_nn(<T as InputType>::NAME)
     }
 }
 
 impl<T: InputType> GetInputTypeRef for Option<&[T]> {
+    type Output = TypeRef;
     #[inline]
-    fn get_input_type_ref() -> TypeRef {
+    fn get_input_type_ref() -> Self::Output {
         TypeRef::named_nn_list(<T as InputType>::NAME)
     }
 }
 
 impl<T: InputType> GetInputTypeRef for &[Option<T>] {
+    type Output = TypeRef;
     #[inline]
-    fn get_input_type_ref() -> TypeRef {
+    fn get_input_type_ref() -> Self::Output {
         TypeRef::named_list_nn(<T as InputType>::NAME)
     }
 }
 
 impl<T: InputType> GetInputTypeRef for Option<&[Option<T>]> {
+    type Output = TypeRef;
     #[inline]
-    fn get_input_type_ref() -> TypeRef {
+    fn get_input_type_ref() -> Self::Output {
         TypeRef::named_list(<T as InputType>::NAME)
     }
 }

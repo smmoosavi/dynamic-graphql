@@ -67,9 +67,11 @@ pub trait ExpandObject: ParentType {
 }
 
 pub trait GetOutputTypeRef {
-    fn get_output_type_ref() -> TypeRef;
+    type Output: Into<TypeRef>;
+    fn get_output_type_ref() -> Self::Output;
 }
 
 pub trait GetInputTypeRef {
-    fn get_input_type_ref() -> TypeRef;
+    type Output: Into<TypeRef>;
+    fn get_input_type_ref() -> Self::Output;
 }
