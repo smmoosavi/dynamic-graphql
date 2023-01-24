@@ -15,7 +15,7 @@ use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::{BaseFnArg, BaseItemImpl, BaseMethod};
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
-use crate::utils::type_utils::{get_type_ident, get_type_path};
+use crate::utils::type_utils::{get_type_path, remove_path_generics};
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
 use crate::utils::with_doc::WithDoc;
@@ -261,8 +261,8 @@ impl FieldImplementor for ExpandObjectFieldsMethod {
         let ty = self.ctx.expand_ty.as_ref().unwrap_or_else(|| {
             unreachable!("ExpandObjectFieldsMethodContext::expand_ty must be set")
         });
-        let type_ident = get_type_ident(ty)?;
-        execute_code(type_ident, self)
+        let type_path = remove_path_generics(get_type_path(ty)?);
+        execute_code(&type_path, self)
     }
 
     fn get_resolve_code(&self) -> darling::Result<TokenStream> {
@@ -295,7 +295,7 @@ fn get_field_var_ident(index: usize, ident: &syn::Ident) -> Ident {
     Ident::new(&format!("__field_{}", index), ident.span())
 }
 
-fn execute_code<F, A>(type_ident: &syn::Ident, method: &F) -> darling::Result<TokenStream>
+fn execute_code<F, A>(type_path: &syn::Path, method: &F) -> darling::Result<TokenStream>
 where
     F: CommonMethod + GetArgs<A>,
     A: CommonArg + ArgImplementor,
@@ -306,11 +306,11 @@ where
 
     if method.is_async() {
         Ok(quote! {
-            let value = #type_ident::#field_ident(#args).await;
+            let value = #type_path::#field_ident(#args).await;
         })
     } else {
         Ok(quote! {
-            let value = #type_ident::#field_ident(#args);
+            let value = #type_path::#field_ident(#args);
         })
     }
 }
@@ -336,7 +336,7 @@ fn use_fields_code(expand: &ExpandObjectFields) -> darling::Result<TokenStream> 
 fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let (impl_generics, _, where_clause) = expand.generics.split_for_impl();
-    let ty = &expand.ty;
+    let ty = get_type_path(&expand.ty)?;
 
     let define_fields = common::get_define_fields_code(expand).into_token_stream();
 

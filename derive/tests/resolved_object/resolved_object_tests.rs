@@ -389,7 +389,7 @@ async fn test_async_query() {
 
 mod in_mod {
     use dynamic_graphql::App;
-    use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+    use dynamic_graphql::ResolvedObject;
 
     use crate::schema_utils::normalize_schema;
 
@@ -397,10 +397,14 @@ mod in_mod {
     #[graphql(root)]
     struct Query;
 
-    #[ResolvedObjectFields]
-    impl Query {
-        fn the_string(&self) -> String {
-            "Hello".to_string()
+    mod deep {
+        use dynamic_graphql::ResolvedObjectFields;
+
+        #[ResolvedObjectFields]
+        impl super::Query {
+            fn the_string(&self) -> String {
+                "Hello".to_string()
+            }
         }
     }
 

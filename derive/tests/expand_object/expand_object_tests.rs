@@ -407,18 +407,22 @@ mod test_in_mod {
 
     pub mod foo {
         use dynamic_graphql::ExpandObject;
-        use dynamic_graphql::ExpandObjectFields;
 
         #[derive(ExpandObject)]
         pub struct FooQuery<'a>(&'a super::query::Query);
 
-        #[ExpandObjectFields]
-        impl FooQuery<'_> {
-            fn foo(&self) -> String {
-                "foo".to_string()
+        mod deep {
+            use dynamic_graphql::ExpandObjectFields;
+
+            #[ExpandObjectFields]
+            impl super::FooQuery<'_> {
+                fn foo(&self) -> String {
+                    "foo".to_string()
+                }
             }
         }
     }
+
     #[derive(dynamic_graphql::App)]
     pub struct App(query::Query, foo::FooQuery<'static>);
 
