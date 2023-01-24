@@ -1,5 +1,5 @@
 use crate::types::{GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputType, OutputType};
-use async_graphql::dynamic;
+use async_graphql::{dynamic, MaybeUndefined};
 use std::borrow::Cow;
 
 impl<T: OutputType + Clone> GraphqlType for Cow<'_, T> {
@@ -182,6 +182,14 @@ impl<T: InputType> GetInputTypeRef for T {
 }
 
 impl<T: GetInputTypeRef<Output = TypeRefInner>> GetInputTypeRef for Option<T> {
+    type Output = TypeRefInner;
+    #[inline]
+    fn get_input_type_ref() -> Self::Output {
+        T::get_input_type_ref().optional()
+    }
+}
+
+impl<T: GetInputTypeRef<Output = TypeRefInner>> GetInputTypeRef for MaybeUndefined<T> {
     type Output = TypeRefInner;
     #[inline]
     fn get_input_type_ref() -> Self::Output {

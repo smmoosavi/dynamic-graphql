@@ -1,4 +1,6 @@
 use crate::{dynamic, Result};
+use async_graphql::dynamic::ValueAccessor;
+use async_graphql::MaybeUndefined;
 
 pub trait FromValue: Sized {
     fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self>;
@@ -66,14 +68,22 @@ where
 {
     fn from_value(value: Result<dynamic::ValueAccessor>) -> Result<Self> {
         match value.ok() {
-            Some(value) => {
-                if value.is_null() {
-                    Ok(None)
-                } else {
-                    Ok(Some(T::from_value(Ok(value))?))
-                }
-            }
             None => Ok(None),
+            Some(value) if value.is_null() => Ok(None),
+            Some(value) => Ok(Some(T::from_value(Ok(value))?)),
+        }
+    }
+}
+
+impl<T> FromValue for MaybeUndefined<T>
+where
+    T: FromValue,
+{
+    fn from_value(value: Result<ValueAccessor>) -> Result<Self> {
+        match value.ok() {
+            None => Ok(MaybeUndefined::Undefined),
+            Some(value) if value.is_null() => Ok(MaybeUndefined::Null),
+            Some(value) => Ok(MaybeUndefined::Value(T::from_value(Ok(value))?)),
         }
     }
 }

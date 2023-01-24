@@ -6,7 +6,9 @@ mod types;
 
 pub use async_graphql::dynamic;
 pub use async_graphql::dynamic::FieldValue;
-pub use async_graphql::{Context, Error, Name, Request, Result, Value, Variables, ID};
+pub use async_graphql::{
+    Context, Error, MaybeUndefined, Name, Request, Result, Value, Variables, ID,
+};
 
 pub use any_box::AnyBox;
 pub use from_value::FromValue;

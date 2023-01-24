@@ -1,9 +1,94 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::App;
+use dynamic_graphql::{App, MaybeUndefined};
 use dynamic_graphql::{FieldValue, InputObject, Variables};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
 
 use crate::schema_utils::normalize_schema;
+
+#[tokio::test]
+async fn test_maybe_undefined() {
+    #[derive(InputObject)]
+    struct ExampleInput {
+        pub the_string: MaybeUndefined<String>,
+    }
+
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        async fn example(&self, input: ExampleInput) -> String {
+            match input.the_string {
+                MaybeUndefined::Undefined => "undefined".to_string(),
+                MaybeUndefined::Null => "null".to_string(),
+                MaybeUndefined::Value(value) => format!("value: {}", value),
+            }
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query, ExampleInput);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+                input ExampleInput {
+                    theString: String
+                }
+                type Query {
+                    example(input: ExampleInput!): String!
+                }
+                schema {
+                    query: Query
+                }
+            "#,
+        ),
+    );
+
+    let query = r#"
+        query($input: ExampleInput) {
+            example(input: $input)
+        }
+    "#;
+
+    let root = Query;
+    let variables = serde_json::json!({ "input": {  } });
+    let req = dynamic_graphql::Request::new(query)
+        .variables(Variables::from_json(variables))
+        .root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(data, serde_json::json!({ "example": "undefined" }));
+
+    let root = Query;
+    let variables = serde_json::json!({ "input": { "theString": null } });
+    let req = dynamic_graphql::Request::new(query)
+        .variables(Variables::from_json(variables))
+        .root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(data, serde_json::json!({ "example": "null" }));
+
+    let root = Query;
+    let variables = serde_json::json!({ "input": { "theString": "value" } });
+    let req = dynamic_graphql::Request::new(query)
+        .variables(Variables::from_json(variables))
+        .root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(data, serde_json::json!({ "example": "value: value" }));
+}
 
 #[tokio::test]
 async fn test_option() {

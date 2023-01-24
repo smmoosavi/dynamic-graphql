@@ -1,5 +1,5 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, Variables};
+use dynamic_graphql::{App, MaybeUndefined, Variables};
 use dynamic_graphql::{Context, FieldValue, ResolvedObject, ResolvedObjectFields};
 
 use crate::schema_utils::normalize_schema;
@@ -371,6 +371,103 @@ async fn test_query_with_option() {
         serde_json::json!({
             "withOption": "None",
             "withOptionRef": "None"
+        }),
+    );
+}
+
+#[tokio::test]
+async fn test_query_with_maybe_undefined() {
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        fn with_option(name: MaybeUndefined<String>) -> String {
+            match name {
+                MaybeUndefined::Value(name) => format!("Some({})", name),
+                MaybeUndefined::Undefined => "Undefined".to_string(),
+                MaybeUndefined::Null => "Null".to_string(),
+            }
+        }
+        fn with_option_ref(name: &MaybeUndefined<String>) -> String {
+            match name {
+                MaybeUndefined::Value(name) => format!("Some({})", name),
+                MaybeUndefined::Undefined => "Undefined".to_string(),
+                MaybeUndefined::Null => "Null".to_string(),
+            }
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let query = r#"
+    query {
+        withOption
+        withOptionRef
+    }"#;
+
+    let req = dynamic_graphql::Request::new(query);
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "withOption": "Undefined",
+            "withOptionRef": "Undefined"
+        }),
+    );
+
+    let query = r#"
+    query ($name: String) {
+        withOption(name: $name)
+        withOptionRef(name: $name)
+    }"#;
+
+    let variables = serde_json::json!({ "name": "world" });
+
+    let req = dynamic_graphql::Request::new(query).variables(Variables::from_json(variables));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "withOption": "Some(world)",
+            "withOptionRef": "Some(world)"
+        }),
+    );
+
+    let variables = serde_json::json!({ "name": null });
+
+    let req = dynamic_graphql::Request::new(query).variables(Variables::from_json(variables));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "withOption": "Null",
+            "withOptionRef": "Null"
+        }),
+    );
+
+    let variables = serde_json::json!({});
+
+    let req = dynamic_graphql::Request::new(query).variables(Variables::from_json(variables));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "withOption": "Null",
+            "withOptionRef": "Null"
         }),
     );
 }
