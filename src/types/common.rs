@@ -1,6 +1,5 @@
 use crate::types::{GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputType, OutputType};
 use async_graphql::dynamic;
-use async_graphql::dynamic::TypeRef;
 use std::borrow::Cow;
 
 impl<T: OutputType + Clone> GraphqlType for Cow<'_, T> {
@@ -79,6 +78,57 @@ macro_rules! int_output_value {
 
 int_output_value!(i8, i16, i32, i64, isize, u8, u16, u32, u64, usize);
 
+pub trait TypeRefExt {
+    fn optional(self) -> Self;
+    fn list(self) -> Self;
+}
+
+pub enum TypeRefInner {
+    Named(&'static str),
+    NamedNN(&'static str),
+    List(&'static str),
+    ListNN(&'static str),
+    NNList(&'static str),
+    NNListNN(&'static str),
+}
+
+impl From<TypeRefInner> for dynamic::TypeRef {
+    fn from(value: TypeRefInner) -> Self {
+        match value {
+            TypeRefInner::Named(name) => dynamic::TypeRef::named(name),
+            TypeRefInner::NamedNN(name) => dynamic::TypeRef::named_nn(name),
+            TypeRefInner::List(name) => dynamic::TypeRef::named_list(name),
+            TypeRefInner::ListNN(name) => dynamic::TypeRef::named_list_nn(name),
+            TypeRefInner::NNList(name) => dynamic::TypeRef::named_nn_list(name),
+            TypeRefInner::NNListNN(name) => dynamic::TypeRef::named_nn_list_nn(name),
+        }
+    }
+}
+
+impl TypeRefExt for TypeRefInner {
+    fn optional(self) -> Self {
+        match self {
+            TypeRefInner::Named(name) => TypeRefInner::Named(name),
+            TypeRefInner::NamedNN(name) => TypeRefInner::Named(name),
+            TypeRefInner::List(name) => TypeRefInner::List(name),
+            TypeRefInner::ListNN(name) => TypeRefInner::List(name),
+            TypeRefInner::NNList(name) => TypeRefInner::NNList(name),
+            TypeRefInner::NNListNN(name) => TypeRefInner::NNList(name),
+        }
+    }
+
+    fn list(self) -> Self {
+        match self {
+            TypeRefInner::Named(name) => TypeRefInner::ListNN(name),
+            TypeRefInner::NamedNN(name) => TypeRefInner::NNListNN(name),
+            TypeRefInner::List(name) => TypeRefInner::List(name),
+            TypeRefInner::ListNN(name) => TypeRefInner::ListNN(name),
+            TypeRefInner::NNList(name) => TypeRefInner::NNList(name),
+            TypeRefInner::NNListNN(name) => TypeRefInner::NNListNN(name),
+        }
+    }
+}
+
 impl<T, E> GetOutputTypeRef for Result<T, E>
 where
     T: GetOutputTypeRef,
@@ -91,162 +141,66 @@ where
 }
 
 impl<T: OutputType> GetOutputTypeRef for T {
-    type Output = TypeRef;
+    type Output = TypeRefInner;
     #[inline]
     fn get_output_type_ref() -> Self::Output {
-        TypeRef::named_nn(<T as OutputType>::NAME)
+        TypeRefInner::NamedNN(<T as OutputType>::NAME)
     }
 }
 
-impl<T: OutputType> GetOutputTypeRef for Option<T> {
-    type Output = TypeRef;
+impl<T: GetOutputTypeRef<Output = TypeRefInner>> GetOutputTypeRef for Option<T> {
+    type Output = TypeRefInner;
     #[inline]
     fn get_output_type_ref() -> Self::Output {
-        TypeRef::named(<T as OutputType>::NAME)
+        let t = T::get_output_type_ref();
+        t.optional()
     }
 }
 
-impl<T: OutputType> GetOutputTypeRef for Vec<T> {
-    type Output = TypeRef;
+impl<T: GetOutputTypeRef<Output = TypeRefInner>> GetOutputTypeRef for Vec<T> {
+    type Output = TypeRefInner;
     #[inline]
     fn get_output_type_ref() -> Self::Output {
-        TypeRef::named_nn_list_nn(<T as OutputType>::NAME)
+        T::get_output_type_ref().list()
     }
 }
 
-impl<T: OutputType> GetOutputTypeRef for Option<Vec<T>> {
-    type Output = TypeRef;
+impl<T: GetOutputTypeRef<Output = TypeRefInner>> GetOutputTypeRef for &[T] {
+    type Output = TypeRefInner;
     #[inline]
     fn get_output_type_ref() -> Self::Output {
-        TypeRef::named_nn_list(<T as OutputType>::NAME)
-    }
-}
-
-impl<T: OutputType> GetOutputTypeRef for Vec<Option<T>> {
-    type Output = TypeRef;
-    #[inline]
-    fn get_output_type_ref() -> Self::Output {
-        TypeRef::named_list_nn(<T as OutputType>::NAME)
-    }
-}
-
-impl<T: OutputType> GetOutputTypeRef for Option<Vec<Option<T>>> {
-    type Output = TypeRef;
-    #[inline]
-    fn get_output_type_ref() -> Self::Output {
-        TypeRef::named_list(<T as OutputType>::NAME)
-    }
-}
-
-impl<T: OutputType> GetOutputTypeRef for &[T] {
-    type Output = TypeRef;
-    #[inline]
-    fn get_output_type_ref() -> Self::Output {
-        TypeRef::named_nn_list_nn(<T as OutputType>::NAME)
-    }
-}
-
-impl<T: OutputType> GetOutputTypeRef for Option<&[T]> {
-    type Output = TypeRef;
-    #[inline]
-    fn get_output_type_ref() -> Self::Output {
-        TypeRef::named_nn_list(<T as OutputType>::NAME)
-    }
-}
-
-impl<T: OutputType> GetOutputTypeRef for &[Option<T>] {
-    type Output = TypeRef;
-    #[inline]
-    fn get_output_type_ref() -> Self::Output {
-        TypeRef::named_list_nn(<T as OutputType>::NAME)
-    }
-}
-
-impl<T: OutputType> GetOutputTypeRef for Option<&[Option<T>]> {
-    type Output = TypeRef;
-    #[inline]
-    fn get_output_type_ref() -> Self::Output {
-        TypeRef::named_list(<T as OutputType>::NAME)
+        T::get_output_type_ref().list()
     }
 }
 
 impl<T: InputType> GetInputTypeRef for T {
-    type Output = TypeRef;
+    type Output = TypeRefInner;
     #[inline]
     fn get_input_type_ref() -> Self::Output {
-        TypeRef::named_nn(<T as InputType>::NAME)
+        TypeRefInner::NamedNN(<T as InputType>::NAME)
     }
 }
 
-impl<T: InputType> GetInputTypeRef for Option<T> {
-    type Output = TypeRef;
+impl<T: GetInputTypeRef<Output = TypeRefInner>> GetInputTypeRef for Option<T> {
+    type Output = TypeRefInner;
     #[inline]
     fn get_input_type_ref() -> Self::Output {
-        TypeRef::named(<T as InputType>::NAME)
+        T::get_input_type_ref().optional()
     }
 }
 
-impl<T: InputType> GetInputTypeRef for Vec<T> {
-    type Output = TypeRef;
+impl<T: GetInputTypeRef<Output = TypeRefInner>> GetInputTypeRef for Vec<T> {
+    type Output = TypeRefInner;
     #[inline]
     fn get_input_type_ref() -> Self::Output {
-        TypeRef::named_nn_list_nn(<T as InputType>::NAME)
+        T::get_input_type_ref().list()
     }
 }
-
-impl<T: InputType> GetInputTypeRef for Option<Vec<T>> {
-    type Output = TypeRef;
+impl<T: GetInputTypeRef<Output = TypeRefInner>> GetInputTypeRef for &[T] {
+    type Output = TypeRefInner;
     #[inline]
     fn get_input_type_ref() -> Self::Output {
-        TypeRef::named_nn_list(<T as InputType>::NAME)
-    }
-}
-
-impl<T: InputType> GetInputTypeRef for Vec<Option<T>> {
-    type Output = TypeRef;
-    #[inline]
-    fn get_input_type_ref() -> Self::Output {
-        TypeRef::named_list_nn(<T as InputType>::NAME)
-    }
-}
-
-impl<T: InputType> GetInputTypeRef for Option<Vec<Option<T>>> {
-    type Output = TypeRef;
-    #[inline]
-    fn get_input_type_ref() -> Self::Output {
-        TypeRef::named_list(<T as InputType>::NAME)
-    }
-}
-
-impl<T: InputType> GetInputTypeRef for &[T] {
-    type Output = TypeRef;
-    #[inline]
-    fn get_input_type_ref() -> Self::Output {
-        TypeRef::named_nn_list_nn(<T as InputType>::NAME)
-    }
-}
-
-impl<T: InputType> GetInputTypeRef for Option<&[T]> {
-    type Output = TypeRef;
-    #[inline]
-    fn get_input_type_ref() -> Self::Output {
-        TypeRef::named_nn_list(<T as InputType>::NAME)
-    }
-}
-
-impl<T: InputType> GetInputTypeRef for &[Option<T>] {
-    type Output = TypeRef;
-    #[inline]
-    fn get_input_type_ref() -> Self::Output {
-        TypeRef::named_list_nn(<T as InputType>::NAME)
-    }
-}
-
-impl<T: InputType> GetInputTypeRef for Option<&[Option<T>]> {
-    type Output = TypeRef;
-    #[inline]
-    fn get_input_type_ref() -> Self::Output {
-        TypeRef::named_list(<T as InputType>::NAME)
+        T::get_input_type_ref().list()
     }
 }
 
@@ -256,89 +210,67 @@ mod tests {
 
     #[test]
     fn test_get_output_type_ref() {
-        assert_eq!(
-            <String as GetOutputTypeRef>::get_output_type_ref().to_string(),
-            "String!"
-        );
-        assert_eq!(
-            <Option<String> as GetOutputTypeRef>::get_output_type_ref().to_string(),
-            "String"
-        );
-        assert_eq!(
-            <Vec<String> as GetOutputTypeRef>::get_output_type_ref().to_string(),
-            "[String!]!"
-        );
-        assert_eq!(
-            <Option<Vec<String>> as GetOutputTypeRef>::get_output_type_ref().to_string(),
-            "[String!]"
-        );
-        assert_eq!(
-            <Vec<Option<String>> as GetOutputTypeRef>::get_output_type_ref().to_string(),
-            "[String]!"
-        );
-        assert_eq!(
-            <Option<Vec<Option<String>>> as GetOutputTypeRef>::get_output_type_ref().to_string(),
-            "[String]"
-        );
-        assert_eq!(
-            <&[String] as GetOutputTypeRef>::get_output_type_ref().to_string(),
-            "[String!]!"
-        );
-        assert_eq!(
-            <Option<&[String]> as GetOutputTypeRef>::get_output_type_ref().to_string(),
-            "[String!]"
-        );
-        assert_eq!(
-            <&[Option<String>] as GetOutputTypeRef>::get_output_type_ref().to_string(),
-            "[String]!"
-        );
-        assert_eq!(
-            <Option<&[Option<String>]> as GetOutputTypeRef>::get_output_type_ref().to_string(),
-            "[String]"
-        );
+        let type_ref: dynamic::TypeRef = <String as GetOutputTypeRef>::get_output_type_ref().into();
+        assert_eq!(type_ref.to_string(), "String!");
+        let type_ref: dynamic::TypeRef =
+            <Option<String> as GetOutputTypeRef>::get_output_type_ref().into();
+        assert_eq!(type_ref.to_string(), "String");
+        let type_ref: dynamic::TypeRef =
+            <Vec<String> as GetOutputTypeRef>::get_output_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String!]!");
+        let type_ref: dynamic::TypeRef =
+            <Option<Vec<String>> as GetOutputTypeRef>::get_output_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String!]");
+        let type_ref: dynamic::TypeRef =
+            <Vec<Option<String>> as GetOutputTypeRef>::get_output_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String]!");
+        let type_ref: dynamic::TypeRef =
+            <Option<Vec<Option<String>>> as GetOutputTypeRef>::get_output_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String]");
+        let type_ref: dynamic::TypeRef =
+            <&[String] as GetOutputTypeRef>::get_output_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String!]!");
+        let type_ref: dynamic::TypeRef =
+            <Option<&[String]> as GetOutputTypeRef>::get_output_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String!]");
+        let type_ref: dynamic::TypeRef =
+            <&[Option<String>] as GetOutputTypeRef>::get_output_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String]!");
+        let type_ref: dynamic::TypeRef =
+            <Option<&[Option<String>]> as GetOutputTypeRef>::get_output_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String]");
     }
 
     #[test]
     fn test_get_input_type_ref() {
-        assert_eq!(
-            <String as GetInputTypeRef>::get_input_type_ref().to_string(),
-            "String!"
-        );
-        assert_eq!(
-            <Option<String> as GetInputTypeRef>::get_input_type_ref().to_string(),
-            "String"
-        );
-        assert_eq!(
-            <Vec<String> as GetInputTypeRef>::get_input_type_ref().to_string(),
-            "[String!]!"
-        );
-        assert_eq!(
-            <Option<Vec<String>> as GetInputTypeRef>::get_input_type_ref().to_string(),
-            "[String!]"
-        );
-        assert_eq!(
-            <Vec<Option<String>> as GetInputTypeRef>::get_input_type_ref().to_string(),
-            "[String]!"
-        );
-        assert_eq!(
-            <Option<Vec<Option<String>>> as GetInputTypeRef>::get_input_type_ref().to_string(),
-            "[String]"
-        );
-        assert_eq!(
-            <&[String] as GetInputTypeRef>::get_input_type_ref().to_string(),
-            "[String!]!"
-        );
-        assert_eq!(
-            <Option<&[String]> as GetInputTypeRef>::get_input_type_ref().to_string(),
-            "[String!]"
-        );
-        assert_eq!(
-            <&[Option<String>] as GetInputTypeRef>::get_input_type_ref().to_string(),
-            "[String]!"
-        );
-        assert_eq!(
-            <Option<&[Option<String>]> as GetInputTypeRef>::get_input_type_ref().to_string(),
-            "[String]"
-        );
+        let type_ref: dynamic::TypeRef = <String as GetInputTypeRef>::get_input_type_ref().into();
+        assert_eq!(type_ref.to_string(), "String!");
+        let type_ref: dynamic::TypeRef =
+            <Option<String> as GetInputTypeRef>::get_input_type_ref().into();
+        assert_eq!(type_ref.to_string(), "String");
+        let type_ref: dynamic::TypeRef =
+            <Vec<String> as GetInputTypeRef>::get_input_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String!]!");
+        let type_ref: dynamic::TypeRef =
+            <Option<Vec<String>> as GetInputTypeRef>::get_input_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String!]");
+        let type_ref: dynamic::TypeRef =
+            <Vec<Option<String>> as GetInputTypeRef>::get_input_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String]!");
+        let type_ref: dynamic::TypeRef =
+            <Option<Vec<Option<String>>> as GetInputTypeRef>::get_input_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String]");
+        let type_ref: dynamic::TypeRef =
+            <&[String] as GetInputTypeRef>::get_input_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String!]!");
+        let type_ref: dynamic::TypeRef =
+            <Option<&[String]> as GetInputTypeRef>::get_input_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String!]");
+        let type_ref: dynamic::TypeRef =
+            <&[Option<String>] as GetInputTypeRef>::get_input_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String]!");
+        let type_ref: dynamic::TypeRef =
+            <Option<&[Option<String>]> as GetInputTypeRef>::get_input_type_ref().into();
+        assert_eq!(type_ref.to_string(), "[String]");
     }
 }
