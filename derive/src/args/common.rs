@@ -1,13 +1,15 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
+use crate::args::common;
 pub use args::*;
 pub use fields::*;
 pub use generics::*;
 pub use interfaces::*;
 
-use crate::utils::common::{CommonArg, CommonField, CommonObject};
+use crate::utils::common::{CommonArg, CommonField, CommonObject, GetArgs, GetFields};
 use crate::utils::crate_name::get_crate_name;
+use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::BaseFnArg;
 use crate::utils::rename_rule::{calc_enum_item_name, calc_input_field_name, calc_type_name};
 use crate::utils::type_utils::get_owned_type;
@@ -214,4 +216,18 @@ pub fn call_register_fns() -> TokenStream {
     quote!(
         let registry = <Self as #crate_name::RegisterFns>::REGISTER_FNS.iter().fold(registry, |registry, f| f(registry));
     )
+}
+
+pub fn get_define_fields_code<O, F, A>(object: &O) -> darling::Result<TokenStream>
+where
+    O: GetFields<F>,
+    F: FieldImplementor + GetArgs<A>,
+    A: ArgImplementor,
+{
+    Ok(object
+        .get_fields()?
+        .iter()
+        .filter(|field| !field.get_skip())
+        .map(|field| common::build_field(field).into_token_stream())
+        .collect())
 }

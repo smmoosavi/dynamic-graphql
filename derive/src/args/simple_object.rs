@@ -4,11 +4,15 @@ use quote::quote;
 use syn::{Generics, Path};
 
 use crate::args::common;
-use crate::utils::common::{CommonField, CommonInterfacable, CommonObject, GetFields};
+use crate::args::common::{ArgImplementor, FieldImplementor};
+use crate::utils::common::{
+    CommonArg, CommonField, CommonInterfacable, CommonObject, GetArgs, GetFields,
+};
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::IntoTokenStream;
+use crate::utils::impl_block::BaseFnArg;
 use crate::utils::interface_attr::InterfaceAttr;
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
@@ -148,9 +152,95 @@ impl CommonField for SimpleObjectField {
     }
 }
 
+impl FieldImplementor for SimpleObjectField {
+    fn define_field(&self) -> darling::Result<TokenStream> {
+        common::define_field(self)
+    }
+
+    fn get_execute_code(&self) -> darling::Result<TokenStream> {
+        let resolver_ident = get_resolver_ident(self)?;
+
+        Ok(quote! {
+            let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
+            let value = Self::#resolver_ident(parent);
+        })
+    }
+
+    fn get_resolve_code(&self) -> darling::Result<TokenStream> {
+        let crate_name = get_crate_name();
+        Ok(quote! {
+            #crate_name::ResolveRef::resolve_ref(value, &ctx)
+        })
+    }
+
+    fn get_field_argument_definition(&self) -> darling::Result<TokenStream> {
+        Ok(quote!())
+    }
+
+    fn get_field_description_code(&self) -> darling::Result<TokenStream> {
+        common::field_description(self)
+    }
+
+    fn get_field_deprecation_code(&self) -> darling::Result<TokenStream> {
+        common::field_deprecation_code(self)
+    }
+
+    fn get_field_usage_code(&self) -> darling::Result<TokenStream> {
+        Ok(quote! {
+            let object = object.field(field);
+        })
+    }
+}
+
 impl GetFields<SimpleObjectField> for SimpleObject {
     fn get_fields(&self) -> darling::Result<&Vec<SimpleObjectField>> {
         Ok(&self.data.fields)
+    }
+}
+
+struct SimpleObjectArg;
+
+impl CommonArg for SimpleObjectArg {
+    fn get_name(&self) -> Option<&str> {
+        unreachable!("SimpleObjectArg has no name")
+    }
+
+    fn get_index(&self) -> usize {
+        0
+    }
+
+    fn get_arg(&self) -> &BaseFnArg {
+        unreachable!("SimpleObjectArg has no arg")
+    }
+
+    fn is_marked_as_ctx(&self) -> bool {
+        false
+    }
+}
+
+impl ArgImplementor for SimpleObjectArg {
+    fn get_self_arg_definition(&self) -> darling::Result<TokenStream> {
+        unreachable!("SimpleObjectArg has no definition")
+    }
+
+    fn get_typed_arg_definition(&self) -> darling::Result<TokenStream> {
+        unreachable!("SimpleObjectArg has no definition")
+    }
+
+    fn get_self_arg_usage(&self) -> darling::Result<TokenStream> {
+        common::get_self_arg_usage(self)
+    }
+
+    fn get_typed_arg_usage(&self) -> darling::Result<TokenStream> {
+        unreachable!("SimpleObjectArg has no usage")
+    }
+}
+
+static EMPTY_ARGS: Vec<SimpleObjectArg> = Vec::new();
+
+impl GetArgs<SimpleObjectArg> for SimpleObjectField {
+    fn get_args(&self) -> darling::Result<&Vec<SimpleObjectArg>> {
+        Ok(&EMPTY_ARGS)
     }
 }
 
@@ -194,43 +284,6 @@ where
     })
 }
 
-fn impl_define_field<F>(field: &F) -> darling::Result<TokenStream>
-where
-    F: CommonField,
-{
-    let field_name = common::get_field_name(field)?;
-    let ty = field.get_type()?;
-    let resolver_ident = get_resolver_ident(field)?;
-    let crate_name = get_crate_name();
-    let description = common::field_description(field)?;
-    let deprecation = common::field_deprecation_code(field)?;
-    Ok(quote! {
-        let field = #crate_name::dynamic::Field::new(#field_name, <#ty as #crate_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
-            #crate_name::dynamic::FieldFuture::new(async move {
-                let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
-                let value = Self::#resolver_ident(parent);
-                #crate_name::ResolveRef::resolve_ref(value, &ctx)
-            })
-        });
-        #description
-        #deprecation
-        let object = object.field(field);
-    })
-}
-
-fn get_define_fields<O, F>(object: &O) -> darling::Result<TokenStream>
-where
-    O: CommonObject + GetFields<F>,
-    F: CommonField,
-{
-    Ok(object
-        .get_fields()?
-        .iter()
-        .filter(|field| !field.get_skip())
-        .map(|field| impl_define_field(field).into_token_stream())
-        .collect())
-}
-
 fn root_register_code(object: &SimpleObject) -> TokenStream {
     let root = if object.attrs.root {
         let crate_name = get_crate_name();
@@ -262,7 +315,7 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     let implement = common::get_add_implement_code(object, &object.attrs.implement)?;
 
     let description = common::object_description(object.get_doc()?.as_deref())?;
-    let define_fields = get_define_fields(object)?;
+    let define_fields = common::get_define_fields_code(object)?;
     let register_object_code = common::register_object_code();
 
     let (impl_generics, ty_generics, where_clause) = object.generics.split_for_impl();

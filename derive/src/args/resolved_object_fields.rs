@@ -304,25 +304,11 @@ where
     }
 }
 
-fn get_define_fields_code<O, F, A>(object: &O) -> darling::Result<TokenStream>
-where
-    O: GetFields<F>,
-    F: FieldImplementor + GetArgs<A>,
-    A: CommonArg + ArgImplementor,
-{
-    Ok(object
-        .get_fields()?
-        .iter()
-        .filter(|method| !method.get_skip())
-        .map(|method| common::build_field(method).into_token_stream())
-        .collect())
-}
-
 fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let ty = get_type_ident(&object.ty)?;
     let define_object = common::impl_define_object();
-    let define_fields = get_define_fields_code(object)?;
+    let define_fields = common::get_define_fields_code(object)?;
     let register_object_code = common::register_object_code();
     let register_fns = common::call_register_fns();
     let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();

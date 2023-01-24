@@ -6,9 +6,8 @@ use crate::args::common::{
 };
 use crate::args::interface::{InterfaceMethod, InterfaceMethodArg};
 use crate::args::{common, Interface};
-use crate::utils::common::{CommonArg, CommonObject, GetArgs, GetFields};
+use crate::utils::common::{CommonObject, GetArgs};
 use crate::utils::crate_name::get_crate_name;
-use crate::utils::error::IntoTokenStream;
 use crate::utils::interface_hash::get_interface_hash;
 
 impl FieldImplementor for InterfaceMethod {
@@ -92,26 +91,12 @@ pub fn define_interface_struct(input: &Interface) -> darling::Result<TokenStream
     })
 }
 
-pub fn get_define_fields_code<O, F, A>(object: &O) -> darling::Result<TokenStream>
-where
-    O: GetFields<F>,
-    F: FieldImplementor + GetArgs<A>,
-    A: CommonArg + ArgImplementor,
-{
-    Ok(object
-        .get_fields()?
-        .iter()
-        .filter(|method| !method.get_skip())
-        .map(|method| common::build_field(method).into_token_stream())
-        .collect())
-}
-
 pub fn impl_register(input: &Interface) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let ident = &input.arg.ident;
 
     let description = common::object_description(input.get_doc()?.as_deref())?;
-    let define_fields = get_define_fields_code(input)?;
+    let define_fields = common::get_define_fields_code(input)?;
     let register_code = common::register_object_code();
     Ok(quote! {
         impl #crate_name::Register for #ident <'static> {

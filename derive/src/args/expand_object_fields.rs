@@ -315,15 +315,6 @@ where
     }
 }
 
-fn define_fields_code(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
-    Ok(expand
-        .get_fields()?
-        .iter()
-        .filter(|method| !method.get_skip())
-        .map(|method| common::build_field(method).into_token_stream())
-        .collect())
-}
-
 fn use_field_code(index: usize, method: &ExpandObjectFieldsMethod) -> darling::Result<TokenStream> {
     let field_var_ident = get_field_var_ident(index, &method.ident);
 
@@ -347,7 +338,7 @@ fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
     let (impl_generics, _, where_clause) = expand.generics.split_for_impl();
     let ty = &expand.ty;
 
-    let define_fields = define_fields_code(expand).into_token_stream();
+    let define_fields = common::get_define_fields_code(expand).into_token_stream();
 
     let use_fields = use_fields_code(expand).into_token_stream();
 
