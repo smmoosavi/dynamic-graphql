@@ -50,7 +50,7 @@ fn test_schema() {
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp(Example, ExampleQuery<'static>);
 
     #[derive(SimpleObject)]
     #[graphql(root)]
@@ -59,7 +59,7 @@ fn test_schema() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, ExampleApp<'a>);
+    struct App(Query, ExampleApp);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -112,7 +112,7 @@ fn test_schema_with_rename() {
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp(Example, ExampleQuery<'static>);
 
     #[derive(SimpleObject)]
     #[graphql(root)]
@@ -121,7 +121,7 @@ fn test_schema_with_rename() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, ExampleApp<'a>);
+    struct App(Query, ExampleApp);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -175,7 +175,7 @@ fn test_schema_with_skip() {
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp(Example, ExampleQuery<'static>);
 
     #[derive(SimpleObject)]
     #[graphql(root)]
@@ -184,7 +184,7 @@ fn test_schema_with_skip() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, ExampleApp<'a>);
+    struct App(Query, ExampleApp);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -237,7 +237,7 @@ fn test_schema_with_deprecation() {
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp(Example, ExampleQuery<'static>);
 
     #[derive(SimpleObject)]
     #[graphql(root)]
@@ -246,7 +246,7 @@ fn test_schema_with_deprecation() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, ExampleApp<'a>);
+    struct App(Query, ExampleApp);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -294,7 +294,7 @@ fn test_schema_with_description() {
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp(Example, ExampleQuery<'static>);
 
     #[derive(SimpleObject)]
     #[graphql(root)]
@@ -303,7 +303,7 @@ fn test_schema_with_description() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, ExampleApp<'a>);
+    struct App(Query, ExampleApp);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -352,7 +352,7 @@ async fn test_query() {
     }
 
     #[derive(App)]
-    struct ExampleApp<'a>(Example, ExampleQuery<'a>);
+    struct ExampleApp(Example, ExampleQuery<'static>);
 
     #[derive(SimpleObject)]
     #[graphql(root)]
@@ -361,7 +361,7 @@ async fn test_query() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, ExampleApp<'a>);
+    struct App(Query, ExampleApp);
 
     let schema = App::create_schema().finish().unwrap();
 

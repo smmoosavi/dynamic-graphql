@@ -76,7 +76,7 @@ fn test_app_with_generic() {
     }
 
     #[derive(App)]
-    struct App<T: GetFoo>(Query, Foo, Other<T>);
+    struct App<T: GetFoo + 'static>(Query, Foo, Other<T>);
 
     let schema = App::<()>::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -121,7 +121,7 @@ fn test_app_with_lifetime() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, Foo, Other<'a>);
+    struct App(Query, Foo, Other<'static>);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -181,9 +181,9 @@ fn test_app_with_generic_and_lifetime() {
     }
 
     #[derive(App)]
-    struct App<'a, T>(Query, Foo, Other<'a, T>)
+    struct App<T>(Query, Foo, Other<'static, T>)
     where
-        T: GetFoo + 'a;
+        T: GetFoo + 'static;
 
     let schema = App::<()>::create_schema().finish().unwrap();
     let sdl = schema.sdl();

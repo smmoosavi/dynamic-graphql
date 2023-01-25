@@ -162,7 +162,7 @@ fn test_schema_with_generic() {
     );
 
     #[derive(App)]
-    struct AppWithName<'a>(Query, Bar, Foo, WithName<'a, Foo>);
+    struct AppWithName(Query, Bar, Foo, WithName<'static, Foo>);
 
     let schema = AppWithName::create_schema().finish().unwrap();
 
@@ -194,7 +194,13 @@ fn test_schema_with_generic() {
     );
 
     #[derive(App)]
-    struct AppBothWithName<'a>(Query, Bar, Foo, WithName<'a, Foo>, WithName<'a, Bar>);
+    struct AppBothWithName(
+        Query,
+        Bar,
+        Foo,
+        WithName<'static, Foo>,
+        WithName<'static, Bar>,
+    );
 
     let schema = AppBothWithName::create_schema().finish().unwrap();
 
@@ -260,7 +266,7 @@ async fn test_query_with_generic() {
     }
 
     #[derive(App)]
-    struct AppBothWithName<'a>(Query, Foo, WithName<'a, Foo>);
+    struct AppBothWithName(Query, Foo, WithName<'static, Foo>);
 
     #[derive(SimpleObject)]
     #[graphql(root)]
@@ -338,7 +344,7 @@ async fn test_query_with_generic_and_args() {
     }
 
     #[derive(App)]
-    struct App<'a>(Query, Foo, WithGreeting<'a, Foo>);
+    struct App(Query, Foo, WithGreeting<'static, Foo>);
 
     #[derive(SimpleObject)]
     #[graphql(root)]

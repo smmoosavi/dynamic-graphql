@@ -7,6 +7,22 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- force `'static` lifetime for `#[derive(App)]` attribute
+
+```rust
+// old
+#[derive(App)]
+struct ExampleApp<'a>(ExampleQuery<'a>);
+```
+
+```rust
+// new
+#[derive(App)]
+struct ExampleApp(ExampleQuery<'static>);
+```
+
 ### [0.3.0] - 2023-01-25
 
 ### Added

@@ -1,6 +1,7 @@
 use crate::dynamic;
 use crate::Register;
-use std::collections::{HashMap, VecDeque};
+use std::any::TypeId;
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::mem;
 
 pub struct Registry {
@@ -8,6 +9,8 @@ pub struct Registry {
     mutation: Option<String>,
     objects: HashMap<String, dynamic::Object>,
     types: Vec<dynamic::Type>,
+    // name of all registered types
+    names: HashSet<TypeId>,
     pending_expand_objects: VecDeque<PendingExpandObject>,
 }
 
@@ -24,6 +27,7 @@ impl Registry {
             mutation: None,
             objects: Default::default(),
             types: Default::default(),
+            names: Default::default(),
             pending_expand_objects: Default::default(),
         }
     }
@@ -72,8 +76,12 @@ impl Registry {
 }
 
 impl Registry {
-    #[inline]
-    pub fn register<T: Register>(self) -> Self {
+    pub fn register<T: Register + 'static>(mut self) -> Self {
+        let ty = TypeId::of::<T>();
+        if self.names.contains(&ty) {
+            return self;
+        }
+        self.names.insert(ty);
         T::register(self)
     }
 
