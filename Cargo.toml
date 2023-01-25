@@ -12,7 +12,7 @@ categories = ["network-programming"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-graphql = { version= "5", features = ["dynamic-schema"] }
+async-graphql = { version= "5.0.5", features = ["dynamic-schema"] }
 dynamic-graphql-derive = { path = "./derive", version = "0.1.1" }
 
 [workspace]
