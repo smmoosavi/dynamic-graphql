@@ -7,6 +7,45 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `SimpleObject`, `ResolvedObject`: change `graphql(mark_as=)`, `graphql(mark_with=)`, `graphql(implement=)` to `graphql(mark())` and `graphql(impl())`
+- change `async-graphql` dependency to `5.0.5'
+
+### Breaking Change
+
+before this release `SimpleObject`, `ResolvedObject` can implement interfaces this way:
+
+```rust
+#[derive(SimpleObject)]
+#[graphql(mark_as = "Node")]
+struct MyType {}
+
+#[derive(SimpleObject)]
+#[graphql(mark_with = "NodeInterface")]
+struct OtherType {}
+
+#[derive(SimpleObject)]
+#[graphql(implement = "NodeInterface")]
+struct AnotherType {}
+```
+
+after this release `SimpleObject`, `ResolvedObject` can implement interfaces this way:
+
+```rust
+#[derive(SimpleObject)]
+#[graphql(mark("Node"))]
+struct MyType {}
+
+#[derive(SimpleObject)]
+#[graphql(mark(NodeInterface))]
+struct OtherType {}
+
+#[derive(SimpleObject)]
+#[graphql(impl(NodeInterface))]
+struct AnotherType {}
+```
+
 ## [0.1.1] - 2023-01-24
 
 ### Added
