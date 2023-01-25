@@ -343,6 +343,8 @@ fn impl_register(enm: &Enum) -> darling::Result<TokenStream> {
     let enum_ident = enm.get_ident();
     let items = register_items(enm)?;
     let description = common::object_description(enm.get_doc()?.as_deref())?;
+    let register_union = common::register_object_code();
+
     // todo rename object to enm
     Ok(quote! {
         impl #crate_name::Register for #enum_ident {
@@ -350,7 +352,7 @@ fn impl_register(enm: &Enum) -> darling::Result<TokenStream> {
                 let object = #crate_name::dynamic::Enum::new(<#enum_ident as #crate_name::GraphqlType>::NAME);
                 #description
                 #items
-                registry.register_type(object)
+                #register_union
             }
         }
     })
