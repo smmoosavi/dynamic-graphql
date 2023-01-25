@@ -23,7 +23,7 @@ fn test_remote() {
     }
 
     #[derive(Enum)]
-    #[graphql(remote = "Org")]
+    #[graphql(remote(Org))]
     enum Example {
         Foo,
         Bar,
@@ -324,4 +324,114 @@ async fn test_doc() {
             "#
         )
     );
+}
+
+mod in_mod {
+    use crate::schema_utils::normalize_schema;
+    use dynamic_graphql::dynamic::DynamicRequestExt;
+    use dynamic_graphql::{FieldValue, Variables};
+    use dynamic_graphql_derive::{App, Enum, ResolvedObject, ResolvedObjectFields};
+
+    mod remote {
+        pub enum Example {
+            Foo,
+            Bar,
+        }
+    }
+
+    #[derive(Enum)]
+    #[graphql(remote(remote::Example))]
+    enum Example {
+        Foo,
+        Bar,
+    }
+
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query {
+        example: Example,
+    }
+
+    #[ResolvedObjectFields]
+    impl Query {
+        fn example(&self) -> &Example {
+            &self.example
+        }
+        fn by_example(&self, example: Example) -> Example {
+            example
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query, Example);
+
+    #[tokio::test]
+    async fn test_schema() {
+        let org: remote::Example = Example::Foo.into();
+        assert!(matches!(org, remote::Example::Foo));
+
+        let example: Example = remote::Example::Bar.into();
+        assert!(matches!(example, Example::Bar));
+
+        let schema = App::create_schema().finish().unwrap();
+
+        let sdl = schema.sdl();
+        assert_eq!(
+            normalize_schema(&sdl),
+            normalize_schema(
+                r#"
+            enum Example {
+              FOO
+              BAR
+            }
+            type Query {
+              example: Example!
+              byExample(example: Example!): Example!
+            }
+            schema {
+              query: Query
+            }
+            "#
+            )
+        );
+
+        let query = r#"
+        query {
+            example
+            byExample(example: FOO)
+        }
+    "#;
+        let root = Query {
+            example: Example::Foo,
+        };
+        let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+        let res = schema.execute(req).await;
+
+        let data = res.data.into_json().unwrap();
+
+        assert_eq!(
+            data,
+            serde_json::json!({ "example": "FOO", "byExample": "FOO" })
+        );
+
+        let query = r#"
+        query($example: Example!) {
+            byExample(example: $example)
+        }
+    "#;
+        let root = Query {
+            example: Example::Foo,
+        };
+        let variables = serde_json::json!({
+            "example": "BAR"
+        });
+        let req = dynamic_graphql::Request::new(query)
+            .variables(Variables::from_json(variables))
+            .root_value(FieldValue::owned_any(root));
+        let res = schema.execute(req).await;
+
+        let data = res.data.into_json().unwrap();
+
+        assert_eq!(data, serde_json::json!({ "byExample": "BAR" }));
+    }
 }

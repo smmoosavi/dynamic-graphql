@@ -7,6 +7,28 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- fix `remote` in enum to accept path with `::` separator
+
+### Breaking Change
+
+- `remote` in enum now defined as `graphql(remote(path::to::Other))` instead of `graphql(remote = "path::to::Other")`
+
+```rust
+// old
+#[derive(Enum)]
+#[graphql(remote = "path::to::Other")]
+enum MyEnum {}
+```
+
+```rust
+// new
+#[derive(Enum)]
+#[graphql(remote(path::to::Other))]
+enum MyEnum {}
+```
+
 ## [0.2.0] - 2023-01-25
 
 ### Changed

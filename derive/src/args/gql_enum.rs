@@ -1,4 +1,3 @@
-use darling::util::SpannedValue;
 use darling::{FromAttributes, ToTokens};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
@@ -12,6 +11,7 @@ use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseEnum, UnitVariant};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
+use crate::utils::remove_attr::RemoteAttr;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
@@ -47,7 +47,7 @@ pub struct EnumAttributes {
     pub rename_items: Option<RenameRule>,
 
     #[darling(default)]
-    pub remote: Option<SpannedValue<String>>,
+    pub remote: Option<RemoteAttr>,
 }
 
 from_derive_input!(
@@ -241,24 +241,24 @@ fn impl_from_value(enm: &Enum) -> darling::Result<TokenStream> {
 
 fn impl_into_remote_item(
     enum_ident: &syn::Ident,
-    remote_ident: &syn::Ident,
+    remote_path: &syn::Path,
     item: &EnumVariant,
 ) -> darling::Result<TokenStream> {
     let item_ident = item.get_ident()?;
     Ok(quote! {
-            #enum_ident::#item_ident => #remote_ident::#item_ident,
+            #enum_ident::#item_ident => #remote_path::#item_ident,
     })
 }
 
-fn impl_into_remote(enm: &Enum, remote_ident: &syn::Ident) -> darling::Result<TokenStream> {
+fn impl_into_remote(enm: &Enum, remote_path: &syn::Path) -> darling::Result<TokenStream> {
     let enum_ident = enm.get_ident();
     let matches: TokenStream = enm
         .data
         .iter()
-        .map(|item| impl_into_remote_item(enum_ident, remote_ident, item).into_token_stream())
+        .map(|item| impl_into_remote_item(enum_ident, remote_path, item).into_token_stream())
         .collect();
     Ok(quote! {
-        impl From<#enum_ident> for #remote_ident {
+        impl From<#enum_ident> for #remote_path {
             fn from(value: #enum_ident) -> Self {
                 match value {
                     #matches
@@ -270,25 +270,25 @@ fn impl_into_remote(enm: &Enum, remote_ident: &syn::Ident) -> darling::Result<To
 
 fn impl_from_remote_item(
     enum_ident: &syn::Ident,
-    remote_ident: &syn::Ident,
+    remote_path: &syn::Path,
     item: &EnumVariant,
 ) -> darling::Result<TokenStream> {
     let item_ident = item.get_ident()?;
     Ok(quote! {
-            #remote_ident::#item_ident => #enum_ident::#item_ident,
+            #remote_path::#item_ident => #enum_ident::#item_ident,
     })
 }
 
-fn impl_from_remote(enm: &Enum, remote_ident: &syn::Ident) -> darling::Result<TokenStream> {
+fn impl_from_remote(enm: &Enum, remote_path: &syn::Path) -> darling::Result<TokenStream> {
     let enum_ident = enm.get_ident();
     let matches: TokenStream = enm
         .data
         .iter()
-        .map(|item| impl_from_remote_item(enum_ident, remote_ident, item).into_token_stream())
+        .map(|item| impl_from_remote_item(enum_ident, remote_path, item).into_token_stream())
         .collect();
     Ok(quote! {
-        impl From<#remote_ident> for #enum_ident {
-            fn from(value: #remote_ident) -> Self {
+        impl From<#remote_path> for #enum_ident {
+            fn from(value: #remote_path) -> Self {
                 match value {
                     #matches
                 }
@@ -301,10 +301,10 @@ fn impl_remote(enm: &Enum) -> darling::Result<TokenStream> {
     let Some(remote) = &enm.attrs.remote else {
         return Ok(quote! {});
     };
-    let remote_ident = syn::Ident::new(remote, remote.span());
+    let remote_path = &remote.0;
 
-    let impl_into_remote = impl_into_remote(enm, &remote_ident)?;
-    let impl_from_remote = impl_from_remote(enm, &remote_ident)?;
+    let impl_into_remote = impl_into_remote(enm, remote_path)?;
+    let impl_from_remote = impl_from_remote(enm, remote_path)?;
 
     Ok(quote! {
         #impl_into_remote
