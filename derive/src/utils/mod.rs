@@ -9,6 +9,7 @@ pub mod impl_block;
 pub mod interface_attr;
 pub mod interface_hash;
 pub mod macros;
+pub mod meta_match;
 pub mod rename_rule;
 pub mod type_utils;
 pub mod with_arg;
