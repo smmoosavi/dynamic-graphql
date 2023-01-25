@@ -14,7 +14,7 @@ async fn test_async_trait() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(implement = "FooInterface")]
+    #[graphql(impl(FooInterface))]
     struct FooValue;
 
     #[async_trait]

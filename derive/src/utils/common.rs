@@ -1,6 +1,6 @@
 use crate::utils::deprecation::Deprecation;
 use crate::utils::impl_block::BaseFnArg;
-use crate::utils::interface_attr::InterfaceAttr;
+use crate::utils::interface_attr::{InterfaceImplAttr, InterfaceMarkAttr};
 use crate::utils::rename_rule::RenameRule;
 
 pub trait CommonObject {
@@ -40,10 +40,9 @@ pub trait CommonMethod: CommonField {
     fn is_async(&self) -> bool;
 }
 
-pub trait CommonInterfacable: CommonObject {
-    fn get_mark_as(&self) -> &Vec<InterfaceAttr>;
-    fn get_mark_with(&self) -> &Vec<InterfaceAttr>;
-    fn get_implement(&self) -> &Vec<InterfaceAttr>;
+pub trait CommonInterfaceAttrs: CommonObject {
+    fn get_marks(&self) -> &Vec<InterfaceMarkAttr>;
+    fn get_impls(&self) -> &Vec<InterfaceImplAttr>;
 }
 
 pub trait CommonArg {

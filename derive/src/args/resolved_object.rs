@@ -5,12 +5,12 @@ use quote::ToTokens;
 use syn::{Generics, Path};
 
 use crate::args::common;
-use crate::args::common::{get_add_implement_code, get_interface_code};
-use crate::utils::common::{CommonInterfacable, CommonObject};
+use crate::args::common::{get_add_implement_code, get_interface_mark_code};
+use crate::utils::common::{CommonInterfaceAttrs, CommonObject};
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::BaseStruct;
 use crate::utils::error::IntoTokenStream;
-use crate::utils::interface_attr::InterfaceAttr;
+use crate::utils::interface_attr::{InterfaceImplAttr, InterfaceMarkAttr};
 use crate::utils::macros::*;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
@@ -25,13 +25,12 @@ pub struct ResolvedObjectAttrs {
     pub name: Option<String>,
 
     #[darling(default, multiple)]
-    pub mark_as: Vec<InterfaceAttr>,
+    #[darling(rename = "mark")]
+    pub marks: Vec<InterfaceMarkAttr>,
 
     #[darling(default, multiple)]
-    pub mark_with: Vec<InterfaceAttr>,
-
-    #[darling(default, multiple)]
-    pub implement: Vec<InterfaceAttr>,
+    #[darling(rename = "impl")]
+    pub impls: Vec<InterfaceImplAttr>,
 }
 
 from_derive_input!(
@@ -61,25 +60,21 @@ impl CommonObject for ResolvedObject {
     }
 }
 
-impl CommonInterfacable for ResolvedObject {
-    fn get_mark_as(&self) -> &Vec<InterfaceAttr> {
-        &self.attrs.mark_as
+impl CommonInterfaceAttrs for ResolvedObject {
+    fn get_marks(&self) -> &Vec<InterfaceMarkAttr> {
+        &self.attrs.marks
     }
 
-    fn get_mark_with(&self) -> &Vec<InterfaceAttr> {
-        &self.attrs.mark_with
-    }
-
-    fn get_implement(&self) -> &Vec<InterfaceAttr> {
-        &self.attrs.implement
+    fn get_impls(&self) -> &Vec<InterfaceImplAttr> {
+        &self.attrs.impls
     }
 }
 
-fn impl_register_interface(object: &impl CommonInterfacable) -> darling::Result<TokenStream> {
+fn impl_register_interface(object: &impl CommonInterfaceAttrs) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = object.get_ident();
-    let add_interfaces = get_interface_code(object)?;
-    let implement = get_add_implement_code(object, object.get_implement())?;
+    let add_interfaces = get_interface_mark_code(object)?;
+    let implement = get_add_implement_code(object, object.get_impls())?;
     let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
 
     Ok(quote! {
@@ -161,7 +156,7 @@ fn impl_graphql_doc_fn(object: &impl CommonObject) -> darling::Result<TokenStrea
     })
 }
 
-fn impl_register_fns_trait(obj: &impl CommonInterfacable) -> darling::Result<TokenStream> {
+fn impl_register_fns_trait(obj: &impl CommonInterfaceAttrs) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
     let generics = obj.get_generics()?;

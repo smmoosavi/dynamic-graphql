@@ -311,14 +311,14 @@ mod in_mod {
         use super::node::Node;
 
         #[derive(SimpleObject)]
-        #[graphql(mark_with = "super::node::NodeInterface")]
+        #[graphql(mark(super::node::NodeInterface))]
         struct Bar {
             id: String,
             other: String,
         }
 
         #[derive(SimpleObject)]
-        #[graphql(implement = "super::node::NodeInterface")]
+        #[graphql(impl(super::node::NodeInterface))]
         struct Foo {
             other: String,
         }

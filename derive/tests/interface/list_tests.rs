@@ -13,7 +13,7 @@ async fn test_interface_as_optional_value() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(implement = "NodeInterface")]
+    #[graphql(impl(NodeInterface))]
     struct FooNode {
         other_field: String,
     }
@@ -104,7 +104,7 @@ async fn test_interface_as_list_value() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(implement = "NodeInterface")]
+    #[graphql(impl(NodeInterface))]
     struct FooNode {
         other_field: String,
     }
@@ -116,7 +116,7 @@ async fn test_interface_as_list_value() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(implement = "NodeInterface")]
+    #[graphql(impl(NodeInterface))]
     struct BarNode {
         another_field: String,
     }

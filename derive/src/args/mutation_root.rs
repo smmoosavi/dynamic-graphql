@@ -38,9 +38,8 @@ impl From<MutationRoot> for SimpleObject {
                     mutation_root: true,
                     name,
                     rename_fields: None,
-                    mark_as: vec![],
-                    mark_with: vec![],
-                    implement: vec![],
+                    marks: vec![],
+                    impls: vec![],
                 },
             },
             inner: BaseStruct {

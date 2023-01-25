@@ -13,7 +13,7 @@ async fn interface_as_output_value_for_simple_object_with_implement() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(implement = "NodeInterface")]
+    #[graphql(impl(NodeInterface))]
     struct FooNode {
         other_field: String,
     }
@@ -103,7 +103,7 @@ async fn interface_as_output_value_for_simple_object_with_mark_with() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(mark_with = "NodeInterface")]
+    #[graphql(mark(NodeInterface))]
     struct FooNode {
         the_id: String,
         other_field: String,
@@ -189,7 +189,7 @@ async fn interface_as_output_value_for_simple_object_with_mark_as() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(mark_as = "Node")]
+    #[graphql(mark("Node"))]
     struct FooNode {
         the_id: String,
         other_field: String,
@@ -275,7 +275,7 @@ async fn interface_as_output_value_for_resolved_object_with_implement() {
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(implement = "NodeInterface")]
+    #[graphql(impl(NodeInterface))]
     struct FooNode;
 
     #[ResolvedObjectFields]
@@ -368,7 +368,7 @@ async fn interface_as_output_value_for_resolved_object_with_mark_with() {
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(mark_with = "NodeInterface")]
+    #[graphql(mark(NodeInterface))]
     struct FooNode;
 
     #[ResolvedObjectFields]
@@ -458,7 +458,7 @@ async fn interface_as_output_value_for_resolved_object_with_mark_as() {
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(mark_as = "Node")]
+    #[graphql(mark("Node"))]
     struct FooNode;
 
     #[ResolvedObjectFields]

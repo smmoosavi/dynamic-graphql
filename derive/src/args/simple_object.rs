@@ -6,14 +6,14 @@ use syn::{Generics, Path};
 use crate::args::common;
 use crate::args::common::{ArgImplementor, FieldImplementor};
 use crate::utils::common::{
-    CommonArg, CommonField, CommonInterfacable, CommonObject, GetArgs, GetFields,
+    CommonArg, CommonField, CommonInterfaceAttrs, CommonObject, GetArgs, GetFields,
 };
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::BaseFnArg;
-use crate::utils::interface_attr::InterfaceAttr;
+use crate::utils::interface_attr::{InterfaceImplAttr, InterfaceMarkAttr};
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
@@ -62,13 +62,12 @@ pub struct SimpleObjectAttrs {
     pub rename_fields: Option<RenameRule>,
 
     #[darling(default, multiple)]
-    pub mark_as: Vec<InterfaceAttr>,
+    #[darling(rename = "mark")]
+    pub marks: Vec<InterfaceMarkAttr>,
 
     #[darling(default, multiple)]
-    pub mark_with: Vec<InterfaceAttr>,
-
-    #[darling(default, multiple)]
-    pub implement: Vec<InterfaceAttr>,
+    #[darling(rename = "impl")]
+    pub impls: Vec<InterfaceImplAttr>,
 }
 
 from_derive_input!(
@@ -85,17 +84,13 @@ impl MakeContext<SimpleObjectFieldContext> for SimpleObject {
     }
 }
 
-impl CommonInterfacable for SimpleObject {
-    fn get_mark_as(&self) -> &Vec<InterfaceAttr> {
-        &self.attrs.mark_as
+impl CommonInterfaceAttrs for SimpleObject {
+    fn get_marks(&self) -> &Vec<InterfaceMarkAttr> {
+        &self.attrs.marks
     }
 
-    fn get_mark_with(&self) -> &Vec<InterfaceAttr> {
-        &self.attrs.mark_with
-    }
-
-    fn get_implement(&self) -> &Vec<InterfaceAttr> {
-        &self.attrs.implement
+    fn get_impls(&self) -> &Vec<InterfaceImplAttr> {
+        &self.attrs.impls
     }
 }
 
@@ -311,8 +306,8 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
 
     let ident = &object.ident;
     let define_object = common::impl_define_object();
-    let add_interfaces = common::get_interface_code(object)?;
-    let implement = common::get_add_implement_code(object, &object.attrs.implement)?;
+    let add_interfaces = common::get_interface_mark_code(object)?;
+    let implement = common::get_add_implement_code(object, &object.attrs.impls)?;
 
     let description = common::object_description(object.get_doc()?.as_deref())?;
     let define_fields = common::get_define_fields_code(object)?;

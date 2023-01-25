@@ -11,7 +11,7 @@ fn test_schema_simple_object_mark_as() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(mark_as = "Node")]
+    #[graphql(mark("Node"))]
     struct FooNode {
         the_id: String,
     }
@@ -62,7 +62,7 @@ fn test_schema_simple_object_mark_with() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(mark_with = "NodeInterface")]
+    #[graphql(mark(NodeInterface))]
     struct FooNode {
         the_id: String,
     }
@@ -113,7 +113,7 @@ fn test_schema_simple_object_with_implement() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(implement = "NodeInterface")]
+    #[graphql(impl(NodeInterface))]
     struct FooNode {
         some_field: String,
         #[graphql(skip)]
@@ -174,7 +174,7 @@ fn test_schema_simple_object_with_error() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(mark_with = "NodeInterface")]
+    #[graphql(mark(NodeInterface))]
     struct FooNode {
         other_field: String,
     }
@@ -205,7 +205,7 @@ fn test_schema_resolved_object_mark_as() {
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(mark_as = "Node")]
+    #[graphql(mark("Node"))]
     struct FooNode;
 
     #[ResolvedObjectFields]
@@ -261,7 +261,7 @@ fn test_schema_resolved_object_mark_with() {
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(mark_with = "NodeInterface")]
+    #[graphql(mark(NodeInterface))]
     struct FooNode;
 
     #[ResolvedObjectFields]
@@ -317,7 +317,7 @@ fn test_schema_resolved_object_with_implement() {
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(implement = "NodeInterface")]
+    #[graphql(impl(NodeInterface))]
     struct FooNode;
 
     #[ResolvedObjectFields]
@@ -381,7 +381,7 @@ fn test_schema_resolved_object_with_error() {
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(mark_with = "NodeInterface")]
+    #[graphql(mark(NodeInterface))]
     struct FooNode;
 
     #[ResolvedObjectFields]

@@ -15,7 +15,7 @@ async fn interface_string_ref_types() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(implement = "NodeInterface")]
+    #[graphql(impl(NodeInterface))]
     struct FooNode {
         other_field: String,
         #[graphql(skip)]
@@ -139,7 +139,7 @@ async fn interface_object_ref_types() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(implement = "BazInterface")]
+    #[graphql(impl(BazInterface))]
     struct FooNode {
         other_field: String,
         #[graphql(skip)]
