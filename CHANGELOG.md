@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- support `Upload` type
+
 ### Fixed
 
 - fix `remote` in enum to accept path with `::` separator

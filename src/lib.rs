@@ -3,11 +3,12 @@ mod from_value;
 mod registry;
 mod resolve;
 mod types;
+mod upload;
 
 pub use async_graphql::dynamic;
 pub use async_graphql::dynamic::FieldValue;
 pub use async_graphql::{
-    Context, Error, MaybeUndefined, Name, Request, Result, Value, Variables, ID,
+    Context, Error, MaybeUndefined, Name, Request, Result, UploadValue, Value, Variables, ID,
 };
 
 pub use any_box::AnyBox;
@@ -19,6 +20,7 @@ pub use types::{
     Interface, InterfaceMark, InterfaceRoot, InterfaceTarget, Mutation, Object, OutputType,
     ParentType, Register, RegisterFns, Scalar, Union,
 };
+pub use upload::Upload;
 
 pub use dynamic_graphql_derive::{
     App, Enum, ExpandObject, ExpandObjectFields, InputObject, Interface, Mutation, MutationFields,
