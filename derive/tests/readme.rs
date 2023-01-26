@@ -25,7 +25,7 @@ mod foo {
     }
 
     #[derive(App)]
-    pub struct FooApp(Foo, FooQuery<'static>);
+    pub struct FooApp(FooQuery<'static>);
 }
 
 mod root {

@@ -311,6 +311,75 @@ async fn test_rename_fields() {
     assert_eq!(data, serde_json::json!({ "example": "hello" }));
 }
 
+#[tokio::test]
+async fn test_auto_register() {
+    #[derive(InputObject)]
+    struct FooInput {
+        pub string: String,
+    }
+
+    #[derive(InputObject)]
+    struct ExampleInput {
+        pub foo: FooInput,
+    }
+
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        async fn example(&self, input: ExampleInput) -> String {
+            input.foo.string
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+
+            input ExampleInput {
+              foo: FooInput!
+            }
+
+            input FooInput {
+              string: String!
+            }
+
+            type Query {
+              example(input: ExampleInput!): String!
+            }
+
+            schema {
+              query: Query
+            }
+
+            "#,
+        ),
+    );
+
+    let query = r#"
+        query {
+            example(input: { foo: { string: "hello" } })
+        }
+    "#;
+
+    let root = Query;
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(data, serde_json::json!({ "example": "hello" }));
+}
+
 mod in_mod {
     use dynamic_graphql::dynamic::DynamicRequestExt;
     use dynamic_graphql::{App, FieldValue, ResolvedObject, ResolvedObjectFields};

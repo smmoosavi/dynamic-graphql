@@ -291,6 +291,61 @@ fn test_schema_with_skip() {
     );
 }
 
+#[tokio::test]
+async fn test_auto_register() {
+    #[derive(SimpleObject)]
+    struct Foo {
+        id: String,
+    }
+    #[Interface(GetFooInterface)]
+    trait GetFoo {
+        fn get_foo(&self) -> Foo;
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(impl(GetFooInterface))]
+    #[graphql(root)]
+    struct Query;
+
+    impl GetFoo for Query {
+        fn get_foo(&self) -> Foo {
+            Foo {
+                id: "foo".to_string(),
+            }
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query, GetFooInterface<'static>);
+
+    let schema = App::create_schema().finish().unwrap();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+
+                type Foo {
+                  id: String!
+                }
+
+                interface GetFoo {
+                  getFoo: Foo!
+                }
+
+                type Query implements GetFoo {
+                  getFoo: Foo!
+                }
+
+                schema {
+                  query: Query
+                }
+
+            "#
+        ),
+    );
+}
+
 mod in_mod {
     mod node {
         use dynamic_graphql::Interface;

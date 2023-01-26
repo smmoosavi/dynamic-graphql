@@ -2,6 +2,7 @@ use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{
     App, ExpandObject, ExpandObjectFields, FieldValue, Object, ParentType, SimpleObject,
 };
+use dynamic_graphql_derive::InputObject;
 
 use crate::schema_utils::normalize_schema;
 
@@ -364,6 +365,97 @@ async fn test_query() {
     struct App(Query, ExampleApp);
 
     let schema = App::create_schema().finish().unwrap();
+
+    let query = r#"
+        query {
+            example {
+                field
+            }
+        }
+    "#;
+
+    let root = Query {
+        foo: "foo".to_string(),
+    };
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!(
+            {
+                "example": {
+                    "field": "field"
+                }
+            }
+        )
+    );
+}
+
+#[tokio::test]
+async fn test_auto_register() {
+    #[allow(dead_code)]
+    #[derive(InputObject)]
+    struct ExampleInput {
+        field: String,
+    }
+
+    #[derive(SimpleObject)]
+    struct Example {
+        field: String,
+    }
+
+    #[derive(ExpandObject)]
+    struct ExampleQuery<'a>(&'a Query);
+
+    #[ExpandObjectFields]
+    impl ExampleQuery<'_> {
+        fn example(&self, _input: Option<ExampleInput>) -> Example {
+            Example {
+                field: "field".to_string(),
+            }
+        }
+    }
+
+    #[derive(App)]
+    struct ExampleApp(ExampleQuery<'static>);
+
+    #[derive(SimpleObject)]
+    #[graphql(root)]
+    struct Query {
+        foo: String,
+    }
+
+    #[derive(App)]
+    struct App(Query, ExampleApp);
+
+    let schema = App::create_schema().finish().unwrap();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+                type Example {
+                  field: String!
+                }
+
+                input ExampleInput {
+                  field: String!
+                }
+
+                type Query {
+                  foo: String!
+                  example(input: ExampleInput): Example!
+                }
+
+                schema {
+                  query: Query
+                }
+            "#
+        ),
+    );
 
     let query = r#"
         query {

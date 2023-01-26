@@ -3,6 +3,7 @@ use dynamic_graphql::{
     App, ExpandObject, FieldValue, Mutation, MutationFields, MutationRoot, Object, ParentType,
     SimpleObject,
 };
+use dynamic_graphql_derive::InputObject;
 
 use crate::schema_utils::normalize_schema;
 
@@ -236,6 +237,101 @@ async fn test_query() {
         serde_json::json!(
             {
                 "theExample": "field"
+            }
+        )
+    );
+}
+
+#[tokio::test]
+async fn test_auto_register() {
+    #[derive(InputObject)]
+    struct ExampleInput {
+        foo: String,
+    }
+
+    #[derive(SimpleObject)]
+    struct ExamplePayload {
+        bar: String,
+    }
+
+    #[derive(MutationRoot)]
+    struct MutationRoot;
+
+    #[derive(Mutation)]
+    struct MyMutation(MutationRoot);
+
+    #[MutationFields]
+    impl MyMutation {
+        fn the_example(input: ExampleInput) -> ExamplePayload {
+            ExamplePayload { bar: input.foo }
+        }
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(root)]
+    struct Query {
+        foo: String,
+    }
+
+    #[derive(App)]
+    struct App(Query, MutationRoot, MyMutation);
+
+    let schema = App::create_schema().finish().unwrap();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+
+                input ExampleInput {
+                  foo: String!
+                }
+
+                type ExamplePayload {
+                  bar: String!
+                }
+
+                type MutationRoot {
+                  theExample(input: ExampleInput!): ExamplePayload!
+                }
+
+                type Query {
+                  foo: String!
+                }
+
+                schema {
+                  query: Query
+                  mutation: MutationRoot
+                }
+
+
+            "#
+        ),
+    );
+
+    let query = r#"
+        mutation {
+            theExample(input: {foo: "foo"}) {
+                bar
+            }
+        }
+    "#;
+
+    let root = Query {
+        foo: "foo".to_string(),
+    };
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!(
+            {
+                "theExample": {
+                    "bar": "foo"
+                }
             }
         )
     );

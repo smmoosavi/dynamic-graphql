@@ -2,6 +2,7 @@ use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{App, Register};
 use dynamic_graphql::{FieldValue, Object};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql_derive::{InputObject, SimpleObject};
 
 use crate::schema_utils::normalize_schema;
 
@@ -386,6 +387,84 @@ async fn test_async_query() {
                 "string": "Hello",
                 "value": "Hello",
                 "other": "Hello",
+            }
+        )
+    );
+}
+
+#[tokio::test]
+async fn test_auto_register() {
+    #[derive(SimpleObject)]
+    struct Example {
+        value: String,
+    }
+    #[derive(InputObject)]
+    struct ExampleInput {
+        value: String,
+    }
+
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        fn example(&self, input: ExampleInput) -> Example {
+            Example { value: input.value }
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+
+                type Example {
+                  value: String!
+                }
+
+                input ExampleInput {
+                  value: String!
+                }
+
+                type Query {
+                  example(input: ExampleInput!): Example!
+                }
+
+                schema {
+                  query: Query
+                }
+
+            "#
+        ),
+    );
+    let query = r#"
+    query {
+        example(input: {value: "Hello"}) {
+            value
+        }
+    }
+    "#;
+
+    let root = Query;
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!(
+            {
+                "example": {
+                    "value": "Hello",
+                }
             }
         )
     );

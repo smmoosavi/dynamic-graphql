@@ -49,7 +49,7 @@ async fn test_arg() {
     }
 
     #[derive(App)]
-    struct App(Query, MutationRoot, UploadMutation, Upload);
+    struct App(Query, MutationRoot, UploadMutation);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -132,7 +132,7 @@ async fn test_input_object() {
     }
 
     #[derive(App)]
-    struct App(Query, MutationRoot, UploadMutation, Upload, UploadInput);
+    struct App(Query, MutationRoot, UploadMutation);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -218,7 +218,7 @@ async fn test_arg_optional() {
     }
 
     #[derive(App)]
-    struct App(Query, MutationRoot, UploadMutation, Upload);
+    struct App(Query, MutationRoot, UploadMutation);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -313,7 +313,7 @@ async fn test_input_object_optional() {
     }
 
     #[derive(App)]
-    struct App(Query, MutationRoot, UploadMutation, Upload, UploadInput);
+    struct App(Query, MutationRoot, UploadMutation);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();

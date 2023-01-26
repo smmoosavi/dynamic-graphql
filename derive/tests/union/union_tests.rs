@@ -375,6 +375,69 @@ async fn test_query_owned() {
     );
 }
 
+#[tokio::test]
+async fn test_auto_register() {
+    #[derive(SimpleObject)]
+    struct Cat {
+        name: String,
+        life: i32,
+    }
+
+    #[derive(SimpleObject)]
+    struct Dog {
+        name: String,
+        power: i32,
+    }
+
+    #[allow(dead_code)]
+    #[derive(Union)]
+    enum Animal {
+        Dog(Dog),
+        Cat(Cat),
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(root)]
+    struct Query {
+        pet: Animal,
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+    let sdl = schema.sdl();
+
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+
+            union Animal = Dog | Cat
+
+            type Cat {
+              name: String!
+              life: Int!
+            }
+
+            type Dog {
+              name: String!
+              power: Int!
+            }
+
+            type Query {
+              pet: Animal!
+            }
+
+            schema {
+              query: Query
+            }
+
+            "#
+        )
+    );
+}
+
 mod in_mod {
     use dog::Dog;
     use dynamic_graphql::dynamic::DynamicRequestExt;

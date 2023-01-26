@@ -335,6 +335,42 @@ fn test_rename_fields() {
     );
 }
 
+#[tokio::test]
+async fn test_auto_register() {
+    #[derive(SimpleObject)]
+    struct Example {
+        pub string: String,
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(root)]
+    struct Query {
+        pub example: Example,
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+            type Example {
+              string: String!
+            }
+            type Query {
+              example: Example!
+            }
+            schema {
+              query: Query
+            }
+            "#
+        ),
+    );
+}
+
 mod in_mod {
     use dynamic_graphql::dynamic::DynamicRequestExt;
     use dynamic_graphql::App;
