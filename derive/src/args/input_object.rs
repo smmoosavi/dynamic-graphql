@@ -4,7 +4,7 @@ use quote::quote;
 use syn::{Generics, Path};
 
 use crate::args::common;
-use crate::utils::common::{CommonField, CommonObject, GetFields};
+use crate::utils::common::{CommonField, CommonObject, GetArgs, GetFields, EMPTY_ARGS};
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::IntoTokenStream;
@@ -115,6 +115,12 @@ impl CommonField for InputObjectField {
 impl GetFields<InputObjectField> for InputObject {
     fn get_fields(&self) -> darling::Result<&Vec<InputObjectField>> {
         Ok(&self.data.fields)
+    }
+}
+
+impl GetArgs<()> for InputObjectField {
+    fn get_args(&self) -> darling::Result<&Vec<()>> {
+        Ok(&EMPTY_ARGS)
     }
 }
 

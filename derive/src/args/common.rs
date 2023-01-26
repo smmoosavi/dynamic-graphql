@@ -48,6 +48,24 @@ pub trait FieldImplementor: CommonField {
     fn get_field_usage_code(&self) -> darling::Result<TokenStream>;
 }
 
+impl ArgImplementor for () {
+    fn get_self_arg_definition(&self) -> darling::Result<TokenStream> {
+        unreachable!("Self arg can't be defined")
+    }
+
+    fn get_typed_arg_definition(&self) -> darling::Result<TokenStream> {
+        unreachable!("Typed arg can't be defined")
+    }
+
+    fn get_self_arg_usage(&self) -> darling::Result<TokenStream> {
+        unreachable!("Self arg can't be used")
+    }
+
+    fn get_typed_arg_usage(&self) -> darling::Result<TokenStream> {
+        unreachable!("Typed arg can't be used")
+    }
+}
+
 pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let object_ident = obj.get_ident();
     let name = get_type_name(obj)?;

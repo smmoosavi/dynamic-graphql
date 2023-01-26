@@ -63,3 +63,23 @@ pub trait GetFields<F> {
 pub trait GetArgs<A> {
     fn get_args(&self) -> darling::Result<&Vec<A>>;
 }
+
+impl CommonArg for () {
+    fn get_name(&self) -> Option<&str> {
+        unreachable!("() doesn't have a name")
+    }
+
+    fn get_index(&self) -> usize {
+        unreachable!("() doesn't have an index")
+    }
+
+    fn get_arg(&self) -> &BaseFnArg {
+        unreachable!("() doesn't have an arg")
+    }
+
+    fn is_marked_as_ctx(&self) -> bool {
+        unreachable!("() doesn't have an arg")
+    }
+}
+
+pub static EMPTY_ARGS: Vec<()> = Vec::new();

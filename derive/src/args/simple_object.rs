@@ -4,15 +4,14 @@ use quote::quote;
 use syn::{Generics, Path};
 
 use crate::args::common;
-use crate::args::common::{ArgImplementor, FieldImplementor};
+use crate::args::common::FieldImplementor;
 use crate::utils::common::{
-    CommonArg, CommonField, CommonInterfaceAttrs, CommonObject, GetArgs, GetFields,
+    CommonField, CommonInterfaceAttrs, CommonObject, GetArgs, GetFields, EMPTY_ARGS,
 };
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::IntoTokenStream;
-use crate::utils::impl_block::BaseFnArg;
 use crate::utils::interface_attr::{InterfaceImplAttr, InterfaceMarkAttr};
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
@@ -193,48 +192,8 @@ impl GetFields<SimpleObjectField> for SimpleObject {
     }
 }
 
-struct SimpleObjectArg;
-
-impl CommonArg for SimpleObjectArg {
-    fn get_name(&self) -> Option<&str> {
-        unreachable!("SimpleObjectArg has no name")
-    }
-
-    fn get_index(&self) -> usize {
-        0
-    }
-
-    fn get_arg(&self) -> &BaseFnArg {
-        unreachable!("SimpleObjectArg has no arg")
-    }
-
-    fn is_marked_as_ctx(&self) -> bool {
-        false
-    }
-}
-
-impl ArgImplementor for SimpleObjectArg {
-    fn get_self_arg_definition(&self) -> darling::Result<TokenStream> {
-        unreachable!("SimpleObjectArg has no definition")
-    }
-
-    fn get_typed_arg_definition(&self) -> darling::Result<TokenStream> {
-        unreachable!("SimpleObjectArg has no definition")
-    }
-
-    fn get_self_arg_usage(&self) -> darling::Result<TokenStream> {
-        common::get_self_arg_usage(self)
-    }
-
-    fn get_typed_arg_usage(&self) -> darling::Result<TokenStream> {
-        unreachable!("SimpleObjectArg has no usage")
-    }
-}
-
-static EMPTY_ARGS: Vec<SimpleObjectArg> = Vec::new();
-
-impl GetArgs<SimpleObjectArg> for SimpleObjectField {
-    fn get_args(&self) -> darling::Result<&Vec<SimpleObjectArg>> {
+impl GetArgs<()> for SimpleObjectField {
+    fn get_args(&self) -> darling::Result<&Vec<()>> {
         Ok(&EMPTY_ARGS)
     }
 }

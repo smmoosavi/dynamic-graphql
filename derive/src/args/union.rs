@@ -1,10 +1,10 @@
 use darling::FromAttributes;
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{Generics, Path};
+use syn::{Generics, Path, Type};
 
 use crate::args::common;
-use crate::utils::common::CommonObject;
+use crate::utils::common::{CommonField, CommonObject, GetArgs, GetFields, EMPTY_ARGS};
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{BaseEnum, NewtypeVariant};
 use crate::utils::error::IntoTokenStream;
@@ -46,6 +46,40 @@ impl CommonObject for Union {
 
     fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
+    }
+}
+
+impl GetFields<UnionItem> for Union {
+    fn get_fields(&self) -> darling::Result<&Vec<UnionItem>> {
+        Ok(&self.data)
+    }
+}
+
+impl GetArgs<()> for UnionItem {
+    fn get_args(&self) -> darling::Result<&Vec<()>> {
+        Ok(&EMPTY_ARGS)
+    }
+}
+
+impl CommonField for UnionItem {
+    fn get_name(&self) -> Option<&str> {
+        None
+    }
+
+    fn get_ident(&self) -> darling::Result<&Ident> {
+        Ok(&self.ident)
+    }
+
+    fn get_type(&self) -> darling::Result<&Type> {
+        Ok(&self.fields.ty)
+    }
+
+    fn get_skip(&self) -> bool {
+        false
+    }
+
+    fn get_doc(&self) -> darling::Result<Option<String>> {
+        Ok(None)
     }
 }
 
