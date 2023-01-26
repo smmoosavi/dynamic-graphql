@@ -7,6 +7,21 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Automatic register used types.
+
+```rust
+#[derive(SimpleObject)]
+struct Example { value: String }
+
+#[derive(SimpleObject)]
+struct Query { example: Example }
+
+#[derive(App)]
+struct App (Query); // no need to register Example manually
+```
+
 ### Changed
 
 - force `'static` lifetime for `#[derive(App)]` attribute
@@ -22,6 +37,10 @@ struct ExampleApp<'a>(ExampleQuery<'a>);
 #[derive(App)]
 struct ExampleApp(ExampleQuery<'static>);
 ```
+
+### Internal
+
+- every `GraphQLType` now should implement `Register` trait
 
 ### [0.3.0] - 2023-01-25
 
