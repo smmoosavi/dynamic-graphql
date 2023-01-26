@@ -6,6 +6,7 @@ pub use args::*;
 pub use fields::*;
 pub use generics::*;
 pub use interfaces::*;
+use std::collections::HashSet;
 
 use crate::utils::common::{CommonArg, CommonField, CommonObject, GetArgs, GetFields};
 use crate::utils::crate_name::get_crate_name;
@@ -248,4 +249,61 @@ where
         .filter(|field| !field.get_skip())
         .map(|field| common::build_field(field).into_token_stream())
         .collect())
+}
+
+pub fn get_nested_type_register_code<O, F, A>(object: &O) -> darling::Result<TokenStream>
+where
+    O: GetFields<F>,
+    F: CommonField + GetArgs<A>,
+    A: CommonArg,
+{
+    let mut errors = Vec::new();
+    let mut types = HashSet::new();
+
+    let fields = object.get_fields()?;
+    fields
+        .iter()
+        .filter(|field| !field.get_skip())
+        .for_each(|field| {
+            let args = match field.get_args() {
+                Ok(args) => args,
+                Err(err) => {
+                    errors.push(err);
+                    return;
+                }
+            };
+            args.iter().for_each(|arg| {
+                if let BaseFnArg::Typed(ty) = arg.get_arg() {
+                    if is_arg_ctx(arg) {
+                        return;
+                    }
+                    types.insert(&ty.ty);
+                }
+            });
+            let ty = field.get_type();
+            match ty {
+                Ok(ty) => {
+                    types.insert(ty);
+                }
+                Err(err) => errors.push(err),
+            };
+        });
+
+    let errors = errors
+        .into_iter()
+        .map(|err| err.write_errors())
+        .collect::<Vec<_>>();
+    let codes = types
+        .into_iter()
+        .map(|ty| {
+            quote! {
+                let registry = registry.register::<#ty>();
+            }
+        })
+        .collect::<Vec<_>>();
+
+    Ok(quote! {
+        #(#errors)*
+        #(#codes)*
+    })
 }

@@ -338,6 +338,8 @@ fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
     let (impl_generics, _, where_clause) = expand.generics.split_for_impl();
     let ty = get_type_path(&expand.ty)?;
 
+    let register_nested_types = common::get_nested_type_register_code(expand).into_token_stream();
+
     let define_fields = common::get_define_fields_code(expand).into_token_stream();
 
     let use_fields = use_fields_code(expand).into_token_stream();
@@ -346,6 +348,9 @@ fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
     Ok(quote! {
         impl #impl_generics #crate_name::Register for #ty #where_clause {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+
+                #register_nested_types
+
                 #register_fns
 
                 #define_fields

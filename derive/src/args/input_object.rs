@@ -150,6 +150,8 @@ where
 fn impl_register(object: &InputObject) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let ident = &object.ident;
+    let register_nested_types = common::get_nested_type_register_code(object).into_token_stream();
+
     let define_object = common::impl_define_input_object();
     let define_fields = get_define_fields(object)?;
     let description = common::object_description(object.get_doc()?.as_deref())?;
@@ -157,6 +159,9 @@ fn impl_register(object: &InputObject) -> darling::Result<TokenStream> {
     Ok(quote! {
         impl #crate_name::Register for #ident {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+
+                #register_nested_types
+
                 #define_object
 
                 #description

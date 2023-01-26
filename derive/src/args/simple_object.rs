@@ -261,6 +261,7 @@ fn root_register_code(object: &SimpleObject) -> TokenStream {
 fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
 
+    let register_nested_types = common::get_nested_type_register_code(object).into_token_stream();
     let root_register = root_register_code(object);
 
     let ident = &object.ident;
@@ -277,6 +278,8 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     Ok(quote! {
         impl #impl_generics #crate_name::Register for #ident #ty_generics #where_clause {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+
+                #register_nested_types
 
                 #root_register
 

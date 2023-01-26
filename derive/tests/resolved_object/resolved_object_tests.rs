@@ -1,5 +1,5 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::App;
+use dynamic_graphql::{App, Register};
 use dynamic_graphql::{FieldValue, Object};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
 
@@ -10,6 +10,8 @@ fn test_impl_resolved_object() {
     #[derive(ResolvedObject)]
     struct Example;
 
+    impl Register for Example {}
+
     assert_eq!(<Example as Object>::NAME, "Example");
 }
 
@@ -18,6 +20,8 @@ fn test_impl_resolved_object_with_name() {
     #[derive(ResolvedObject)]
     #[graphql(name = "Other")]
     struct Example;
+
+    impl Register for Example {}
 
     assert_eq!(<Example as Object>::NAME, "Other");
 }

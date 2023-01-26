@@ -1,13 +1,20 @@
 use crate::types::{GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputType, OutputType};
+use crate::{Register, Registry};
 use async_graphql::{dynamic, MaybeUndefined};
 use std::borrow::Cow;
 
-impl<T: OutputType + Clone> GraphqlType for Cow<'_, T> {
+impl<T: Register + Clone + 'static> Register for Cow<'_, T> {
+    fn register(registry: Registry) -> Registry {
+        registry.register::<T>()
+    }
+}
+impl<T: OutputType + Clone + 'static> GraphqlType for Cow<'_, T> {
     const NAME: &'static str = <T as GraphqlType>::NAME;
 }
 
-impl<T: OutputType + Clone> OutputType for Cow<'_, T> {}
+impl<T: OutputType + Clone + 'static> OutputType for Cow<'_, T> {}
 
+impl Register for String {}
 impl GraphqlType for String {
     const NAME: &'static str = dynamic::TypeRef::STRING;
 }
@@ -16,6 +23,7 @@ impl InputType for String {}
 
 impl OutputType for String {}
 
+impl Register for &str {}
 impl GraphqlType for &str {
     const NAME: &'static str = dynamic::TypeRef::STRING;
 }
@@ -28,10 +36,12 @@ impl GraphqlType for str {
     const NAME: &'static str = dynamic::TypeRef::STRING;
 }
 
+impl Register for str {}
 impl InputType for str {}
 
 impl OutputType for str {}
 
+impl Register for async_graphql::ID {}
 impl GraphqlType for async_graphql::ID {
     const NAME: &'static str = dynamic::TypeRef::ID;
 }
@@ -40,6 +50,7 @@ impl InputType for async_graphql::ID {}
 
 impl OutputType for async_graphql::ID {}
 
+impl Register for bool {}
 impl GraphqlType for bool {
     const NAME: &'static str = dynamic::TypeRef::BOOLEAN;
 }
@@ -48,6 +59,7 @@ impl InputType for bool {}
 
 impl OutputType for bool {}
 
+impl Register for f32 {}
 impl GraphqlType for f32 {
     const NAME: &'static str = dynamic::TypeRef::FLOAT;
 }
@@ -56,6 +68,7 @@ impl InputType for f32 {}
 
 impl OutputType for f32 {}
 
+impl Register for f64 {}
 impl GraphqlType for f64 {
     const NAME: &'static str = dynamic::TypeRef::FLOAT;
 }
@@ -67,6 +80,7 @@ impl OutputType for f64 {}
 macro_rules! int_output_value {
     ($($t:ty),*) => {
         $(
+            impl Register for $t {}
             impl GraphqlType for $t {
                 const NAME: &'static str = dynamic::TypeRef::INT;
             }
@@ -77,6 +91,56 @@ macro_rules! int_output_value {
 }
 
 int_output_value!(i8, i16, i32, i64, isize, u8, u16, u32, u64, usize);
+
+impl<T> Register for &T
+where
+    T: Register + 'static,
+{
+    fn register(registry: Registry) -> Registry {
+        registry.register::<T>()
+    }
+}
+
+impl<T> Register for Option<T>
+where
+    T: Register + 'static,
+{
+    fn register(registry: Registry) -> Registry {
+        registry.register::<T>()
+    }
+}
+impl<T> Register for MaybeUndefined<T>
+where
+    T: Register + 'static,
+{
+    fn register(registry: Registry) -> Registry {
+        registry.register::<T>()
+    }
+}
+impl<T, E> Register for Result<T, E>
+where
+    T: Register + 'static,
+{
+    fn register(registry: Registry) -> Registry {
+        registry.register::<T>()
+    }
+}
+impl<T> Register for Vec<T>
+where
+    T: Register + 'static,
+{
+    fn register(registry: Registry) -> Registry {
+        registry.register::<T>()
+    }
+}
+impl<T> Register for &[T]
+where
+    T: Register + 'static,
+{
+    fn register(registry: Registry) -> Registry {
+        registry.register::<T>()
+    }
+}
 
 pub trait TypeRefExt {
     fn optional(self) -> Self;

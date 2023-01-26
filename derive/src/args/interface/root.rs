@@ -8,6 +8,7 @@ use crate::args::interface::{InterfaceMethod, InterfaceMethodArg};
 use crate::args::{common, Interface};
 use crate::utils::common::{CommonObject, GetArgs};
 use crate::utils::crate_name::get_crate_name;
+use crate::utils::error::IntoTokenStream;
 use crate::utils::interface_hash::get_interface_hash;
 
 impl FieldImplementor for InterfaceMethod {
@@ -94,6 +95,7 @@ pub fn define_interface_struct(input: &Interface) -> darling::Result<TokenStream
 pub fn impl_register(input: &Interface) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let ident = &input.arg.ident;
+    let register_nested_types = common::get_nested_type_register_code(input).into_token_stream();
 
     let description = common::object_description(input.get_doc()?.as_deref())?;
     let define_fields = common::get_define_fields_code(input)?;
@@ -101,6 +103,9 @@ pub fn impl_register(input: &Interface) -> darling::Result<TokenStream> {
     Ok(quote! {
         impl #crate_name::Register for #ident <'static> {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+
+                #register_nested_types
+
                 // todo rename to interface
                 let object = #crate_name::dynamic::Interface::new(<Self as #crate_name::Interface>::NAME);
 

@@ -307,6 +307,7 @@ where
 fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let ty = get_type_path(&object.ty)?;
+    let register_nested_types = common::get_nested_type_register_code(object).into_token_stream();
     let define_object = common::impl_define_object();
     let define_fields = common::get_define_fields_code(object)?;
     let register_object_code = common::register_object_code();
@@ -316,6 +317,9 @@ fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> 
     Ok(quote! {
         impl #impl_generics #crate_name::Register for #ty #where_clause {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+
+                #register_nested_types
+
                 #define_object
 
                 #define_fields

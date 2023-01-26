@@ -4,14 +4,17 @@ use async_graphql::dynamic::TypeRef;
 mod common;
 
 pub trait Register {
-    fn register(registry: Registry) -> Registry;
+    #[inline]
+    fn register(registry: Registry) -> Registry {
+        registry
+    }
 }
 
 pub trait RegisterFns {
     const REGISTER_FNS: &'static [fn(registry: Registry) -> Registry];
 }
 
-pub trait GraphqlType {
+pub trait GraphqlType: Register {
     const NAME: &'static str;
 }
 

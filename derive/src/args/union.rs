@@ -198,6 +198,8 @@ fn define_items(union: &Union) -> darling::Result<TokenStream> {
 fn impl_register(union: &Union) -> darling::Result<TokenStream> {
     let create_name = get_crate_name();
     let ident = union.get_ident();
+    let register_nested_types = common::get_nested_type_register_code(union).into_token_stream();
+
     let define_union = define_union_code(union).into_token_stream();
     let description = union
         .get_doc()
@@ -208,6 +210,9 @@ fn impl_register(union: &Union) -> darling::Result<TokenStream> {
     Ok(quote! {
         impl #create_name::Register for #ident {
             fn register(registry: #create_name::Registry) -> #create_name::Registry {
+
+                #register_nested_types
+
                 #define_union
 
                 #description
