@@ -55,9 +55,7 @@ pub trait InterfaceTarget {
     const TARGET: &'static str;
 }
 
-pub trait InterfaceMark<const MARK: u64> {}
-
-pub struct InterfaceRoot;
+pub trait InterfaceMark<T: Interface + ?Sized> {}
 
 pub trait InputObject: InputType {
     const NAME: &'static str = <Self as InputType>::NAME;

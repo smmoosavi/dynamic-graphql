@@ -1,19 +1,19 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{
-    App, FieldValue, Interface, ResolvedObject, ResolvedObjectFields, SimpleObject,
+    App, FieldValue, Instance, Interface, ResolvedObject, ResolvedObjectFields, SimpleObject,
 };
 
 use crate::schema_utils::normalize_schema;
 
 #[tokio::test]
 async fn interface_as_output_value_for_simple_object_with_implement() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(NodeInterface))]
+    #[graphql(impl(Node))]
     struct FooNode {
         other_field: String,
     }
@@ -30,15 +30,15 @@ async fn interface_as_output_value_for_simple_object_with_implement() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> NodeInterface {
-            NodeInterface::new_owned(FooNode {
+        async fn node(&self) -> Instance<dyn Node> {
+            Instance::new_owned(FooNode {
                 other_field: "foo".to_string(),
             })
         }
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -97,13 +97,13 @@ async fn interface_as_output_value_for_simple_object_with_implement() {
 
 #[tokio::test]
 async fn interface_as_output_value_for_simple_object_with_mark_with() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(SimpleObject)]
-    #[graphql(mark(NodeInterface))]
+    #[graphql(mark(Node))]
     struct FooNode {
         the_id: String,
         other_field: String,
@@ -115,8 +115,8 @@ async fn interface_as_output_value_for_simple_object_with_mark_with() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> NodeInterface {
-            NodeInterface::new_owned(FooNode {
+        async fn node(&self) -> Instance<dyn Node> {
+            Instance::new_owned(FooNode {
                 the_id: "foo".to_string(),
                 other_field: "foo".to_string(),
             })
@@ -124,7 +124,7 @@ async fn interface_as_output_value_for_simple_object_with_mark_with() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -183,13 +183,13 @@ async fn interface_as_output_value_for_simple_object_with_mark_with() {
 
 #[tokio::test]
 async fn interface_as_output_value_for_resolved_object_with_implement() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(impl(NodeInterface))]
+    #[graphql(impl(Node))]
     struct FooNode;
 
     #[ResolvedObjectFields]
@@ -211,13 +211,13 @@ async fn interface_as_output_value_for_resolved_object_with_implement() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> NodeInterface {
-            NodeInterface::new_owned(FooNode)
+        async fn node(&self) -> Instance<dyn Node> {
+            Instance::new_owned(FooNode)
         }
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -276,13 +276,13 @@ async fn interface_as_output_value_for_resolved_object_with_implement() {
 
 #[tokio::test]
 async fn interface_as_output_value_for_resolved_object_with_mark_with() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(mark(NodeInterface))]
+    #[graphql(mark(Node))]
     struct FooNode;
 
     #[ResolvedObjectFields]
@@ -301,13 +301,13 @@ async fn interface_as_output_value_for_resolved_object_with_mark_with() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> NodeInterface {
-            NodeInterface::new_owned(FooNode)
+        async fn node(&self) -> Instance<dyn Node> {
+            Instance::new_owned(FooNode)
         }
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();

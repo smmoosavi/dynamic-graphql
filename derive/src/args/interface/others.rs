@@ -95,6 +95,29 @@ impl<'a> FieldImplementor for OthersMethod<'a> {
     }
 }
 
+impl ArgImplementor for InterfaceMethodArg {
+    fn get_self_arg_definition(&self) -> darling::Result<TokenStream> {
+        let arg_ident = common::get_arg_ident(self);
+
+        Ok(quote! {
+            let parent = ctx.parent_value.try_downcast_ref::<T>()?;
+            let #arg_ident = parent;
+        })
+    }
+
+    fn get_typed_arg_definition(&self) -> darling::Result<TokenStream> {
+        common::get_typed_arg_definition(self)
+    }
+
+    fn get_self_arg_usage(&self) -> darling::Result<TokenStream> {
+        common::get_self_arg_usage(self)
+    }
+
+    fn get_typed_arg_usage(&self) -> darling::Result<TokenStream> {
+        common::get_typed_arg_usage(self)
+    }
+}
+
 fn execute_code<F, A>(method: &F) -> darling::Result<TokenStream>
 where
     F: CommonMethod + GetArgs<A>,
@@ -106,11 +129,11 @@ where
 
     if method.is_async() {
         Ok(quote! {
-            let value = I::#field_ident(#args).await;
+            let value = T::#field_ident(#args).await;
         })
     } else {
         Ok(quote! {
-            let value = I::#field_ident(#args);
+            let value = T::#field_ident(#args);
         })
     }
 }
@@ -147,8 +170,7 @@ fn use_fields_code(input: &Interface) -> darling::Result<TokenStream> {
 
 pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
-    let ident = &input.arg.ident;
-    let trait_ident = &input.ident;
+    let ident = &input.ident;
 
     let define_fields = define_fields_code(input).into_token_stream();
 
@@ -156,19 +178,22 @@ pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
 
     Ok(quote! {
 
-        impl <I> #crate_name::Register for #ident<'static, I>
-            where
-        I: #trait_ident + #crate_name::InterfaceTarget + 'static,
-        I: Send + Sync,
+        impl <T> #crate_name::RegisterInstance<dyn #ident, T> for dyn #ident
+                                where
+        T: #ident + #crate_name::InterfaceTarget + 'static,
+        T: Send + Sync,
+
         {
-            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+            fn register_instance(registry: #crate_name::Registry) -> #crate_name::Registry
+
+            {
                 #define_fields
                 registry.update_object(
-                    <I as #crate_name::InterfaceTarget>::TARGET,
-                    <#ident as #crate_name::Interface>::NAME,
+                    <T as #crate_name::InterfaceTarget>::TARGET,
+                    <dyn #ident as #crate_name::Interface>::NAME,
                     |object| {
                         #use_fields
-                        let object = object.implement(<#ident as #crate_name::Interface>::NAME);
+                        let object = object.implement(<dyn #ident as #crate_name::Interface>::NAME);
                         object
                     },
                 )

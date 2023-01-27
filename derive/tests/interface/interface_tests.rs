@@ -4,28 +4,28 @@ use crate::schema_utils::normalize_schema;
 
 #[test]
 fn test_impl_interface() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn id(&self) -> String;
     }
 
-    assert_eq!(<NodeInterface as Interface>::NAME, "Node");
+    assert_eq!(<dyn Node as Interface>::NAME, "Node");
 }
 
 #[test]
 fn test_impl_interface_with_name() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     #[graphql(name = "Other")]
     trait Node {
         fn id(&self) -> String;
     }
 
-    assert_eq!(<NodeInterface as Interface>::NAME, "Other");
+    assert_eq!(<dyn Node as Interface>::NAME, "Other");
 }
 
 #[test]
 fn test_schema() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
@@ -37,7 +37,7 @@ fn test_schema() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>);
+    struct App(Query, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -66,7 +66,7 @@ fn test_schema() {
 
 #[test]
 fn test_schema_with_name() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     #[graphql(name = "Other")]
     trait Node {
         #[graphql(name = "id")]
@@ -80,7 +80,7 @@ fn test_schema_with_name() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>);
+    struct App(Query, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -109,7 +109,7 @@ fn test_schema_with_name() {
 
 #[test]
 fn test_schema_with_rename() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     #[graphql(rename_fields = "snake_case")]
     trait Node {
         #[graphql(name = "id")]
@@ -125,7 +125,7 @@ fn test_schema_with_rename() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>);
+    struct App(Query, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -156,7 +156,7 @@ fn test_schema_with_rename() {
 #[test]
 fn test_schema_description() {
     /// the interface
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         /// the id
         fn the_id(&self) -> String;
@@ -169,7 +169,7 @@ fn test_schema_description() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>);
+    struct App(Query, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -204,7 +204,7 @@ fn test_schema_description() {
 
 #[test]
 fn test_schema_with_deprecation() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         #[graphql(deprecation)]
         fn the_id(&self) -> String;
@@ -220,7 +220,7 @@ fn test_schema_with_deprecation() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>);
+    struct App(Query, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -250,7 +250,7 @@ fn test_schema_with_deprecation() {
 
 #[test]
 fn test_schema_with_skip() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
         #[graphql(skip)]
@@ -264,7 +264,7 @@ fn test_schema_with_skip() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>);
+    struct App(Query, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -297,13 +297,13 @@ async fn test_auto_register() {
     struct Foo {
         id: String,
     }
-    #[Interface(GetFooInterface)]
+    #[Interface]
     trait GetFoo {
         fn get_foo(&self) -> Foo;
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(GetFooInterface))]
+    #[graphql(impl(GetFoo))]
     #[graphql(root)]
     struct Query;
 
@@ -316,7 +316,7 @@ async fn test_auto_register() {
     }
 
     #[derive(App)]
-    struct App(Query, GetFooInterface<'static>);
+    struct App(Query, dyn GetFoo);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -350,7 +350,7 @@ mod in_mod {
     mod node {
         use dynamic_graphql::Interface;
 
-        #[Interface(NodeInterface)]
+        #[Interface]
         pub trait Node {
             fn id(&self) -> String;
         }
@@ -358,27 +358,25 @@ mod in_mod {
 
     mod foo {
         use dynamic_graphql::dynamic::DynamicRequestExt;
-        use dynamic_graphql::{FieldValue, SimpleObject};
+        use dynamic_graphql::{FieldValue, Instance, SimpleObject};
         use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
 
         use crate::schema_utils::normalize_schema;
 
-        use super::node::Node;
-
         #[derive(SimpleObject)]
-        #[graphql(mark(super::node::NodeInterface))]
+        #[graphql(mark(super::node::Node))]
         struct Bar {
             id: String,
             other: String,
         }
 
         #[derive(SimpleObject)]
-        #[graphql(impl(super::node::NodeInterface))]
+        #[graphql(impl(super::node::Node))]
         struct Foo {
             other: String,
         }
 
-        impl Node for Foo {
+        impl super::node::Node for Foo {
             fn id(&self) -> String {
                 "foo".to_string()
             }
@@ -390,13 +388,13 @@ mod in_mod {
 
         #[ResolvedObjectFields]
         impl Query {
-            async fn foo(&self) -> super::node::NodeInterface {
-                super::node::NodeInterface::new_owned(Foo {
+            async fn foo(&self) -> Instance<dyn super::node::Node> {
+                Instance::new_owned(Foo {
                     other: "foo".to_string(),
                 })
             }
-            async fn bar(&self) -> super::node::NodeInterface {
-                super::node::NodeInterface::new_owned(Bar {
+            async fn bar(&self) -> Instance<dyn super::node::Node> {
+                Instance::new_owned(Bar {
                     id: "bar".to_string(),
                     other: "bar".to_string(),
                 })
@@ -404,7 +402,7 @@ mod in_mod {
         }
 
         #[derive(dynamic_graphql::App)]
-        pub struct App(Query, super::node::NodeInterface<'static>, Bar, Foo);
+        pub struct App(Query, Bar, Foo, dyn super::node::Node);
 
         #[tokio::test]
         async fn test_in_mode() {

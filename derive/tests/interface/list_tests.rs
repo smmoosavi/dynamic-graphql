@@ -1,19 +1,19 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{
-    App, FieldValue, Interface, ResolvedObject, ResolvedObjectFields, SimpleObject,
+    App, FieldValue, Instance, Interface, ResolvedObject, ResolvedObjectFields, SimpleObject,
 };
 
 use crate::schema_utils::normalize_schema;
 
 #[tokio::test]
 async fn test_interface_as_optional_value() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(NodeInterface))]
+    #[graphql(impl(Node))]
     struct FooNode {
         other_field: String,
     }
@@ -30,15 +30,15 @@ async fn test_interface_as_optional_value() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> Option<NodeInterface> {
-            Some(NodeInterface::new_owned(FooNode {
+        async fn node(&self) -> Option<Instance<dyn Node>> {
+            Some(Instance::new_owned(FooNode {
                 other_field: "foo".to_string(),
             }))
         }
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -98,13 +98,13 @@ async fn test_interface_as_optional_value() {
 
 #[tokio::test]
 async fn test_interface_as_list_value() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(NodeInterface))]
+    #[graphql(impl(Node))]
     struct FooNode {
         other_field: String,
     }
@@ -116,7 +116,7 @@ async fn test_interface_as_list_value() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(NodeInterface))]
+    #[graphql(impl(Node))]
     struct BarNode {
         another_field: String,
     }
@@ -133,12 +133,12 @@ async fn test_interface_as_list_value() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn nodes(&self) -> Vec<NodeInterface> {
+        async fn nodes(&self) -> Vec<Instance<dyn Node>> {
             vec![
-                NodeInterface::new_owned(FooNode {
+                Instance::new_owned(FooNode {
                     other_field: "foo".to_string(),
                 }),
-                NodeInterface::new_owned(BarNode {
+                Instance::new_owned(BarNode {
                     another_field: "bar".to_string(),
                 }),
             ]
@@ -146,7 +146,7 @@ async fn test_interface_as_list_value() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode, BarNode);
+    struct App(Query, FooNode, BarNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 

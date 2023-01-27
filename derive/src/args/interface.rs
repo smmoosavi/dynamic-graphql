@@ -1,6 +1,5 @@
 use std::ops::Deref;
 
-use darling::util::Ignored;
 use darling::{FromAttributes, FromMeta, ToTokens};
 use proc_macro2::Ident;
 use quote::quote;
@@ -9,13 +8,11 @@ use syn::{Generics, ItemTrait, Meta, Path, Type};
 use crate::args::interface::others::impl_others_register;
 use crate::utils::attributes::Attributes;
 use crate::utils::common::{CommonArg, CommonField, CommonObject, GetArgs, GetFields};
-use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::{BaseFnArg, BaseItemTrait, BaseMethod, FromItemTrait};
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
-use crate::utils::with_arg::{SetArg, WithArg};
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, SetContext, WithContext};
 use crate::utils::with_doc::WithDoc;
@@ -113,7 +110,7 @@ impl MakeContext<InterfaceMethodArgContext> for InterfaceMethod {
     }
 }
 
-impl<A> MakeContext<InterfaceMethodContext> for Interface<A> {
+impl MakeContext<InterfaceMethodContext> for Interface {
     fn make_context(&self) -> InterfaceMethodContext {
         InterfaceMethodContext {
             rename_args: self.attrs.rename_args,
@@ -167,30 +164,19 @@ impl Attributes for InterfaceAttrs {
     const ATTRIBUTES: &'static [&'static str] = &["graphql"];
 }
 
-pub struct Interface<Arg = InterfaceArg>(
-    WithArg<Arg, WithAttributes<WithDoc<InterfaceAttrs>, BaseItemTrait<InterfaceMethod, Generics>>>,
+pub struct Interface(
+    WithAttributes<WithDoc<InterfaceAttrs>, BaseItemTrait<InterfaceMethod, Generics>>,
 );
 
-impl<Arg> Deref for Interface<Arg> {
-    type Target = WithArg<
-        Arg,
-        WithAttributes<WithDoc<InterfaceAttrs>, BaseItemTrait<InterfaceMethod, Generics>>,
-    >;
+impl Deref for Interface {
+    type Target = WithAttributes<WithDoc<InterfaceAttrs>, BaseItemTrait<InterfaceMethod, Generics>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl<Arg> SetArg<Arg> for Interface<Ignored> {
-    type Output = Interface<Arg>;
-
-    fn with_arg(self, arg: Arg) -> Self::Output {
-        Interface(self.0.with_arg(arg))
-    }
-}
-
-impl FromItemTrait for Interface<Ignored> {
+impl FromItemTrait for Interface {
     fn from_item_trait(item_trait: &mut ItemTrait) -> darling::Result<Self>
     where
         Self: Sized,
@@ -202,7 +188,7 @@ impl FromItemTrait for Interface<Ignored> {
     }
 }
 
-impl<A> CommonObject for Interface<A> {
+impl CommonObject for Interface {
     fn get_name(&self) -> Option<&str> {
         self.attrs.name.as_deref()
     }
@@ -224,7 +210,7 @@ impl<A> CommonObject for Interface<A> {
     }
 }
 
-impl<A> GetFields<InterfaceMethod> for Interface<A> {
+impl GetFields<InterfaceMethod> for Interface {
     fn get_fields(&self) -> darling::Result<&Vec<InterfaceMethod>> {
         Ok(&self.methods)
     }
@@ -269,59 +255,14 @@ impl CommonField for InterfaceMethod {
     }
 }
 
-fn define_new_fns_for_interface(input: &Interface) -> darling::Result<proc_macro2::TokenStream> {
-    let crate_name = get_crate_name();
-    let ident = &input.arg.ident;
-
-    let mark = quote!(<#ident <'static> as #crate_name::Interface>::MARK);
-    Ok(quote! {
-
-        impl #ident<'_> {
-            pub fn new_owned<'__dynamic_graphql_lifetime, T>(value: T) -> #ident<'__dynamic_graphql_lifetime>
-            where
-                T: #crate_name::InterfaceMark<{#mark}> + #crate_name::Object + #crate_name::ResolveOwned<'__dynamic_graphql_lifetime> + Send + Sync + 'static,
-            {
-                #ident(Default::default() ,#crate_name::AnyBox::new_owned(value, <T as #crate_name::Object>::NAME.to_string()))
-            }
-
-            pub fn new_borrowed<'__dynamic_graphql_lifetime, T>(value: &'__dynamic_graphql_lifetime T) -> #ident<'__dynamic_graphql_lifetime>
-            where
-                T: #crate_name::InterfaceMark<{#mark}> + #crate_name::Object + #crate_name::ResolveRef<'__dynamic_graphql_lifetime> + Send + Sync + 'static,
-            {
-                #ident(Default::default() ,#crate_name::AnyBox::new_borrowed(value, <T as #crate_name::Object>::NAME.to_string()))
-            }
-        }
-
-    })
-}
-
-fn define_resolve_owned_for_interface(
-    input: &Interface,
-) -> darling::Result<proc_macro2::TokenStream> {
-    let crate_name = get_crate_name();
-    let ident = &input.arg.ident;
-
-    Ok(quote! {
-        impl<'__dynamic_graphql_lifetime> #crate_name::ResolveOwned<'__dynamic_graphql_lifetime> for #ident<'__dynamic_graphql_lifetime> {
-            fn resolve_owned(self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'__dynamic_graphql_lifetime>>> {
-                self.1.resolve_owned(ctx)
-            }
-        }
-    })
-}
-
 impl ToTokens for Interface {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        let interface_struct = root::define_interface_struct(self).into_token_stream();
-        let resolve = define_resolve_owned_for_interface(self).into_token_stream();
-        let new_fns = define_new_fns_for_interface(self).into_token_stream();
+        let interface_struct = root::impl_interface(self).into_token_stream();
         let register = root::impl_register(self).into_token_stream();
         let register_other = impl_others_register(self).into_token_stream();
 
         tokens.extend(quote! {
             #interface_struct
-            #resolve
-            #new_fns
             #register
             #register_other
         });

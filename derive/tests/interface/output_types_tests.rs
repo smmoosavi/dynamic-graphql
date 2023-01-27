@@ -1,12 +1,12 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::FieldValue;
 use dynamic_graphql::{App, Interface, ResolvedObject, ResolvedObjectFields, SimpleObject};
+use dynamic_graphql::{FieldValue, Instance};
 
 use crate::schema_utils::normalize_schema;
 
 #[tokio::test]
 async fn interface_string_ref_types() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn id_ref(&self) -> &String;
         fn id_owned(&self) -> String;
@@ -15,7 +15,7 @@ async fn interface_string_ref_types() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(NodeInterface))]
+    #[graphql(impl(Node))]
     struct FooNode {
         other_field: String,
         #[graphql(skip)]
@@ -43,8 +43,8 @@ async fn interface_string_ref_types() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> NodeInterface {
-            NodeInterface::new_owned(FooNode {
+        async fn node(&self) -> Instance<dyn Node> {
+            Instance::new_owned(FooNode {
                 other_field: "foo".to_string(),
                 id: "foo id".to_string(),
             })
@@ -52,7 +52,7 @@ async fn interface_string_ref_types() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -130,7 +130,7 @@ async fn interface_object_ref_types() {
         value: String,
     }
 
-    #[Interface(BazInterface)]
+    #[Interface]
     trait Baz {
         fn bar_ref(&self) -> &Bar;
         fn bar_owned(&self) -> Bar;
@@ -139,7 +139,7 @@ async fn interface_object_ref_types() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(BazInterface))]
+    #[graphql(impl(Baz))]
     struct FooNode {
         other_field: String,
         #[graphql(skip)]
@@ -167,8 +167,8 @@ async fn interface_object_ref_types() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn baz(&self) -> BazInterface {
-            BazInterface::new_owned(FooNode {
+        async fn baz(&self) -> Instance<dyn Baz> {
+            Instance::new_owned(FooNode {
                 other_field: "foo".to_string(),
                 bar: Bar {
                     value: "bar".to_string(),
@@ -178,7 +178,7 @@ async fn interface_object_ref_types() {
     }
 
     #[derive(App)]
-    struct App(Query, BazInterface<'static>, FooNode, Bar);
+    struct App(Query, FooNode, Bar, dyn Baz);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();

@@ -1,5 +1,6 @@
 mod any_box;
 mod from_value;
+mod instance;
 mod registry;
 mod resolve;
 mod types;
@@ -13,12 +14,13 @@ pub use async_graphql::{
 
 pub use any_box::AnyBox;
 pub use from_value::FromValue;
+pub use instance::{Instance, RegisterInstance};
 pub use registry::Registry;
 pub use resolve::{ResolveOwned, ResolveRef};
 pub use types::{
     Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputObject, InputType,
-    Interface, InterfaceMark, InterfaceRoot, InterfaceTarget, Mutation, Object, OutputType,
-    ParentType, Register, RegisterFns, Scalar, Union,
+    Interface, InterfaceMark, InterfaceTarget, Mutation, Object, OutputType, ParentType, Register,
+    RegisterFns, Scalar, Union,
 };
 pub use upload::Upload;
 

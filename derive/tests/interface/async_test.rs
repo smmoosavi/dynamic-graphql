@@ -1,12 +1,12 @@
 use crate::schema_utils::normalize_schema;
 use async_trait::async_trait;
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::FieldValue;
+use dynamic_graphql::{FieldValue, Instance};
 use dynamic_graphql_derive::{App, Interface, ResolvedObject, ResolvedObjectFields, SimpleObject};
 
 #[tokio::test]
 async fn test_async_trait() {
-    #[Interface(FooInterface)]
+    #[Interface]
     #[async_trait]
     trait Foo {
         fn sync_value(&self) -> String;
@@ -14,7 +14,7 @@ async fn test_async_trait() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(FooInterface))]
+    #[graphql(impl(Foo))]
     struct FooValue;
 
     #[async_trait]
@@ -34,13 +34,13 @@ async fn test_async_trait() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn foo(&self) -> FooInterface {
-            FooInterface::new_owned(FooValue)
+        async fn foo(&self) -> Instance<dyn Foo> {
+            Instance::new_owned(FooValue)
         }
     }
 
     #[derive(App)]
-    struct App(Query, FooInterface<'static>, FooValue);
+    struct App(Query, FooValue, dyn Foo);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();

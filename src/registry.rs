@@ -76,7 +76,7 @@ impl Registry {
 }
 
 impl Registry {
-    pub fn register<T: Register + 'static>(mut self) -> Self {
+    pub fn register<T: Register + ?Sized + 'static>(mut self) -> Self {
         let ty = TypeId::of::<T>();
         if self.names.contains(&ty) {
             return self;

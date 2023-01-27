@@ -267,7 +267,7 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     let ident = &object.ident;
     let define_object = common::impl_define_object();
     let add_interfaces = common::get_interface_mark_code(object)?;
-    let implement = common::get_add_implement_code(object, &object.attrs.impls)?;
+    let implement = common::get_add_implement_code(object, object.get_impls())?;
 
     let description = common::object_description(object.get_doc()?.as_deref())?;
     let define_fields = common::get_define_fields_code(object)?;
@@ -307,6 +307,7 @@ impl ToTokens for SimpleObject {
         let impl_resolvers = impl_resolvers(self).into_token_stream();
         let impl_register = impl_register(self).into_token_stream();
         let impl_interface_mark = common::impl_interface_mark(self).into_token_stream();
+
         tokens.extend(quote! {
             #impl_object
             #impl_interface_mark

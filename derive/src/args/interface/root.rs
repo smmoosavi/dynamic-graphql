@@ -1,10 +1,8 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::args::common::{
-    get_field_name, get_field_type, get_type_name, ArgImplementor, FieldImplementor,
-};
-use crate::args::interface::{InterfaceMethod, InterfaceMethodArg};
+use crate::args::common::{get_field_name, get_field_type, get_type_name, FieldImplementor};
+use crate::args::interface::InterfaceMethod;
 use crate::args::{common, Interface};
 use crate::utils::common::{CommonObject, GetArgs};
 use crate::utils::crate_name::get_crate_name;
@@ -51,42 +49,18 @@ impl FieldImplementor for InterfaceMethod {
     }
 }
 
-impl ArgImplementor for InterfaceMethodArg {
-    fn get_self_arg_definition(&self) -> darling::Result<TokenStream> {
-        let arg_ident = common::get_arg_ident(self);
-
-        Ok(quote! {
-            let parent = ctx.parent_value.try_downcast_ref::<I>()?;
-            let #arg_ident = parent;
-        })
-    }
-
-    fn get_typed_arg_definition(&self) -> darling::Result<TokenStream> {
-        common::get_typed_arg_definition(self)
-    }
-
-    fn get_self_arg_usage(&self) -> darling::Result<TokenStream> {
-        common::get_self_arg_usage(self)
-    }
-
-    fn get_typed_arg_usage(&self) -> darling::Result<TokenStream> {
-        common::get_typed_arg_usage(self)
-    }
-}
-
-pub fn define_interface_struct(input: &Interface) -> darling::Result<TokenStream> {
+pub fn impl_interface(input: &Interface) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let name = get_type_name(input)?;
     let hash = get_interface_hash(&name);
 
-    let ident = &input.arg.ident;
+    let ident = &input.ident;
     Ok(quote! {
-        pub struct #ident<'__dynamic_graphql_lifetime, T=#crate_name::InterfaceRoot>(::std::marker::PhantomData<T>, #crate_name::AnyBox<'__dynamic_graphql_lifetime>);
-        impl #crate_name::GraphqlType for #ident<'static> {
+        impl #crate_name::GraphqlType for dyn #ident {
             const NAME: &'static str = #name;
         }
-        impl #crate_name::OutputType for #ident<'static> {}
-        impl #crate_name::Interface for #ident<'static> {
+        impl #crate_name::OutputType for dyn #ident {}
+        impl #crate_name::Interface for dyn #ident {
             const MARK: u64 = #hash;
         }
     })
@@ -94,14 +68,14 @@ pub fn define_interface_struct(input: &Interface) -> darling::Result<TokenStream
 
 pub fn impl_register(input: &Interface) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
-    let ident = &input.arg.ident;
+    let ident = &input.ident;
     let register_nested_types = common::get_nested_type_register_code(input).into_token_stream();
 
     let description = common::object_description(input.get_doc()?.as_deref())?;
     let define_fields = common::get_define_fields_code(input)?;
     let register_code = common::register_object_code();
     Ok(quote! {
-        impl #crate_name::Register for #ident <'static> {
+        impl #crate_name::Register for dyn #ident {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
 
                 #register_nested_types

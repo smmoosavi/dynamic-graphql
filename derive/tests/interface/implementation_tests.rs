@@ -5,13 +5,13 @@ use crate::schema_utils::normalize_schema;
 
 #[test]
 fn test_schema_simple_object_mark_with() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(SimpleObject)]
-    #[graphql(mark(NodeInterface))]
+    #[graphql(mark(Node))]
     struct FooNode {
         the_id: String,
     }
@@ -23,7 +23,7 @@ fn test_schema_simple_object_mark_with() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -56,13 +56,13 @@ fn test_schema_simple_object_mark_with() {
 
 #[test]
 fn test_schema_simple_object_with_implement() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> &String;
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(NodeInterface))]
+    #[graphql(impl(Node))]
     struct FooNode {
         some_field: String,
         #[graphql(skip)]
@@ -82,7 +82,7 @@ fn test_schema_simple_object_with_implement() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -117,13 +117,13 @@ fn test_schema_simple_object_with_implement() {
 
 #[test]
 fn test_schema_simple_object_with_error() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(SimpleObject)]
-    #[graphql(mark(NodeInterface))]
+    #[graphql(mark(Node))]
     struct FooNode {
         other_field: String,
     }
@@ -135,7 +135,7 @@ fn test_schema_simple_object_with_error() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish();
 
@@ -148,13 +148,13 @@ fn test_schema_simple_object_with_error() {
 
 #[test]
 fn test_schema_resolved_object_mark_with() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(mark(NodeInterface))]
+    #[graphql(mark(Node))]
     struct FooNode;
 
     #[ResolvedObjectFields]
@@ -170,7 +170,7 @@ fn test_schema_resolved_object_mark_with() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -204,13 +204,13 @@ fn test_schema_resolved_object_mark_with() {
 
 #[test]
 fn test_schema_resolved_object_with_implement() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(impl(NodeInterface))]
+    #[graphql(impl(Node))]
     struct FooNode;
 
     #[ResolvedObjectFields]
@@ -233,7 +233,7 @@ fn test_schema_resolved_object_with_implement() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -268,13 +268,13 @@ fn test_schema_resolved_object_with_implement() {
 
 #[test]
 fn test_schema_resolved_object_with_error() {
-    #[Interface(NodeInterface)]
+    #[Interface]
     trait Node {
         fn the_id(&self) -> String;
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(mark(NodeInterface))]
+    #[graphql(mark(Node))]
     struct FooNode;
 
     #[ResolvedObjectFields]
@@ -291,7 +291,7 @@ fn test_schema_resolved_object_with_error() {
     }
 
     #[derive(App)]
-    struct App(Query, NodeInterface<'static>, FooNode);
+    struct App(Query, FooNode, dyn Node);
 
     let schema = App::create_schema().finish();
 

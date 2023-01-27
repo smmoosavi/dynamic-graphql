@@ -14,7 +14,7 @@ pub fn get_interface_mark_code(obj: &impl CommonInterfaceAttrs) -> darling::Resu
         .map(|interface| {
             let path = &interface.path;
             quote! {
-                let object = object.implement(<#path as #crate_name::Interface>::NAME);
+                let object = object.implement(<dyn #path as #crate_name::Interface>::NAME);
             }
         })
         .collect();
@@ -30,6 +30,7 @@ pub fn get_add_implement_code(
     if implement.is_empty() {
         return Ok(quote! {});
     }
+    let crate_name = get_crate_name();
     let object_type = object.get_type()?;
 
     let (_, ty_generics, _) = object.get_generics()?.split_for_impl();
@@ -38,8 +39,9 @@ pub fn get_add_implement_code(
         .iter()
         .map(|interface| {
             let path = &interface.path;
+            let ty = quote!(#crate_name::Instance<dyn #path, #object_type #ty_generics>);
             Ok(quote! {
-                let registry = registry.register::<#path<#object_type #ty_generics>>();
+                let registry = registry.register::<#ty>();
             })
         })
         .map(|x| x.into_token_stream())
@@ -57,9 +59,8 @@ pub fn impl_interface_mark(object: &impl CommonInterfaceAttrs) -> darling::Resul
         .iter()
         .map(|interface| {
             let path = &interface.path;
-            let mark = quote!(<#path as #crate_name::Interface>::MARK);
             quote! {
-                impl #crate_name::InterfaceMark<{#mark}> for #object_ident {}
+                impl #crate_name::InterfaceMark<dyn #path> for #object_ident {}
             }
         })
         .collect();
@@ -68,13 +69,11 @@ pub fn impl_interface_mark(object: &impl CommonInterfaceAttrs) -> darling::Resul
         .get_impls()
         .iter()
         .map(|interface| {
-            let ident = &interface.path;
-            let mark = quote!(<#ident as #crate_name::Interface>::MARK);
-            Ok(quote! {
-                impl #crate_name::InterfaceMark<{#mark}> for #object_ident {}
-            })
+            let path = &interface.path;
+            quote! {
+                impl #crate_name::InterfaceMark<dyn #path> for #object_ident {}
+            }
         })
-        .map(|x| x.into_token_stream())
         .collect();
 
     Ok(quote! {
