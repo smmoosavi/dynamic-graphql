@@ -52,7 +52,7 @@ async fn interface_string_ref_types() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -178,7 +178,7 @@ async fn interface_object_ref_types() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, Bar, dyn Baz);
+    struct App(Query, FooNode, Bar);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();

@@ -6,6 +6,29 @@ use crate::utils::crate_name::get_crate_name;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::interface_attr::InterfaceImplAttr;
 
+pub fn get_register_interface_code(
+    obj: &impl CommonInterfaceAttrs,
+) -> darling::Result<TokenStream> {
+    let mut paths = Vec::new();
+    obj.get_marks().iter().for_each(|mark| {
+        paths.push(mark.path.clone());
+    });
+    obj.get_impls().iter().for_each(|impl_attr| {
+        paths.push(impl_attr.path.clone());
+    });
+    let codes: Vec<_> = paths
+        .iter()
+        .map(|path| {
+            quote! {
+                let registry = registry.register::<dyn #path>();
+            }
+        })
+        .collect();
+    Ok(quote! {
+        #(#codes)*
+    })
+}
+
 pub fn get_interface_mark_code(obj: &impl CommonInterfaceAttrs) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let implements: Vec<TokenStream> = obj

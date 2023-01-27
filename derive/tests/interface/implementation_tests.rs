@@ -23,7 +23,7 @@ fn test_schema_simple_object_mark_with() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -82,7 +82,7 @@ fn test_schema_simple_object_with_implement() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -135,7 +135,7 @@ fn test_schema_simple_object_with_error() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish();
 
@@ -170,7 +170,7 @@ fn test_schema_resolved_object_mark_with() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -233,7 +233,7 @@ fn test_schema_resolved_object_with_implement() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -291,7 +291,7 @@ fn test_schema_resolved_object_with_error() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish();
 

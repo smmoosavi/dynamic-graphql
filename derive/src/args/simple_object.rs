@@ -4,7 +4,7 @@ use quote::quote;
 use syn::{Generics, Path};
 
 use crate::args::common;
-use crate::args::common::FieldImplementor;
+use crate::args::common::{get_register_interface_code, FieldImplementor};
 use crate::utils::common::{
     CommonField, CommonInterfaceAttrs, CommonObject, GetArgs, GetFields, EMPTY_ARGS,
 };
@@ -267,6 +267,7 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     let ident = &object.ident;
     let define_object = common::impl_define_object();
     let add_interfaces = common::get_interface_mark_code(object)?;
+    let register_interface_code = get_register_interface_code(object)?;
     let implement = common::get_add_implement_code(object, object.get_impls())?;
 
     let description = common::object_description(object.get_doc()?.as_deref())?;
@@ -278,6 +279,8 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     Ok(quote! {
         impl #impl_generics #crate_name::Register for #ident #ty_generics #where_clause {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+
+                #register_interface_code
 
                 #register_nested_types
 

@@ -38,7 +38,7 @@ async fn interface_as_output_value_for_simple_object_with_implement() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -124,7 +124,7 @@ async fn interface_as_output_value_for_simple_object_with_mark_with() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -217,7 +217,7 @@ async fn interface_as_output_value_for_resolved_object_with_implement() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -307,7 +307,7 @@ async fn interface_as_output_value_for_resolved_object_with_mark_with() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();

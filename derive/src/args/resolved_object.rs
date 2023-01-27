@@ -5,7 +5,9 @@ use quote::ToTokens;
 use syn::{Generics, Path};
 
 use crate::args::common;
-use crate::args::common::{get_add_implement_code, get_interface_mark_code};
+use crate::args::common::{
+    get_add_implement_code, get_interface_mark_code, get_register_interface_code,
+};
 use crate::utils::common::{CommonInterfaceAttrs, CommonObject};
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::BaseStruct;
@@ -73,6 +75,7 @@ impl CommonInterfaceAttrs for ResolvedObject {
 fn impl_register_interface(object: &impl CommonInterfaceAttrs) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = object.get_ident();
+    let register_interface_code = get_register_interface_code(object)?;
     let add_interfaces = get_interface_mark_code(object)?;
     let implement = get_add_implement_code(object, object.get_impls())?;
     let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
@@ -80,6 +83,7 @@ fn impl_register_interface(object: &impl CommonInterfaceAttrs) -> darling::Resul
     Ok(quote! {
         impl #impl_generics #object_ident #ty_generics #where_clause {
             fn __register_interface(registry: #crate_name::Registry) -> #crate_name::Registry {
+                #register_interface_code
                 #implement
                 let registry = registry.update_object(
                     <Self as #crate_name::Object>::NAME,

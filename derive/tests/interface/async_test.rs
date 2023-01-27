@@ -40,7 +40,7 @@ async fn test_async_trait() {
     }
 
     #[derive(App)]
-    struct App(Query, FooValue, dyn Foo);
+    struct App(Query, FooValue);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();

@@ -316,7 +316,7 @@ async fn test_auto_register() {
     }
 
     #[derive(App)]
-    struct App(Query, dyn GetFoo);
+    struct App(Query);
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -402,7 +402,7 @@ mod in_mod {
         }
 
         #[derive(dynamic_graphql::App)]
-        pub struct App(Query, Bar, Foo, dyn super::node::Node);
+        pub struct App(Query, Bar, Foo);
 
         #[tokio::test]
         async fn test_in_mode() {

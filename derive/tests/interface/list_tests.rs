@@ -38,7 +38,7 @@ async fn test_interface_as_optional_value() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, dyn Node);
+    struct App(Query, FooNode);
 
     let schema = App::create_schema().finish().unwrap();
 
@@ -146,7 +146,7 @@ async fn test_interface_as_list_value() {
     }
 
     #[derive(App)]
-    struct App(Query, FooNode, BarNode, dyn Node);
+    struct App(Query, FooNode, BarNode);
 
     let schema = App::create_schema().finish().unwrap();
 
