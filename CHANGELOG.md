@@ -38,9 +38,86 @@ struct ExampleApp<'a>(ExampleQuery<'a>);
 struct ExampleApp(ExampleQuery<'static>);
 ```
 
+### Breaking Changes
+
+- remove support for mark object as interface with string `#[graphql(mark("Node"))]`
+- The way of defining the interface is changed. No need to define a new name (e.g., `NodeInterface`) for the interface and
+use it in `#[graphql(mark(NodeInterface))]` and `#[graphql(impl(NodeInterface))]` attributes. Now you can use
+`#[graphql(mark(Node))]` and `#[graphql(impl(Node))]` attributes.
+
+```rust
+// old
+#[Interface(NodeInterface)]
+trait Node {
+    fn id(&self) -> String;
+}
+
+#[derive(SimpleObject)]
+#[graphql(mark(NodeInterface))]
+struct Foo { id: String }
+
+#[derive(SimpleObject)]
+#[graphql(impl(NodeInterface))]
+struct Bar;
+
+impl Node for Bar {
+    fn id(&self) -> String {
+        "bar".to_string()
+    }
+}
+
+#[derive(ResolvedObject)]
+struct Query;
+
+#[ResolvedObjectFields]
+impl Query {
+    async fn node(&self, id: String) -> NodeInterface {
+        NodeInterface::new_owned(Foo { id })
+    }
+}
+```
+
+```rust
+// new
+#[Interface]
+trait Node {
+    fn id(&self) -> String;
+}
+
+#[derive(SimpleObject)]
+#[graphql(mark(Node))]
+struct Foo {
+    id: String,
+}
+
+#[derive(SimpleObject)]
+#[graphql(impl(Node))]
+struct Bar;
+
+impl Node for Bar {
+    fn id(&self) -> String {
+        "bar".to_string()
+    }
+}
+
+#[derive(ResolvedObject)]
+struct Query;
+
+#[ResolvedObjectFields]
+impl Query {
+    async fn node(&self, id: String) -> Instance<dyn Node> {
+        Instance::new_owned(Foo { id })
+    }
+}
+```
+
 ### Internal
 
 - every `GraphQLType` now should implement `Register` trait
+- remove `InterfaceRoot`
+- add `Instance` struct, `RegisterInstance` trait
+- remove constraint `Sized` from `T` in `Register<T>`
+- significant changes in `InterfaceMark` trait
 
 ### [0.3.0] - 2023-01-25
 
