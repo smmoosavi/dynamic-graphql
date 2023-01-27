@@ -1,21 +1,18 @@
-use crate::utils::meta_match::{MatchLitStr, MatchMetaPath, MatchNestedMetaList};
+use crate::utils::meta_match::{MatchMetaPath, MatchNestedMetaList};
 use darling::FromMeta;
 use proc_macro2::Span;
 use syn::spanned::Spanned;
 use syn::NestedMeta;
 
 #[derive(Debug, Clone)]
-pub enum InterfaceMarkAttr {
-    MarkAs(String, Span),
-    MarkWith(syn::Path, Span),
+pub struct InterfaceMarkAttr {
+    pub path: syn::Path,
+    pub span: Span,
 }
 
 impl Spanned for InterfaceMarkAttr {
     fn span(&self) -> Span {
-        match self {
-            InterfaceMarkAttr::MarkAs(_, span) => *span,
-            InterfaceMarkAttr::MarkWith(_, span) => *span,
-        }
+        self.span
     }
 }
 
@@ -28,18 +25,6 @@ pub struct InterfaceImplAttr {
 impl Spanned for InterfaceImplAttr {
     fn span(&self) -> Span {
         self.span
-    }
-}
-
-struct MatchMarkAs(MatchLitStr);
-
-impl MatchNestedMetaList for MatchMarkAs {
-    fn match_nested_meta_list(list: &[NestedMeta]) -> Option<darling::Result<Self>>
-    where
-        Self: Sized,
-    {
-        let inner = <(MatchLitStr,)>::match_nested_meta_list(list);
-        inner.map(|r| r.map(|(r1,)| MatchMarkAs(r1)))
     }
 }
 
@@ -69,20 +54,15 @@ impl MatchNestedMetaList for MatchImplements {
 
 impl FromMeta for InterfaceMarkAttr {
     fn from_list(items: &[NestedMeta]) -> darling::Result<Self> {
-        let mark_with = MatchMarkWith::match_nested_meta_list(items);
+        let mark = MatchMarkWith::match_nested_meta_list(items);
 
-        if let Some(r) = mark_with {
-            return r.map(|r| {
-                let span = r.0.span();
-                InterfaceMarkAttr::MarkWith(r.0 .0, span)
-            });
-        }
-
-        let mark_as = MatchMarkAs::match_nested_meta_list(items);
-        if let Some(r) = mark_as {
-            return r.map(|r| {
-                let span = r.0.span();
-                InterfaceMarkAttr::MarkAs(r.0 .0, span)
+        if let Some(r) = mark {
+            return r.map(|mark| {
+                let span = mark.0.span();
+                InterfaceMarkAttr {
+                    path: mark.0 .0,
+                    span,
+                }
             });
         }
 

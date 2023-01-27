@@ -4,24 +4,17 @@ use quote::quote;
 use crate::utils::common::{CommonInterfaceAttrs, CommonObject};
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::error::IntoTokenStream;
-use crate::utils::interface_attr::{InterfaceImplAttr, InterfaceMarkAttr};
-use crate::utils::interface_hash::get_interface_hash;
+use crate::utils::interface_attr::InterfaceImplAttr;
 
 pub fn get_interface_mark_code(obj: &impl CommonInterfaceAttrs) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let implements: Vec<TokenStream> = obj
         .get_marks()
         .iter()
-        .map(|interface| match interface {
-            InterfaceMarkAttr::MarkAs(name, _) => {
-                quote! {
-                    let object = object.implement(#name);
-                }
-            }
-            InterfaceMarkAttr::MarkWith(path, _) => {
-                quote! {
-                    let object = object.implement(<#path as #crate_name::Interface>::NAME);
-                }
+        .map(|interface| {
+            let path = &interface.path;
+            quote! {
+                let object = object.implement(<#path as #crate_name::Interface>::NAME);
             }
         })
         .collect();
@@ -62,18 +55,11 @@ pub fn impl_interface_mark(object: &impl CommonInterfaceAttrs) -> darling::Resul
     let marks: Vec<_> = object
         .get_marks()
         .iter()
-        .map(|interface| match interface {
-            InterfaceMarkAttr::MarkAs(name, _) => {
-                let mark = get_interface_hash(name);
-                quote! {
-                    impl #crate_name::InterfaceMark<#mark> for #object_ident {}
-                }
-            }
-            InterfaceMarkAttr::MarkWith(path, _) => {
-                let mark = quote!(<#path as #crate_name::Interface>::MARK);
-                quote! {
-                    impl #crate_name::InterfaceMark<{#mark}> for #object_ident {}
-                }
+        .map(|interface| {
+            let path = &interface.path;
+            let mark = quote!(<#path as #crate_name::Interface>::MARK);
+            quote! {
+                impl #crate_name::InterfaceMark<{#mark}> for #object_ident {}
             }
         })
         .collect();
