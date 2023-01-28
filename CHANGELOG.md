@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### [0.4.0] - 2023-01-28
+
 ### Added
 
 - Automatic register used types.
@@ -205,7 +207,8 @@ struct AnotherType {}
 - change `FromValue` argument to `Result<dynamic::ValueAccessor>`
 - add `Output` associated type to `GetOutputTypeRef` and `GetInputTypeRef`
 
-[unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.3.0...main
+[unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.4.0...main
+[0.4.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.3.0...0.4.0
 [0.3.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.2.0...0.3.0
 [0.2.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.1.0...v0.1.1
