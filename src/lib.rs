@@ -10,7 +10,8 @@ mod upload;
 pub use async_graphql::dynamic;
 pub use async_graphql::dynamic::FieldValue;
 pub use async_graphql::{
-    Context, Error, MaybeUndefined, Name, Request, Result, UploadValue, Value, Variables, ID,
+    Context, Data, Error, Lookahead, MaybeUndefined, Name, Request, Result, UploadValue, Value,
+    Variables, ID,
 };
 
 pub use any_box::AnyBox;
