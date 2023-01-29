@@ -1,4 +1,5 @@
-use dynamic_graphql::{App, Interface, SimpleObject};
+use dynamic_graphql::{App, Interface, Object, SimpleObject};
+use dynamic_graphql_derive::{ExpandObject, ExpandObjectFields};
 
 use crate::schema_utils::normalize_schema;
 
@@ -343,6 +344,87 @@ async fn test_auto_register() {
                 }
 
                 type Query implements GetFoo {
+                  getFoo: Foo!
+                }
+
+                schema {
+                  query: Query
+                }
+
+            "#
+        ),
+    );
+}
+
+#[tokio::test]
+async fn test_auto_register_instance() {
+    #[derive(ExpandObject)]
+    struct WithName<'a, T>(&'a T)
+    where
+        T: GetFoo + Object + 'static;
+    #[ExpandObjectFields]
+    impl<'a, T> WithName<'a, T>
+    where
+        T: GetFoo + Object + 'static,
+    {
+        fn name(&self) -> String {
+            self.parent().get_name()
+        }
+    }
+
+    #[derive(SimpleObject)]
+    struct Bar {
+        id: String,
+    }
+
+    #[derive(SimpleObject)]
+    struct Foo {
+        id: String,
+    }
+    #[Interface]
+    #[graphql(auto_register(WithName))]
+    trait GetFoo {
+        fn get_foo(&self) -> Foo;
+        #[graphql(skip)]
+        fn get_name(&self) -> String;
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(impl(GetFoo))]
+    #[graphql(root)]
+    struct Query;
+
+    impl GetFoo for Query {
+        fn get_foo(&self) -> Foo {
+            Foo {
+                id: "foo".to_string(),
+            }
+        }
+        fn get_name(&self) -> String {
+            "name".to_string()
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+
+                type Foo {
+                  id: String!
+                }
+
+                interface GetFoo {
+                  getFoo: Foo!
+                }
+
+                type Query implements GetFoo {
+                  name: String!
                   getFoo: Foo!
                 }
 
