@@ -82,9 +82,6 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
         }
         impl #impl_generics #crate_name::OutputType for #object_ident #ty_generics #where_clause {}
         impl #impl_generics #crate_name::Object for #object_ident #ty_generics #where_clause {}
-        impl #impl_generics #crate_name::InterfaceTarget for #object_ident #ty_generics #where_clause {
-            const TARGET: &'static str = #name;
-        }
     })
 }
 

@@ -21,8 +21,8 @@ pub use registry::Registry;
 pub use resolve::{ResolveOwned, ResolveRef};
 pub use types::{
     Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputObject, InputType,
-    Interface, InterfaceMark, InterfaceTarget, Mutation, Object, OutputType, ParentType, Register,
-    RegisterFns, Scalar, Union,
+    Interface, InterfaceMark, Mutation, Object, OutputType, ParentType, Register, RegisterFns,
+    Scalar, Union,
 };
 pub use upload::Upload;
 

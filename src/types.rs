@@ -26,7 +26,7 @@ pub trait InputType: GraphqlType {
     const NAME: &'static str = <Self as GraphqlType>::NAME;
 }
 
-pub trait Object: OutputType + InterfaceTarget + ParentType {
+pub trait Object: OutputType + ParentType {
     const NAME: &'static str = <Self as OutputType>::NAME;
 }
 
@@ -49,10 +49,6 @@ pub trait Interface: OutputType {
 
 pub trait ParentType {
     type Type: Object;
-}
-
-pub trait InterfaceTarget {
-    const TARGET: &'static str;
 }
 
 pub trait InterfaceMark<T: Interface + ?Sized> {}

@@ -186,7 +186,7 @@ pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
 
         impl <T> #crate_name::RegisterInstance<dyn #ident, T> for dyn #ident
                                 where
-        T: #ident + #crate_name::InterfaceTarget + 'static,
+        T: #ident + #crate_name::Object + 'static,
         T: Send + Sync,
 
         {
@@ -196,7 +196,7 @@ pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
                 #( #auto_registers )*
                 #define_fields
                 registry.update_object(
-                    <T as #crate_name::InterfaceTarget>::TARGET,
+                    <T as #crate_name::Object>::NAME,
                     <dyn #ident as #crate_name::Interface>::NAME,
                     |object| {
                         #use_fields

@@ -1,6 +1,6 @@
 use crate::{
-    AnyBox, GraphqlType, Interface, InterfaceMark, InterfaceTarget, Object, OutputType, Register,
-    Registry, ResolveOwned, ResolveRef,
+    AnyBox, GraphqlType, Interface, InterfaceMark, Object, OutputType, Register, Registry,
+    ResolveOwned, ResolveRef,
 };
 use async_graphql::dynamic::FieldValue;
 use async_graphql::Context;
@@ -56,7 +56,7 @@ pub trait RegisterInstance<I, T>
 where
     I: ?Sized,
 
-    T: InterfaceTarget + 'static,
+    T: Object + 'static,
     T: Send + Sync,
 {
     #[inline]
@@ -70,7 +70,7 @@ where
     I: ?Sized,
     I: Interface + 'static,
     I: RegisterInstance<I, T>,
-    T: InterfaceTarget + 'static,
+    T: Object + 'static,
     T: Send + Sync,
 {
     #[inline]
