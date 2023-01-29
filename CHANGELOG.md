@@ -7,6 +7,47 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Add `#[graphql(register())]` attribute to register types manually
+
+```rust
+#[derive(SimpleObject)]
+struct Foo { value: String }
+
+#[derive(SimpleObject)]
+#[graphql(register(Foo))] // also register `Foo` type when Example is registered
+struct Example { value: String }
+```
+
+- Add `#[graphql(auto_register())]` attribute to register types automatically for each instance of interface
+
+```rust
+/// call `registry.register::<Foo<T>>()` for each instance of `Node` (T)
+#[Interface]
+#[graphql(auto_register(Foo))]
+trait Node {
+    fn id(&self) -> String;
+}
+```
+
+- Add schema `data` to share data between schema definitions and execution time
+
+```rust
+// schema definition time
+fn register(mut registry: Registry) -> Registry {
+    let my_data: &mut MyStruct = registry.data.get_mut_or_default();
+}
+// execution time
+fn some_fn(ctx: &Context<'_>){
+    let my_data = ctx.get_schema_data().get::<MyStruct>(); // Option<&MyStruct>
+}
+```
+
+### Internal
+
+- Remove the `InterfaceTarget` trait
+
 ### [0.4.0] - 2023-01-28
 
 ### Added
