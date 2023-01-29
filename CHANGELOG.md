@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.1] - 2023-01-29
+
+### Fixed
+
+- dependency `dynamic-graphql-derive` version
+
 ## [0.5.0] - 2023-01-29
 
 ### Added
@@ -250,7 +256,8 @@ struct AnotherType {}
 - change `FromValue` argument to `Result<dynamic::ValueAccessor>`
 - add `Output` associated type to `GetOutputTypeRef` and `GetInputTypeRef`
 
-[unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.0...main
+[unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.1...main
+[0.5.1]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.4.0...0.5.0
 [0.4.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.3.0...0.4.0
 [0.3.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.2.0...0.3.0
