@@ -1,6 +1,6 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
-use syn::Type;
+use syn::{parse_quote, Type};
 
 use crate::args::common::{ArgImplementor, FieldImplementor};
 use crate::args::interface::{InterfaceMethod, InterfaceMethodArg};
@@ -176,6 +176,12 @@ pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
 
     let use_fields = use_fields_code(input).into_token_stream();
 
+    let mut auto_registers = input.attrs.auto_registers.clone();
+    auto_registers.iter_mut().for_each(|register| {
+        // add <T> to last segment
+        register.with_generic(parse_quote!(T));
+    });
+
     Ok(quote! {
 
         impl <T> #crate_name::RegisterInstance<dyn #ident, T> for dyn #ident
@@ -187,6 +193,7 @@ pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
             fn register_instance(registry: #crate_name::Registry) -> #crate_name::Registry
 
             {
+                #( #auto_registers )*
                 #define_fields
                 registry.update_object(
                     <T as #crate_name::InterfaceTarget>::TARGET,

@@ -9,6 +9,7 @@ use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{BaseEnum, NewtypeVariant};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
+use crate::utils::register_attr::RegisterAttr;
 use crate::utils::type_utils::{get_owned_type, get_type_path};
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
@@ -20,6 +21,10 @@ from_variant!(UnionItem, NewtypeVariant,);
 pub struct UnionAttrs {
     #[darling(default)]
     name: Option<String>,
+
+    #[darling(default, multiple)]
+    #[darling(rename = "register")]
+    pub registers: Vec<RegisterAttr>,
 }
 
 from_derive_input!(
@@ -207,9 +212,13 @@ fn impl_register(union: &Union) -> darling::Result<TokenStream> {
         .into_token_stream();
     let define_items = define_items(union).into_token_stream();
     let register_union = common::register_object_code().into_token_stream();
+    let register_attr = &union.attrs.registers;
+
     Ok(quote! {
         impl #create_name::Register for #ident {
             fn register(registry: #create_name::Registry) -> #create_name::Registry {
+
+                #( #register_attr )*
 
                 #register_nested_types
 

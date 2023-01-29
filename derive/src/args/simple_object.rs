@@ -14,6 +14,7 @@ use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::interface_attr::{InterfaceImplAttr, InterfaceMarkAttr};
 use crate::utils::macros::*;
+use crate::utils::register_attr::RegisterAttr;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
@@ -59,6 +60,10 @@ pub struct SimpleObjectAttrs {
 
     #[darling(default)]
     pub rename_fields: Option<RenameRule>,
+
+    #[darling(default, multiple)]
+    #[darling(rename = "register")]
+    pub registers: Vec<RegisterAttr>,
 
     #[darling(default, multiple)]
     #[darling(rename = "mark")]
@@ -275,10 +280,13 @@ fn impl_register(object: &SimpleObject) -> darling::Result<TokenStream> {
     let register_object_code = common::register_object_code();
 
     let (impl_generics, ty_generics, where_clause) = object.generics.split_for_impl();
+    let register_attr = &object.attrs.registers;
 
     Ok(quote! {
         impl #impl_generics #crate_name::Register for #ident #ty_generics #where_clause {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+
+                #( #register_attr )*
 
                 #register_interface_code
 

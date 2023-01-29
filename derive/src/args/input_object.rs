@@ -9,6 +9,7 @@ use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{BaseStruct, NamedField};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
+use crate::utils::register_attr::RegisterAttr;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, WithContext};
@@ -45,6 +46,10 @@ pub struct InputObjectAttrs {
 
     #[darling(default)]
     pub rename_fields: Option<RenameRule>,
+
+    #[darling(default, multiple)]
+    #[darling(rename = "register")]
+    pub registers: Vec<RegisterAttr>,
 }
 
 from_derive_input!(
@@ -156,9 +161,14 @@ fn impl_register(object: &InputObject) -> darling::Result<TokenStream> {
     let define_fields = get_define_fields(object)?;
     let description = common::object_description(object.get_doc()?.as_deref())?;
     let register_object_code = common::register_object_code();
+
+    let register_attr = &object.attrs.registers;
+
     Ok(quote! {
         impl #crate_name::Register for #ident {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+
+                #( #register_attr )*
 
                 #register_nested_types
 

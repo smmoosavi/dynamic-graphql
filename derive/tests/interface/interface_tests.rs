@@ -294,10 +294,16 @@ fn test_schema_with_skip() {
 #[tokio::test]
 async fn test_auto_register() {
     #[derive(SimpleObject)]
+    struct Bar {
+        id: String,
+    }
+
+    #[derive(SimpleObject)]
     struct Foo {
         id: String,
     }
     #[Interface]
+    #[graphql(register(Bar))]
     trait GetFoo {
         fn get_foo(&self) -> Foo;
     }
@@ -324,6 +330,9 @@ async fn test_auto_register() {
         normalize_schema(&sdl),
         normalize_schema(
             r#"
+                type Bar {
+                  id: String!
+                }
 
                 type Foo {
                   id: String!

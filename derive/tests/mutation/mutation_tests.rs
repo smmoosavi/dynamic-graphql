@@ -244,6 +244,16 @@ async fn test_query() {
 
 #[tokio::test]
 async fn test_auto_register() {
+    #[derive(SimpleObject)]
+    struct Foo {
+        foo: String,
+    }
+
+    #[derive(SimpleObject)]
+    struct Bar {
+        bar: String,
+    }
+
     #[derive(InputObject)]
     struct ExampleInput {
         foo: String,
@@ -255,9 +265,11 @@ async fn test_auto_register() {
     }
 
     #[derive(MutationRoot)]
+    #[graphql(register(Foo))]
     struct MutationRoot;
 
     #[derive(Mutation)]
+    #[graphql(register(Bar))]
     struct MyMutation(MutationRoot);
 
     #[MutationFields]
@@ -282,6 +294,9 @@ async fn test_auto_register() {
         normalize_schema(&sdl),
         normalize_schema(
             r#"
+                type Bar {
+                  bar: String!
+                }
 
                 input ExampleInput {
                   foo: String!
@@ -289,6 +304,10 @@ async fn test_auto_register() {
 
                 type ExamplePayload {
                   bar: String!
+                }
+
+                type Foo {
+                  foo: String!
                 }
 
                 type MutationRoot {

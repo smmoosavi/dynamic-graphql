@@ -14,6 +14,7 @@ use crate::utils::derive_types::BaseStruct;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::interface_attr::{InterfaceImplAttr, InterfaceMarkAttr};
 use crate::utils::macros::*;
+use crate::utils::register_attr::RegisterAttr;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
 
@@ -25,6 +26,10 @@ pub struct ResolvedObjectAttrs {
 
     #[darling(default)]
     pub name: Option<String>,
+
+    #[darling(default, multiple)]
+    #[darling(rename = "register")]
+    pub registers: Vec<RegisterAttr>,
 
     #[darling(default, multiple)]
     #[darling(rename = "mark")]
@@ -160,6 +165,23 @@ fn impl_graphql_doc_fn(object: &impl CommonObject) -> darling::Result<TokenStrea
     })
 }
 
+fn impl_registers_fn(object: &ResolvedObject) -> darling::Result<TokenStream> {
+    let crate_name = get_crate_name();
+    let object_ident = object.get_ident();
+    let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
+
+    let register_attr = &object.attrs.registers;
+
+    Ok(quote! {
+        impl #impl_generics #object_ident #ty_generics #where_clause {
+            fn __registers(registry: #crate_name::Registry) -> #crate_name::Registry {
+                #( #register_attr )*
+                registry
+            }
+        }
+    })
+}
+
 fn impl_register_fns_trait(obj: &impl CommonInterfaceAttrs) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
@@ -174,6 +196,7 @@ fn impl_register_fns_trait(obj: &impl CommonInterfaceAttrs) -> darling::Result<T
                 #object_ident #turbofish_generics ::__register_interface,
                 #object_ident #turbofish_generics ::__register_root,
                 #object_ident #turbofish_generics ::__register_doc,
+                #object_ident #turbofish_generics ::__registers,
             ];
         }
     })
@@ -189,8 +212,10 @@ impl ToTokens for ResolvedObject {
         let register_root = impl_register_root(self).into_token_stream();
         let impl_register_extras = impl_register_fns_trait(self).into_token_stream();
         let impl_interface_mark = common::impl_interface_mark(self).into_token_stream();
+        let impl_registers_fn = impl_registers_fn(self).into_token_stream();
 
         tokens.extend(quote! {
+            #impl_registers_fn
             #impl_object
             #impl_interface_mark
             #impl_resolve_owned

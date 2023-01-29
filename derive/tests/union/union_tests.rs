@@ -378,6 +378,12 @@ async fn test_query_owned() {
 #[tokio::test]
 async fn test_auto_register() {
     #[derive(SimpleObject)]
+    struct Bird {
+        name: String,
+        fly: bool,
+    }
+
+    #[derive(SimpleObject)]
     struct Cat {
         name: String,
         life: i32,
@@ -391,6 +397,7 @@ async fn test_auto_register() {
 
     #[allow(dead_code)]
     #[derive(Union)]
+    #[graphql(register(Bird))]
     enum Animal {
         Dog(Dog),
         Cat(Cat),
@@ -414,6 +421,11 @@ async fn test_auto_register() {
             r#"
 
             union Animal = Dog | Cat
+
+            type Bird {
+              name: String!
+              fly: Boolean!
+            }
 
             type Cat {
               name: String!

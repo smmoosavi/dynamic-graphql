@@ -11,6 +11,7 @@ use crate::utils::deprecation::Deprecation;
 use crate::utils::derive_types::{BaseEnum, UnitVariant};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
+use crate::utils::register_attr::RegisterAttr;
 use crate::utils::remove_attr::RemoteAttr;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
@@ -48,6 +49,10 @@ pub struct EnumAttributes {
 
     #[darling(default)]
     pub remote: Option<RemoteAttr>,
+
+    #[darling(default, multiple)]
+    #[darling(rename = "register")]
+    pub registers: Vec<RegisterAttr>,
 }
 
 from_derive_input!(
@@ -344,11 +349,12 @@ fn impl_register(enm: &Enum) -> darling::Result<TokenStream> {
     let items = register_items(enm)?;
     let description = common::object_description(enm.get_doc()?.as_deref())?;
     let register_union = common::register_object_code();
-
+    let register_attr = &enm.attrs.registers;
     // todo rename object to enm
     Ok(quote! {
         impl #crate_name::Register for #enum_ident {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+                #( #register_attr )*
                 let object = #crate_name::dynamic::Enum::new(<#enum_ident as #crate_name::GraphqlType>::NAME);
                 #description
                 #items

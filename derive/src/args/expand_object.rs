@@ -8,12 +8,17 @@ use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{NewtypeStruct, TupleField};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
+use crate::utils::register_attr::RegisterAttr;
 use crate::utils::type_utils::{get_owned_type, get_ref_type_lifetime};
 use crate::utils::with_attributes::WithAttributes;
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
-pub struct ExpandObjectAttrs {}
+pub struct ExpandObjectAttrs {
+    #[darling(default, multiple)]
+    #[darling(rename = "register")]
+    pub registers: Vec<RegisterAttr>,
+}
 
 from_derive_input!(ExpandObject, WithAttributes<ExpandObjectAttrs, NewtypeStruct<TupleField, Generics>>);
 
@@ -87,15 +92,35 @@ fn impl_from(object: &ExpandObject) -> darling::Result<TokenStream> {
     })
 }
 
+fn impl_registers_fn(object: &ExpandObject) -> darling::Result<TokenStream> {
+    let crate_name = get_crate_name();
+    let object_ident = object.get_ident();
+    let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
+
+    let register_attr = &object.attrs.registers;
+
+    Ok(quote! {
+        impl #impl_generics #object_ident #ty_generics #where_clause {
+            fn __registers(registry: #crate_name::Registry) -> #crate_name::Registry {
+                #( #register_attr )*
+                registry
+            }
+        }
+    })
+}
+
 fn impl_register_fns_trait(object: &impl CommonObject) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = object.get_ident();
 
     let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
+    let turbofish_generics = ty_generics.as_turbofish();
 
     let q = quote! {
         impl #impl_generics #crate_name::RegisterFns for #object_ident #ty_generics #where_clause {
-            const REGISTER_FNS: &'static [fn (registry: #crate_name::Registry) -> #crate_name::Registry] = &[];
+            const REGISTER_FNS: &'static [fn (registry: #crate_name::Registry) -> #crate_name::Registry] = &[
+                #object_ident #turbofish_generics ::__registers,
+            ];
         }
     };
 
@@ -107,8 +132,10 @@ impl ToTokens for ExpandObject {
         let impl_expand_object = impl_expand_object(self).into_token_stream();
         let impl_parent = impl_parent(self).into_token_stream();
         let impl_from = impl_from(self).into_token_stream();
-        let impl_register_fns_trait = impl_register_fns_trait(self).unwrap();
+        let impl_register_fns_trait = impl_register_fns_trait(self).into_token_stream();
+        let impl_registers_fn = impl_registers_fn(self).into_token_stream();
         tokens.extend(quote! {
+            #impl_registers_fn
             #impl_expand_object
             #impl_from
             #impl_parent

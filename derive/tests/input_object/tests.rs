@@ -2,6 +2,7 @@ use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::App;
 use dynamic_graphql::{FieldValue, InputObject};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql_derive::SimpleObject;
 
 use crate::schema_utils::normalize_schema;
 
@@ -313,12 +314,18 @@ async fn test_rename_fields() {
 
 #[tokio::test]
 async fn test_auto_register() {
+    #[derive(SimpleObject)]
+    struct Foo {
+        pub string: String,
+    }
+
     #[derive(InputObject)]
     struct FooInput {
         pub string: String,
     }
 
     #[derive(InputObject)]
+    #[graphql(register(Foo))]
     struct ExampleInput {
         pub foo: FooInput,
     }
@@ -347,6 +354,10 @@ async fn test_auto_register() {
 
             input ExampleInput {
               foo: FooInput!
+            }
+
+            type Foo {
+              string: String!
             }
 
             input FooInput {

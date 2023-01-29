@@ -338,6 +338,18 @@ fn test_rename_fields() {
 #[tokio::test]
 async fn test_auto_register() {
     #[derive(SimpleObject)]
+    struct Foo {
+        pub string: String,
+    }
+
+    #[derive(SimpleObject)]
+    struct Bar {
+        pub foo: Foo,
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(register(Foo))]
+    #[graphql(register(Bar))]
     struct Example {
         pub string: String,
     }
@@ -357,7 +369,13 @@ async fn test_auto_register() {
         normalize_schema(&sdl),
         normalize_schema(
             r#"
+            type Bar {
+              foo: Foo!
+            }
             type Example {
+              string: String!
+            }
+            type Foo {
               string: String!
             }
             type Query {

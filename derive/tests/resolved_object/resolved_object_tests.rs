@@ -395,6 +395,11 @@ async fn test_async_query() {
 #[tokio::test]
 async fn test_auto_register() {
     #[derive(SimpleObject)]
+    struct Foo {
+        value: String,
+    }
+
+    #[derive(SimpleObject)]
     struct Example {
         value: String,
     }
@@ -404,6 +409,7 @@ async fn test_auto_register() {
     }
 
     #[derive(ResolvedObject)]
+    #[graphql(register(Foo))]
     #[graphql(root)]
     struct Query;
 
@@ -430,6 +436,10 @@ async fn test_auto_register() {
                 }
 
                 input ExampleInput {
+                  value: String!
+                }
+
+                type Foo {
                   value: String!
                 }
 

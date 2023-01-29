@@ -12,6 +12,7 @@ use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::{BaseFnArg, BaseItemTrait, BaseMethod, FromItemTrait};
 use crate::utils::macros::*;
+use crate::utils::register_attr::RegisterAttr;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::{MakeContext, SetContext, WithContext};
@@ -158,6 +159,14 @@ pub struct InterfaceAttrs {
 
     #[darling(default)]
     pub rename_args: Option<RenameRule>,
+
+    #[darling(default, multiple)]
+    #[darling(rename = "register")]
+    pub registers: Vec<RegisterAttr>,
+
+    #[darling(default, multiple)]
+    #[darling(rename = "auto_register")]
+    pub auto_registers: Vec<RegisterAttr>,
 }
 
 impl Attributes for InterfaceAttrs {

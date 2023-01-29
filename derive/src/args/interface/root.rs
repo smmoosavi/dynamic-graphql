@@ -74,9 +74,14 @@ pub fn impl_register(input: &Interface) -> darling::Result<TokenStream> {
     let description = common::object_description(input.get_doc()?.as_deref())?;
     let define_fields = common::get_define_fields_code(input)?;
     let register_code = common::register_object_code();
+
+    let register_attr = &input.attrs.registers;
+
     Ok(quote! {
         impl #crate_name::Register for dyn #ident {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+
+                #( #register_attr )*
 
                 #register_nested_types
 

@@ -22,7 +22,9 @@ fn test_impl_expand_object_with_generic() {
     }
 
     #[derive(ExpandObject)]
-    struct ExpandExample<'a, T: GetName + Object>(&'a T);
+    struct ExpandExample<'a, T>(&'a T)
+    where
+        T: GetName + Object + 'static;
 
     assert_eq!(
         <<ExpandExample<Example> as ParentType>::Type as Object>::NAME,
@@ -61,7 +63,7 @@ fn test_impl_expand_object_with_where() {
     #[derive(ExpandObject)]
     struct ExpandExample<'a, T>(&'a T)
     where
-        T: GetName + Object;
+        T: GetName + Object + 'static;
 
     assert_eq!(
         <<ExpandExample<Example> as ParentType>::Type as Object>::NAME,
@@ -112,7 +114,7 @@ fn test_schema_with_generic() {
     #[derive(ExpandObject)]
     struct WithName<'a, T>(&'a T)
     where
-        T: GetName + Object;
+        T: GetName + Object + 'static;
 
     #[ExpandObjectFields]
     impl<'a, T> WithName<'a, T>
@@ -253,7 +255,7 @@ async fn test_query_with_generic() {
     #[derive(ExpandObject)]
     struct WithName<'a, T>(&'a T)
     where
-        T: GetName + Object;
+        T: GetName + Object + 'static;
 
     #[ExpandObjectFields]
     impl<'a, T> WithName<'a, T>
@@ -330,7 +332,7 @@ async fn test_query_with_generic_and_args() {
     #[derive(ExpandObject)]
     struct WithGreeting<'a, T>(&'a T)
     where
-        T: GetGreeting + Object;
+        T: GetGreeting + Object + 'static;
 
     #[ExpandObjectFields]
     impl<'a, T> WithGreeting<'a, T>
