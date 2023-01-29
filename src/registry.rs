@@ -1,3 +1,4 @@
+use crate::data::SchemaData;
 use crate::dynamic;
 use crate::Register;
 use std::any::TypeId;
@@ -5,6 +6,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::mem;
 
 pub struct Registry {
+    pub data: SchemaData,
     root: Option<String>,
     mutation: Option<String>,
     objects: HashMap<String, dynamic::Object>,
@@ -23,6 +25,7 @@ impl Default for Registry {
 impl Registry {
     pub fn new() -> Self {
         Self {
+            data: Default::default(),
             root: None,
             mutation: None,
             objects: Default::default(),
@@ -126,8 +129,10 @@ impl Registry {
             .objects
             .into_iter()
             .fold(schema, |schema, (_, object)| schema.register(object));
-        self.types
+        let schema = self
+            .types
             .into_iter()
-            .fold(schema, |schema, object| schema.register(object))
+            .fold(schema, |schema, object| schema.register(object));
+        schema.data(self.data)
     }
 }
