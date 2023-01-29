@@ -266,8 +266,7 @@ impl FieldImplementor for ExpandObjectFieldsMethod {
     }
 
     fn get_resolve_code(&self) -> darling::Result<TokenStream> {
-        let ty = self.get_type()?;
-        common::resolve_value_code(ty)
+        common::resolve_value_code()
     }
 
     fn get_field_argument_definition(&self) -> darling::Result<TokenStream> {

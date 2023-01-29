@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Internal
+
+- add `Resolve` trait to unify `ResolveOwned` and `ResolveRef`
+
 ## [0.5.1] - 2023-01-29
 
 ### Fixed

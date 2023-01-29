@@ -1,5 +1,5 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, FieldValue, OutputType, ResolveOwned, ResolveRef, SimpleObject};
+use dynamic_graphql::{App, FieldValue, OutputType, ResolveRef, SimpleObject};
 
 use crate::schema_utils::normalize_schema;
 
@@ -17,7 +17,7 @@ async fn test_query_simple_generic() {
     where
         F: OutputType + 'static,
         F: Send + Sync,
-        F: for<'a> ResolveRef<'a> + for<'a> ResolveOwned<'a>,
+        F: for<'a> ResolveRef<'a>,
     {
         pub field: F,
     }

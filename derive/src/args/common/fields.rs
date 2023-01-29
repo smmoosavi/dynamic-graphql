@@ -7,7 +7,7 @@ use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::rename_rule::calc_field_name;
-use crate::utils::type_utils::{get_owned_type, is_type_ref, is_type_slice, is_type_str};
+use crate::utils::type_utils::get_owned_type;
 
 pub fn get_field_type(field: &impl CommonField) -> darling::Result<&syn::Type> {
     let ty = field.get_type()?;
@@ -118,23 +118,10 @@ where
     })
 }
 
-pub fn resolve_value_code(ty: &syn::Type) -> darling::Result<TokenStream> {
+pub fn resolve_value_code() -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
 
-    let is_str = is_type_str(ty);
-    let is_slice = is_type_slice(ty);
-    let is_ref = is_type_ref(ty);
-    let is_owned = !is_ref;
-
-    let resolve_ref = quote! {
-        #crate_name::ResolveRef::resolve_ref(value, &ctx)
-    };
-    let resolve_owned = quote! {
-        #crate_name::ResolveOwned::resolve_owned(value, &ctx)
-    };
-    if is_owned || is_str || is_slice {
-        Ok(resolve_owned)
-    } else {
-        Ok(resolve_ref)
-    }
+    Ok(quote! {
+        #crate_name::Resolve::resolve(value, &ctx)
+    })
 }

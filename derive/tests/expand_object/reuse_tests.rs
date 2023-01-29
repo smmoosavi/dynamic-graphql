@@ -1,7 +1,7 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{
     App, ExpandObject, ExpandObjectFields, FieldValue, Object, OutputType, ResolveOwned,
-    ResolveRef, SimpleObject,
+    SimpleObject,
 };
 
 use crate::schema_utils::normalize_schema;
@@ -21,7 +21,7 @@ async fn test_base_list() {
         T: Object,
         T::Item: OutputType + 'static,
         T::Item: Send + Sync,
-        T::Item: for<'r> ResolveRef<'r> + for<'r> ResolveOwned<'r>;
+        T::Item: for<'r> ResolveOwned<'r>;
 
     #[ExpandObjectFields]
     impl<'a, T> BaseList<'a, T>
@@ -31,7 +31,7 @@ async fn test_base_list() {
         T: Object,
         T::Item: OutputType + 'static,
         T::Item: Send + Sync,
-        T::Item: for<'r> ResolveRef<'r> + for<'r> ResolveOwned<'r>,
+        T::Item: for<'r> ResolveOwned<'r>,
     {
         fn items(&self, page: Option<i32>) -> Vec<T::Item> {
             self.0.items(page.unwrap_or(0))

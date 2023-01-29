@@ -1,157 +1,183 @@
 use crate::{Context, Error, FieldValue, Result, ID};
 use std::borrow::Cow;
 
-pub trait ResolveOwned<'a> {
-    fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>>;
-}
-
 pub trait ResolveRef<'a> {
     fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>>;
 }
 
-// implement ResolveOwned for Cow<'a, T>
-impl<'a, T: ResolveOwned<'a> + ResolveRef<'a> + Clone> ResolveOwned<'a> for Cow<'a, T> {
-    fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        match self {
-            Cow::Owned(value) => value.resolve_owned(ctx),
-            Cow::Borrowed(value) => value.resolve_ref(ctx),
-        }
-    }
+pub trait ResolveOwned<'a> {
+    fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>>;
 }
 
-impl<'a, T: ResolveOwned<'a>> ResolveOwned<'a> for Option<T> {
-    #[inline]
-    fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        match self {
-            None => Ok(None),
-            Some(value) => value.resolve_owned(ctx),
-        }
-    }
+pub trait Resolve<'a> {
+    fn resolve(self, ctx: &Context) -> Result<Option<FieldValue<'a>>>;
 }
 
-impl<'a, T: ResolveRef<'a>> ResolveRef<'a> for Option<T> {
-    #[inline]
-    fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        match self {
-            None => Ok(None),
-            Some(value) => value.resolve_ref(ctx),
-        }
-    }
-}
-
-impl<'a, T, E> ResolveOwned<'a> for Result<T, E>
-where
-    T: ResolveOwned<'a>,
-    E: Into<Error>,
-{
-    #[inline]
-    fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        match self {
-            Ok(value) => value.resolve_owned(ctx),
-            Err(err) => Err(err.into()),
-        }
-    }
-}
-
-impl<'a, T, E> ResolveRef<'a> for Result<T, E>
-where
-    T: ResolveRef<'a>,
-    E: Into<Error> + Clone,
-{
-    #[inline]
-    fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        match self {
-            Ok(value) => value.resolve_ref(ctx),
-            Err(err) => Err(err.clone().into()),
-        }
-    }
-}
-
-impl<'a, T: ResolveOwned<'a>> ResolveOwned<'a> for Vec<T> {
-    fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        let iter = self.into_iter();
-        let items = iter.enumerate().map(|(index, item)| {
-            let ctx_idx = ctx.with_index(index);
-            match item.resolve_owned(&ctx_idx) {
-                Ok(Some(value)) => value,
-                _ => FieldValue::NULL,
+mod resolve_ref {
+    use super::*;
+    // &Option<T>
+    impl<'a, T> ResolveRef<'a> for Option<T>
+    where
+        &'a T: Resolve<'a> + 'a,
+    {
+        #[inline]
+        fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            match self {
+                None => Ok(None),
+                Some(value) => value.resolve(ctx),
             }
-        });
-        Ok(Some(FieldValue::list(items)))
+        }
+    }
+
+    // &Vec<T>
+    impl<'a, T> ResolveRef<'a> for Vec<T>
+    where
+        &'a T: Resolve<'a> + 'a,
+    {
+        fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            let iter = self.iter();
+            let items = iter.enumerate().map(|(index, item)| {
+                let ctx_idx = ctx.with_index(index);
+                match item.resolve(&ctx_idx) {
+                    Ok(Some(value)) => value,
+                    _ => FieldValue::NULL,
+                }
+            });
+            Ok(Some(FieldValue::list(items)))
+        }
+    }
+    // &ID
+    impl<'a> ResolveRef<'a> for ID {
+        #[inline]
+        fn resolve_ref(&self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            Ok(Some(FieldValue::value(self.0.to_owned())))
+        }
+    }
+    // &str
+    impl<'a> ResolveRef<'a> for &str {
+        #[inline]
+        fn resolve_ref(&'a self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            Ok(Some(FieldValue::value(self.to_string())))
+        }
     }
 }
-
-impl<'a, T: ResolveRef<'a>> ResolveRef<'a> for Vec<T> {
-    fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        let iter = self.iter();
-        let items = iter.enumerate().map(|(index, item)| {
-            let ctx_idx = ctx.with_index(index);
-            match item.resolve_ref(&ctx_idx) {
-                Ok(Some(value)) => value,
-                _ => FieldValue::NULL,
+mod resolve_own {
+    use super::*;
+    // &T
+    impl<'a, T> ResolveOwned<'a> for &'a T
+    where
+        T: ResolveRef<'a>,
+    {
+        #[inline]
+        fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            self.resolve_ref(ctx)
+        }
+    }
+    // Cow<'a, T>
+    impl<'a, T> ResolveOwned<'a> for Cow<'a, T>
+    where
+        T: Clone + Resolve<'a>,
+        &'a T: Resolve<'a>,
+    {
+        #[inline]
+        fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            match self {
+                Cow::Owned(value) => value.resolve(ctx),
+                Cow::Borrowed(value) => value.resolve(ctx),
             }
-        });
-        Ok(Some(FieldValue::list(items)))
+        }
     }
-}
-
-impl<'a, T: ResolveRef<'a>> ResolveOwned<'a> for &'a [T] {
-    fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        let iter = self.iter();
-        let items = iter.enumerate().map(|(index, item)| {
-            let ctx_idx = ctx.with_index(index);
-            match item.resolve_ref(&ctx_idx) {
-                Ok(Some(value)) => value,
-                _ => FieldValue::NULL,
+    // Option<T>
+    impl<'a, T> ResolveOwned<'a> for Option<T>
+    where
+        T: Resolve<'a>,
+    {
+        #[inline]
+        fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            match self {
+                None => Ok(None),
+                Some(value) => value.resolve(ctx),
             }
-        });
-        Ok(Some(FieldValue::list(items)))
+        }
     }
-}
 
-impl<'a, T: ResolveRef<'a>> ResolveRef<'a> for &'a [T] {
-    fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        let iter = self.iter();
-        let items = iter.enumerate().map(|(index, item)| {
-            let ctx_idx = ctx.with_index(index);
-            match item.resolve_ref(&ctx_idx) {
-                Ok(Some(value)) => value,
-                _ => FieldValue::NULL,
+    // Result<T, E>
+    impl<'a, T, E> ResolveOwned<'a> for Result<T, E>
+    where
+        T: Resolve<'a>,
+        E: Into<Error>,
+    {
+        #[inline]
+        fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            match self {
+                Ok(value) => value.resolve(ctx),
+                Err(err) => Err(err.into()),
             }
-        });
-        Ok(Some(FieldValue::list(items)))
+        }
+    }
+
+    // Vec<T>
+    impl<'a, T> ResolveOwned<'a> for Vec<T>
+    where
+        T: Resolve<'a>,
+    {
+        fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            let iter = self.into_iter();
+            let items = iter.enumerate().map(|(index, item)| {
+                let ctx_idx = ctx.with_index(index);
+                match item.resolve(&ctx_idx) {
+                    Ok(Some(value)) => value,
+                    _ => FieldValue::NULL,
+                }
+            });
+            Ok(Some(FieldValue::list(items)))
+        }
+    }
+
+    // &[T]
+    impl<'a, T> ResolveOwned<'a> for &'a [T]
+    where
+        &'a T: Resolve<'a>,
+    {
+        fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            let iter = self.iter();
+            let items = iter.enumerate().map(|(index, item)| {
+                let ctx_idx = ctx.with_index(index);
+                match item.resolve(&ctx_idx) {
+                    Ok(Some(value)) => value,
+                    _ => FieldValue::NULL,
+                }
+            });
+            Ok(Some(FieldValue::list(items)))
+        }
+    }
+
+    // ID
+    impl<'a> ResolveOwned<'a> for ID {
+        #[inline]
+        fn resolve_owned(self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            Ok(Some(FieldValue::value(self.0)))
+        }
+    }
+
+    // &str
+    impl<'a> ResolveOwned<'a> for &str {
+        #[inline]
+        fn resolve_owned(self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            Ok(Some(FieldValue::value(self.to_string())))
+        }
     }
 }
 
-impl<'a> ResolveOwned<'a> for ID {
+// T
+impl<'a, T: ResolveOwned<'a>> Resolve<'a> for T {
     #[inline]
-    fn resolve_owned(self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        Ok(Some(FieldValue::value(self.0)))
+    fn resolve(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+        self.resolve_owned(ctx)
     }
 }
 
-impl<'a> ResolveRef<'a> for ID {
-    #[inline]
-    fn resolve_ref(&'a self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        Ok(Some(FieldValue::value(self.0.to_owned())))
-    }
-}
-
-impl<'a> ResolveOwned<'a> for &str {
-    #[inline]
-    fn resolve_owned(self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        Ok(Some(FieldValue::value(self.to_string())))
-    }
-}
-
-impl<'a> ResolveRef<'a> for &str {
-    #[inline]
-    fn resolve_ref(&'a self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
-        Ok(Some(FieldValue::value(self.to_owned())))
-    }
-}
-
-macro_rules! output_value {
+macro_rules! resolves {
     ($($ty:ident),*) => {
         $(
             impl <'a> ResolveOwned<'a> for $ty {
@@ -162,7 +188,7 @@ macro_rules! output_value {
             }
             impl <'a> ResolveRef<'a> for $ty {
                 #[inline]
-                fn resolve_ref(&'a self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+                fn resolve_ref(&self, _ctx: &Context) -> Result<Option<FieldValue<'a>>> {
                     Ok(Some(FieldValue::value(self.to_owned())))
                 }
             }
@@ -170,4 +196,4 @@ macro_rules! output_value {
     };
 }
 
-output_value!(String, i8, i16, i32, i64, isize, u8, u16, u32, u64, usize, bool, f32, f64);
+resolves!(String, i8, i16, i32, i64, isize, u8, u16, u32, u64, usize, bool, f32, f64);

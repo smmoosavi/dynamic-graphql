@@ -19,7 +19,7 @@ pub use data::GetSchemaData;
 pub use from_value::FromValue;
 pub use instance::{Instance, RegisterInstance};
 pub use registry::Registry;
-pub use resolve::{ResolveOwned, ResolveRef};
+pub use resolve::{Resolve, ResolveOwned, ResolveRef};
 pub use types::{
     Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputObject, InputType,
     Interface, InterfaceMark, Mutation, Object, OutputType, ParentType, Register, RegisterFns,
