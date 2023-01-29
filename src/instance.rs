@@ -1,6 +1,6 @@
 use crate::{
     AnyBox, GraphqlType, Interface, InterfaceMark, Object, OutputType, Register, Registry,
-    ResolveOwned, ResolveRef,
+    ResolveOwned,
 };
 use async_graphql::dynamic::FieldValue;
 use async_graphql::Context;
@@ -22,7 +22,7 @@ where
     #[inline]
     pub fn new_owned<'a, T>(value: T) -> Instance<'a, I>
     where
-        T: InterfaceMark<I> + Object + ResolveOwned<'a> + Send + Sync + 'static,
+        T: InterfaceMark<I> + Object + Send + Sync + 'static,
     {
         Instance {
             _interface: std::marker::PhantomData,
@@ -31,9 +31,9 @@ where
         }
     }
     #[inline]
-    pub fn new_borrowed<'a, T>(value: &'a T) -> Instance<'a, I>
+    pub fn new_borrowed<T>(value: &T) -> Instance<I>
     where
-        T: InterfaceMark<I> + Object + ResolveRef<'a> + Send + Sync + 'static,
+        T: InterfaceMark<I> + Object + Send + Sync + 'static,
     {
         Instance {
             _interface: std::marker::PhantomData,

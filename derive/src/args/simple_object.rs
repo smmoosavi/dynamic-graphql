@@ -168,7 +168,7 @@ impl FieldImplementor for SimpleObjectField {
     fn get_resolve_code(&self) -> darling::Result<TokenStream> {
         let crate_name = get_crate_name();
         Ok(quote! {
-            #crate_name::ResolveRef::resolve_ref(value, &ctx)
+            #crate_name::Resolve::resolve(value, &ctx)
         })
     }
 

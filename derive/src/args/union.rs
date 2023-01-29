@@ -111,7 +111,7 @@ fn define_resolve_owned_match_pattern(
     let variant_type = get_type_path(&item.fields.ty)?;
     Ok(quote! {
         #union_ident::#variant_ident(value) => {
-            #crate_name::ResolveOwned::resolve_owned(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::Object>::NAME)))
+            #crate_name::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::Object>::NAME)))
         }
     })
 }
@@ -147,7 +147,7 @@ fn define_resolve_ref_match_pattern(
     let variant_type = get_type_path(&item.fields.ty)?;
     Ok(quote! {
         #union_ident::#variant_ident(value) => {
-            #create_name::ResolveRef::resolve_ref(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #create_name::Object>::NAME)))
+            #create_name::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #create_name::Object>::NAME)))
         }
     })
 }
