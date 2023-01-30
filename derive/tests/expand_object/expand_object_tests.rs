@@ -395,6 +395,70 @@ async fn test_query() {
 }
 
 #[tokio::test]
+async fn test_ref_query() {
+    #[derive(SimpleObject)]
+    struct Example {
+        field: String,
+    }
+
+    #[derive(ExpandObject)]
+    struct ExampleQuery<'a>(&'a Query);
+
+    #[ExpandObjectFields]
+    impl<'a> ExampleQuery<'a> {
+        fn example(&self) -> Option<&'a Example> {
+            self.parent().example.as_ref()
+        }
+    }
+
+    #[derive(App)]
+    struct ExampleApp(Example, ExampleQuery<'static>);
+
+    #[derive(SimpleObject)]
+    #[graphql(root)]
+    struct Query {
+        foo: String,
+        #[graphql(skip)]
+        example: Option<Example>,
+    }
+
+    #[derive(App)]
+    struct App(Query, ExampleApp);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let query = r#"
+        query {
+            example {
+                field
+            }
+        }
+    "#;
+
+    let root = Query {
+        foo: "foo".to_string(),
+        example: Some(Example {
+            field: "field".to_string(),
+        }),
+    };
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!(
+            {
+                "example": {
+                    "field": "field"
+                }
+            }
+        )
+    );
+}
+
+#[tokio::test]
 async fn test_auto_register() {
     #[derive(SimpleObject)]
     struct Foo {

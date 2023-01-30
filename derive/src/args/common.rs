@@ -293,6 +293,7 @@ where
     let codes = types
         .into_iter()
         .map(|ty| {
+            let ty = replace_type_generics_with_static(ty);
             quote! {
                 let registry = registry.register::<#ty>();
             }
