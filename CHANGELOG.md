@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.4] - 2023-01-30
+
 - remove `.parent()` from expand object
 - improve lifetimes for `ExpandObjectFields`
 
@@ -271,7 +273,8 @@ struct AnotherType {}
 - change `FromValue` argument to `Result<dynamic::ValueAccessor>`
 - add `Output` associated type to `GetOutputTypeRef` and `GetInputTypeRef`
 
-[unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.3...main
+[unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.4...main
+[0.5.4]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.0...v0.5.1
