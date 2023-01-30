@@ -3,6 +3,24 @@ use crate::{Register, Registry};
 use async_graphql::{dynamic, MaybeUndefined};
 use std::borrow::Cow;
 
+impl<T> Register for &T
+where
+    T: Register + 'static,
+{
+    fn register(registry: Registry) -> Registry {
+        registry.register::<T>()
+    }
+}
+
+impl<'a, T> GraphqlType for &'a T
+where
+    T: GraphqlType + 'static,
+{
+    const NAME: &'static str = <T as GraphqlType>::NAME;
+}
+
+impl<T: OutputType + 'static> OutputType for &T {}
+
 impl<T: Register + Clone + 'static> Register for Cow<'_, T> {
     fn register(registry: Registry) -> Registry {
         registry.register::<T>()
@@ -91,15 +109,6 @@ macro_rules! int_output_value {
 }
 
 int_output_value!(i8, i16, i32, i64, isize, u8, u16, u32, u64, usize);
-
-impl<T> Register for &T
-where
-    T: Register + 'static,
-{
-    fn register(registry: Registry) -> Registry {
-        registry.register::<T>()
-    }
-}
 
 impl<T> Register for Option<T>
 where

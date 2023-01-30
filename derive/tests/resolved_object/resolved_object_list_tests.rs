@@ -2,6 +2,7 @@ use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql_derive::SimpleObject;
 
 use crate::schema_utils::normalize_schema;
 
@@ -23,6 +24,9 @@ async fn test_list() {
         fn strings_ref(&self) -> &[String] {
             &self.strings
         }
+        fn ref_items(&self) -> Vec<&String> {
+            self.strings.iter().collect()
+        }
     }
 
     #[derive(App)]
@@ -39,6 +43,7 @@ async fn test_list() {
               strings: [String!]!
               newStrings: [String!]!
               stringsRef: [String!]!
+              refItems: [String!]!
             }
             schema {
               query: Query
@@ -52,6 +57,7 @@ async fn test_list() {
             strings
             newStrings
             stringsRef
+            refItems
         }
     "#;
 
@@ -64,7 +70,7 @@ async fn test_list() {
 
     assert_eq!(
         data,
-        serde_json::json!({ "strings": [ "Hello" ], "newStrings": [ "Hello" ], "stringsRef": [ "Hello" ] })
+        serde_json::json!({ "strings": [ "Hello" ], "newStrings": [ "Hello" ], "stringsRef": [ "Hello" ], "refItems": [ "Hello" ] })
     );
 
     let root = Query { strings: vec![] };
@@ -74,7 +80,106 @@ async fn test_list() {
 
     assert_eq!(
         data,
-        serde_json::json!({ "strings": [], "newStrings": [], "stringsRef": [] })
+        serde_json::json!({ "strings": [], "newStrings": [], "stringsRef": [], "refItems": [] })
+    );
+}
+
+#[tokio::test]
+async fn test_list_object() {
+    #[derive(SimpleObject)]
+    struct Item {
+        pub name: String,
+    }
+
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query {
+        pub items: Vec<Item>,
+    }
+    #[ResolvedObjectFields]
+    impl Query {
+        fn items(&self) -> &Vec<Item> {
+            &self.items
+        }
+        fn new_items(&self) -> Vec<Item> {
+            if self.items.is_empty() {
+                vec![]
+            } else {
+                vec![Item {
+                    name: "Hello".to_string(),
+                }]
+            }
+        }
+        fn items_ref(&self) -> &[Item] {
+            &self.items
+        }
+        fn ref_items(&self) -> Vec<&Item> {
+            self.items.iter().collect()
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+                type Item {
+                  name: String!
+                }
+                type Query {
+                  items: [Item!]!
+                  newItems: [Item!]!
+                  itemsRef: [Item!]!
+                  refItems: [Item!]!
+                }
+                schema {
+                  query: Query
+                }
+            "#
+        ),
+    );
+
+    let query = r#"
+        query {
+            items { name }
+            newItems { name }
+            itemsRef { name }
+            refItems { name }
+        }
+    "#;
+
+    let root = Query {
+        items: vec![Item {
+            name: "Hello".to_string(),
+        }],
+    };
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "items": [ { "name": "Hello" } ],
+            "newItems": [ { "name": "Hello" } ],
+            "itemsRef": [ { "name": "Hello" } ],
+            "refItems": [ { "name": "Hello" } ]
+        })
+    );
+
+    let root = Query { items: vec![] };
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!({ "items": [], "newItems": [], "itemsRef": [], "refItems": [] })
     );
 }
 

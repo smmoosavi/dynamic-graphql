@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Internal
+
+- Improve `Register`, `GraphqlType`, `OutputType` for refs
+
 ## [0.5.2] - 2023-01-30
 
 ### Internal
