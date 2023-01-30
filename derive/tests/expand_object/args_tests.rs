@@ -289,7 +289,7 @@ async fn test_query() {
             format!("Hello {}", name)
         }
         fn self_hello(&self, name: String) -> String {
-            format!("{} {}", self.parent().greeting, name)
+            format!("{} {}", self.0.greeting, name)
         }
         fn with_ctx(ctx: &Context, name: String) -> String {
             let greeter = ctx.data::<String>().unwrap();

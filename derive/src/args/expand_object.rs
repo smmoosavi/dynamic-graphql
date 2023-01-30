@@ -9,7 +9,7 @@ use crate::utils::derive_types::{NewtypeStruct, TupleField};
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
 use crate::utils::register_attr::RegisterAttr;
-use crate::utils::type_utils::{get_owned_type, get_ref_type_lifetime};
+use crate::utils::type_utils::get_owned_type;
 use crate::utils::with_attributes::WithAttributes;
 
 #[derive(FromAttributes, Debug, Clone)]
@@ -59,21 +59,6 @@ fn impl_expand_object(object: &ExpandObject) -> darling::Result<TokenStream> {
         }
         impl #impl_generics #crate_name::ExpandObject for #object_ident #ty_generics #where_clause {
             const NAME: &'static str = #name;
-        }
-    })
-}
-
-fn impl_parent(object: &ExpandObject) -> darling::Result<TokenStream> {
-    let crate_name = get_crate_name();
-    let object_ident = &object.ident;
-    let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
-    let lifetime = get_ref_type_lifetime(&object.data.ty);
-
-    Ok(quote! {
-        impl #impl_generics #object_ident #ty_generics #where_clause {
-                fn parent(&self) -> & #lifetime <Self as #crate_name::ParentType>::Type {
-                    self.0
-                }
         }
     })
 }
@@ -130,7 +115,7 @@ fn impl_register_fns_trait(object: &impl CommonObject) -> darling::Result<TokenS
 impl ToTokens for ExpandObject {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let impl_expand_object = impl_expand_object(self).into_token_stream();
-        let impl_parent = impl_parent(self).into_token_stream();
+        // let impl_parent = impl_parent(self).into_token_stream();
         let impl_from = impl_from(self).into_token_stream();
         let impl_register_fns_trait = impl_register_fns_trait(self).into_token_stream();
         let impl_registers_fn = impl_registers_fn(self).into_token_stream();
@@ -138,7 +123,7 @@ impl ToTokens for ExpandObject {
             #impl_registers_fn
             #impl_expand_object
             #impl_from
-            #impl_parent
+            // #impl_parent
             #impl_register_fns_trait
         });
     }

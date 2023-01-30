@@ -368,7 +368,7 @@ async fn test_auto_register_instance() {
         T: GetFoo + Object + 'static,
     {
         fn name(&self) -> String {
-            self.parent().get_name()
+            self.0.get_name()
         }
     }
 

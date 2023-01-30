@@ -26,9 +26,9 @@ fn test_impl_expand_object() {
         field: "field".to_string(),
     };
     let expand_example = ExpandExample(&example);
-    assert_eq!(expand_example.parent().field, "field");
+    assert_eq!(expand_example.0.field, "field");
     let expand_example: ExpandExample = (&example).into();
-    assert_eq!(expand_example.parent().field, "field");
+    assert_eq!(expand_example.0.field, "field");
 }
 
 #[test]
@@ -407,7 +407,7 @@ async fn test_ref_query() {
     #[ExpandObjectFields]
     impl<'a> ExampleQuery<'a> {
         fn example(&self) -> Option<&'a Example> {
-            self.parent().example.as_ref()
+            self.0.example.as_ref()
         }
     }
 

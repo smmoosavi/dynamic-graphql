@@ -38,10 +38,10 @@ fn test_impl_expand_object_with_generic() {
         field: "field".to_string(),
     };
     let expand_example = ExpandExample(&example);
-    assert_eq!(expand_example.parent().field, "field");
-    assert_eq!(expand_example.parent().get_name(), "foo");
+    assert_eq!(expand_example.0.field, "field");
+    assert_eq!(expand_example.0.get_name(), "foo");
     let expand_example: ExpandExample<Example> = (&example).into();
-    assert_eq!(expand_example.parent().field, "field");
+    assert_eq!(expand_example.0.field, "field");
 }
 
 #[test]
@@ -77,10 +77,10 @@ fn test_impl_expand_object_with_where() {
         field: "field".to_string(),
     };
     let expand_example = ExpandExample(&example);
-    assert_eq!(expand_example.parent().field, "field");
-    assert_eq!(expand_example.parent().get_name(), "foo");
+    assert_eq!(expand_example.0.field, "field");
+    assert_eq!(expand_example.0.get_name(), "foo");
     let expand_example: ExpandExample<Example> = (&example).into();
-    assert_eq!(expand_example.parent().field, "field");
+    assert_eq!(expand_example.0.field, "field");
 }
 
 #[test]
@@ -122,7 +122,7 @@ fn test_schema_with_generic() {
         T: GetName + Object + 'static,
     {
         fn name(&self) -> String {
-            self.parent().get_name()
+            self.0.get_name()
         }
     }
 
@@ -263,7 +263,7 @@ async fn test_query_with_generic() {
         T: GetName + Object + 'static,
     {
         fn name(&self) -> String {
-            self.parent().get_name()
+            self.0.get_name()
         }
     }
 
@@ -340,7 +340,7 @@ async fn test_query_with_generic_and_args() {
         T: GetGreeting + Object + 'static,
     {
         fn hello(&self, name: String) -> String {
-            let greeting = self.parent().get_greeting();
+            let greeting = self.0.get_greeting();
             format!("{} {}", greeting, name)
         }
     }

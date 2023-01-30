@@ -95,7 +95,7 @@ mod expand_example {
     #[ExpandObjectFields]
     impl ExampleAnotherValue<'_> {
         fn another_value(&self) -> i32 {
-            let value: &AnotherValue = get_data(&self.parent().data).unwrap();
+            let value: &AnotherValue = get_data(&self.0.data).unwrap();
             value.0
         }
     }
