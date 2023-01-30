@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.2] - 2023-01-30
+
 ### Internal
 
 - add `Resolve` trait to unify `ResolveOwned` and `ResolveRef`
@@ -261,6 +263,7 @@ struct AnotherType {}
 - add `Output` associated type to `GetOutputTypeRef` and `GetInputTypeRef`
 
 [unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.1...main
+[0.5.2]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.4.0...0.5.0
 [0.4.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.3.0...0.4.0
