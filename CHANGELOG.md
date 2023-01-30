@@ -7,6 +7,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+- remove `.parent()` from expand object
+- improve lifetimes for `ExpandObjectFields`
+
 ## [0.5.3] - 2023-01-30
 
 ### Internal
