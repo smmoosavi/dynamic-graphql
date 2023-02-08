@@ -7,7 +7,6 @@ pub mod docs_utils;
 pub mod error;
 pub mod impl_block;
 pub mod interface_attr;
-pub mod interface_hash;
 pub mod macros;
 pub mod meta_match;
 pub mod register_attr;

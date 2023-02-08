@@ -44,7 +44,6 @@ pub trait Union: OutputType {
 
 pub trait Interface: OutputType {
     const NAME: &'static str = <Self as OutputType>::NAME;
-    const MARK: u64;
 }
 
 pub trait ParentType {
