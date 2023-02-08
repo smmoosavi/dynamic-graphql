@@ -99,8 +99,8 @@ fn impl_register_interface(object: &impl CommonInterfaceAttrs) -> darling::Resul
                 #register_interface_code
                 #implement
                 let registry = registry.update_object(
-                    <Self as #crate_name::Object>::get_object_type_name().as_ref(),
-                    <Self as #crate_name::Object>::get_object_type_name().as_ref(),
+                    <Self as #crate_name::Object>::get_object_type_name().as_str(),
+                    <Self as #crate_name::Object>::get_object_type_name().as_str(),
                     |object| {
                         #add_interfaces
                         object
@@ -120,7 +120,7 @@ fn impl_register_root(object: &ResolvedObject) -> darling::Result<TokenStream> {
     let root = if object.attrs.root {
         let crate_name = get_crate_name();
         Some(quote! {
-            let registry = registry.set_root(<Self as #crate_name::Object>::get_object_type_name().as_ref());
+            let registry = registry.set_root(<Self as #crate_name::Object>::get_object_type_name().as_str());
         })
     } else {
         None
@@ -149,8 +149,8 @@ fn impl_graphql_doc_fn(object: &impl CommonObject) -> darling::Result<TokenStrea
                 Some(quote! {
 
                         let registry = registry.update_object(
-                            <Self as #crate_name::Object>::get_object_type_name().as_ref(),
-                            <Self as #crate_name::Object>::get_object_type_name().as_ref(),
+                            <Self as #crate_name::Object>::get_object_type_name().as_str(),
+                            <Self as #crate_name::Object>::get_object_type_name().as_str(),
                             |object| {
                                 object.description(#doc)
                             },

@@ -37,7 +37,7 @@ pub fn get_interface_mark_code(obj: &impl CommonInterfaceAttrs) -> darling::Resu
         .map(|interface| {
             let path = &interface.path;
             quote! {
-                let object = object.implement(<dyn #path as #crate_name::Interface>::get_interface_type_name());
+                let object = object.implement(<dyn #path as #crate_name::Interface>::get_interface_type_name().as_str());
             }
         })
         .collect();

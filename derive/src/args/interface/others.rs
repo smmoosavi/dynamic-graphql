@@ -195,11 +195,11 @@ pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
                 #( #auto_registers )*
                 #define_fields
                 registry.update_object(
-                    <T as #crate_name::Object>::get_object_type_name().as_ref(),
-                    <dyn #ident as #crate_name::Interface>::get_interface_type_name().as_ref(),
+                    <T as #crate_name::Object>::get_object_type_name().as_str(),
+                    <dyn #ident as #crate_name::Interface>::get_interface_type_name().as_str(),
                     |object| {
                         #use_fields
-                        let object = object.implement(<dyn #ident as #crate_name::Interface>::get_interface_type_name().as_ref());
+                        let object = object.implement(<dyn #ident as #crate_name::Interface>::get_interface_type_name().as_str());
                         object
                     },
                 )

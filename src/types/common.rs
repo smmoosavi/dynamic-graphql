@@ -16,7 +16,7 @@ impl<'a, T> TypeName for &'a T
 where
     T: TypeName + 'static,
 {
-    fn get_type_name() -> Cow<'static, str> {
+    fn get_type_name() -> String {
         <T as TypeName>::get_type_name()
     }
 }
@@ -29,7 +29,7 @@ impl<T: Register + Clone + 'static> Register for Cow<'_, T> {
     }
 }
 impl<T: OutputTypeName + Clone + 'static> TypeName for Cow<'_, T> {
-    fn get_type_name() -> Cow<'static, str> {
+    fn get_type_name() -> String {
         <T as TypeName>::get_type_name()
     }
 }
@@ -38,7 +38,7 @@ impl<T: OutputTypeName + Clone + 'static> OutputTypeName for Cow<'_, T> {}
 
 impl Register for String {}
 impl TypeName for String {
-    fn get_type_name() -> Cow<'static, str> {
+    fn get_type_name() -> String {
         dynamic::TypeRef::STRING.into()
     }
 }
@@ -49,7 +49,7 @@ impl OutputTypeName for String {}
 
 impl Register for &str {}
 impl TypeName for &str {
-    fn get_type_name() -> Cow<'static, str> {
+    fn get_type_name() -> String {
         dynamic::TypeRef::STRING.into()
     }
 }
@@ -59,7 +59,7 @@ impl InputTypeName for &str {}
 impl OutputTypeName for &str {}
 
 impl TypeName for str {
-    fn get_type_name() -> Cow<'static, str> {
+    fn get_type_name() -> String {
         dynamic::TypeRef::STRING.into()
     }
 }
@@ -71,7 +71,7 @@ impl OutputTypeName for str {}
 
 impl Register for async_graphql::ID {}
 impl TypeName for async_graphql::ID {
-    fn get_type_name() -> Cow<'static, str> {
+    fn get_type_name() -> String {
         dynamic::TypeRef::ID.into()
     }
 }
@@ -82,7 +82,7 @@ impl OutputTypeName for async_graphql::ID {}
 
 impl Register for bool {}
 impl TypeName for bool {
-    fn get_type_name() -> Cow<'static, str> {
+    fn get_type_name() -> String {
         dynamic::TypeRef::BOOLEAN.into()
     }
 }
@@ -93,7 +93,7 @@ impl OutputTypeName for bool {}
 
 impl Register for f32 {}
 impl TypeName for f32 {
-    fn get_type_name() -> Cow<'static, str> {
+    fn get_type_name() -> String {
         dynamic::TypeRef::FLOAT.into()
     }
 }
@@ -104,7 +104,7 @@ impl OutputTypeName for f32 {}
 
 impl Register for f64 {}
 impl TypeName for f64 {
-    fn get_type_name() -> Cow<'static, str> {
+    fn get_type_name() -> String {
         dynamic::TypeRef::FLOAT.into()
     }
 }
@@ -118,7 +118,7 @@ macro_rules! int_output_value {
         $(
             impl Register for $t {}
             impl TypeName for $t {
-                fn get_type_name() -> Cow<'static, str> {
+                fn get_type_name() -> String {
                     dynamic::TypeRef::INT.into()
                 }
             }
@@ -237,7 +237,7 @@ impl<T: OutputTypeName> GetOutputTypeRef for T {
     type Output = TypeRefInner;
     #[inline]
     fn get_output_type_ref() -> Self::Output {
-        TypeRefInner::NamedNN(T::get_output_type_name().to_string())
+        TypeRefInner::NamedNN(T::get_output_type_name())
     }
 }
 
@@ -270,7 +270,7 @@ impl<T: InputTypeName> GetInputTypeRef for T {
     type Output = TypeRefInner;
     #[inline]
     fn get_input_type_ref() -> Self::Output {
-        TypeRefInner::NamedNN(T::get_input_type_name().to_string())
+        TypeRefInner::NamedNN(T::get_input_type_name())
     }
 }
 

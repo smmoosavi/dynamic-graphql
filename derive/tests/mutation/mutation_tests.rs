@@ -4,7 +4,6 @@ use dynamic_graphql::{
     SimpleObject, TypeName,
 };
 use dynamic_graphql_derive::InputObject;
-use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -154,7 +153,7 @@ fn test_schema_with_type_name() {
     struct MutationRoot;
 
     impl TypeName for MutationRoot {
-        fn get_type_name() -> Cow<'static, str> {
+        fn get_type_name() -> String {
             "Mutation".into()
         }
     }

@@ -94,15 +94,12 @@ mod foo {
     impl Register for RegisterFooNode {
         fn register(mut registry: Registry) -> Registry {
             let node_data: &mut NodeData = registry.data.get_mut_or_default();
-            node_data.insert(
-                <FooNode as Object>::get_object_type_name().to_string(),
-                |id| {
-                    Some(Instance::new_owned(FooNode {
-                        id: id.to_string(),
-                        name: "foo".to_string(),
-                    }))
-                },
-            );
+            node_data.insert(<FooNode as Object>::get_object_type_name(), |id| {
+                Some(Instance::new_owned(FooNode {
+                    id: id.to_string(),
+                    name: "foo".to_string(),
+                }))
+            });
             registry
         }
     }

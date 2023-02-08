@@ -20,7 +20,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - add `#[graphql(get_type_name)` attribute to override type name
 
 ```rust
-use std::borrow::Cow;
+;
 
 #[derive(SimpleObject)]
 #[graphql(get_type_name)]
@@ -29,7 +29,7 @@ struct Foo {
 }
 
 impl TypeName for Foo {
-    fn get_type_name() -> Cow<'static, str> {
+    fn get_type_name() -> String {
         "Bar".into()
     }
 }

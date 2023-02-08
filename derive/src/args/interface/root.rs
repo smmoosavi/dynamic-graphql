@@ -56,7 +56,7 @@ pub fn impl_interface(input: &Interface) -> darling::Result<TokenStream> {
 
     let type_name = input.should_impl_type_name().then_some(quote! {
         impl #crate_name::TypeName for dyn #ident {
-            fn get_type_name() -> std::borrow::Cow<'static, str> {
+            fn get_type_name() -> String {
                 #name.into()
             }
         }
@@ -89,7 +89,7 @@ pub fn impl_register(input: &Interface) -> darling::Result<TokenStream> {
                 #register_nested_types
 
                 // todo rename to interface
-                let object = #crate_name::dynamic::Interface::new(<Self as #crate_name::Interface>::get_interface_type_name().as_ref());
+                let object = #crate_name::dynamic::Interface::new(<Self as #crate_name::Interface>::get_interface_type_name().as_str());
 
                 #description
                 #define_fields

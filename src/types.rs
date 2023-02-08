@@ -1,6 +1,5 @@
 use crate::registry::Registry;
 use async_graphql::dynamic::TypeRef;
-use std::borrow::Cow;
 
 mod common;
 
@@ -16,47 +15,47 @@ pub trait RegisterFns {
 }
 
 pub trait TypeName: Register {
-    fn get_type_name() -> Cow<'static, str>;
+    fn get_type_name() -> String;
 }
 
 pub trait OutputTypeName: TypeName {
-    fn get_output_type_name() -> Cow<'static, str> {
+    fn get_output_type_name() -> String {
         <Self as TypeName>::get_type_name()
     }
 }
 
 pub trait InputTypeName: TypeName {
-    fn get_input_type_name() -> Cow<'static, str> {
+    fn get_input_type_name() -> String {
         <Self as TypeName>::get_type_name()
     }
 }
 
 pub trait Object: OutputTypeName + ParentType {
-    fn get_object_type_name() -> Cow<'static, str> {
+    fn get_object_type_name() -> String {
         <Self as OutputTypeName>::get_output_type_name()
     }
 }
 
 pub trait Enum: OutputTypeName {
-    fn get_enum_type_name() -> Cow<'static, str> {
+    fn get_enum_type_name() -> String {
         <Self as OutputTypeName>::get_output_type_name()
     }
 }
 
 pub trait Scalar: OutputTypeName {
-    fn get_scalar_type_name() -> Cow<'static, str> {
+    fn get_scalar_type_name() -> String {
         <Self as OutputTypeName>::get_output_type_name()
     }
 }
 
 pub trait Union: OutputTypeName {
-    fn get_union_type_name() -> Cow<'static, str> {
+    fn get_union_type_name() -> String {
         <Self as OutputTypeName>::get_output_type_name()
     }
 }
 
 pub trait Interface: OutputTypeName {
-    fn get_interface_type_name() -> Cow<'static, str> {
+    fn get_interface_type_name() -> String {
         <Self as OutputTypeName>::get_output_type_name()
     }
 }
@@ -68,7 +67,7 @@ pub trait ParentType {
 pub trait InterfaceMark<T: Interface + ?Sized> {}
 
 pub trait InputObject: InputTypeName {
-    fn get_input_object_type_name() -> Cow<'static, str> {
+    fn get_input_object_type_name() -> String {
         <Self as InputTypeName>::get_input_type_name()
     }
 }
@@ -76,7 +75,7 @@ pub trait InputObject: InputTypeName {
 pub trait Mutation: ExpandObject {}
 
 pub trait ExpandObject: ParentType {
-    fn get_expand_object_name() -> Cow<'static, str>;
+    fn get_expand_object_name() -> String;
 }
 
 pub trait GetOutputTypeRef {

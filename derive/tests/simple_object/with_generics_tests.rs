@@ -1,6 +1,5 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{App, FieldValue, OutputTypeName, ResolveRef, SimpleObject, TypeName};
-use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -98,8 +97,8 @@ async fn test_query_generic_with_type_name() {
         T: Send + Sync,
         T: for<'a> ResolveRef<'a>,
     {
-        fn get_type_name() -> Cow<'static, str> {
-            format!("Box{}", T::get_type_name()).into()
+        fn get_type_name() -> String {
+            format!("Box{}", T::get_type_name())
         }
     }
 

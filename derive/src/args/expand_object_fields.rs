@@ -358,7 +358,7 @@ fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
 
                 #define_fields
                 registry.update_object(
-                    <<Self as #crate_name::ParentType>::Type as #crate_name::Object>::get_object_type_name().as_ref(),
+                    <<Self as #crate_name::ParentType>::Type as #crate_name::Object>::get_object_type_name().as_str(),
                     <Self as #crate_name::ExpandObject>::get_expand_object_name().as_ref(),
                     |object| {
                         #use_fields

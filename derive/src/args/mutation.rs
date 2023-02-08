@@ -82,7 +82,7 @@ fn impl_mutation(mutation: &Mutation) -> darling::Result<TokenStream> {
             type Type = #target;
         }
         impl #impl_generics #crate_name::ExpandObject for #object_ident #ty_generics #where_clause {
-            fn get_expand_object_name() -> std::borrow::Cow<'static, str> {
+            fn get_expand_object_name() -> String {
                 #name.into()
             }
         }

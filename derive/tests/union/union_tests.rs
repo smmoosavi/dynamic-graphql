@@ -1,7 +1,6 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{App, ResolvedObject, ResolvedObjectFields, SimpleObject, TypeName};
 use dynamic_graphql::{FieldValue, Union};
-use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -200,7 +199,7 @@ fn test_schema_with_type_name() {
     }
 
     impl TypeName for Animal {
-        fn get_type_name() -> Cow<'static, str> {
+        fn get_type_name() -> String {
             "Other".into()
         }
     }

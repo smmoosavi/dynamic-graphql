@@ -1,5 +1,4 @@
 use crate::{Context, Error, FieldValue, Result, ID};
-use std::borrow::Cow;
 
 pub trait ResolveRef<'a> {
     fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>>;
@@ -63,6 +62,7 @@ mod resolve_ref {
 }
 mod resolve_own {
     use super::*;
+    use std::borrow::Cow;
     // &T
     impl<'a, T> ResolveOwned<'a> for &'a T
     where

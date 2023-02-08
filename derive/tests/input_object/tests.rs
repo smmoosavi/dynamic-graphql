@@ -3,7 +3,6 @@ use dynamic_graphql::{App, TypeName};
 use dynamic_graphql::{FieldValue, InputObject};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
 use dynamic_graphql_derive::SimpleObject;
-use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -156,7 +155,7 @@ async fn test_schema_with_type_name() {
     }
 
     impl TypeName for ExampleInput {
-        fn get_type_name() -> Cow<'static, str> {
+        fn get_type_name() -> String {
             "OtherInput".into()
         }
     }

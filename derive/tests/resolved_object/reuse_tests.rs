@@ -4,7 +4,6 @@ use dynamic_graphql::{FieldValue, OutputTypeName, ResolveOwned, TypeName};
 use dynamic_graphql_derive::{
     App, ExpandObject, ExpandObjectFields, ResolvedObject, ResolvedObjectFields, SimpleObject,
 };
-use std::borrow::Cow;
 
 #[tokio::test]
 async fn test_base_list() {
@@ -31,8 +30,8 @@ async fn test_base_list() {
         T::Item: Send + Sync,
         T::Item: for<'r> ResolveOwned<'r>,
     {
-        fn get_type_name() -> Cow<'static, str> {
-            format!("{}List", T::Item::get_type_name()).into()
+        fn get_type_name() -> String {
+            format!("{}List", T::Item::get_type_name())
         }
     }
 

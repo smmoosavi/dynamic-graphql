@@ -105,7 +105,7 @@ fn impl_union(union: &Union) -> darling::Result<TokenStream> {
 
     let type_name = union.should_impl_type_name().then_some(quote! {
         impl #impl_generics #crate_name::TypeName for #ident #ty_generics #where_clause {
-            fn get_type_name() -> std::borrow::Cow<'static, str> {
+            fn get_type_name() -> String {
                 #name.into()
             }
         }
@@ -196,7 +196,7 @@ fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::T
 fn define_union_code() -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     Ok(quote! {
-        let object = #crate_name::dynamic::Union::new(<Self as #crate_name::Union>::get_union_type_name().as_ref());
+        let object = #crate_name::dynamic::Union::new(<Self as #crate_name::Union>::get_union_type_name().as_str());
     })
 }
 
@@ -204,7 +204,7 @@ fn define_item(item: &UnionItem) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let ty = get_owned_type(&item.fields.ty);
     Ok(quote! {
-        let object = object.possible_type(<#ty as #crate_name::Object>::get_object_type_name().as_ref());
+        let object = object.possible_type(<#ty as #crate_name::Object>::get_object_type_name().as_str());
     })
 }
 
