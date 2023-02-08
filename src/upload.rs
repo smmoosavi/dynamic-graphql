@@ -1,4 +1,4 @@
-use crate::{FromValue, InputType, Register, Registry, TypeName};
+use crate::{FromValue, InputTypeName, Register, Registry, TypeName};
 use async_graphql::dynamic::ValueAccessor;
 use async_graphql::{dynamic, Context, UploadValue};
 use std::borrow::Cow;
@@ -10,7 +10,7 @@ impl TypeName for Upload {
         "Upload".into()
     }
 }
-impl InputType for Upload {}
+impl InputTypeName for Upload {}
 
 impl Upload {
     /// Get the upload value.

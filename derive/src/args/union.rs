@@ -98,7 +98,7 @@ fn impl_union(union: &Union) -> darling::Result<TokenStream> {
                 #name.into()
             }
         }
-        impl #crate_name::OutputType for #ident {}
+        impl #crate_name::OutputTypeName for #ident {}
         impl #crate_name::Union for #ident {}
     })
 }

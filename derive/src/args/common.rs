@@ -82,7 +82,7 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
                 #name.into()
             }
         }
-        impl #impl_generics #crate_name::OutputType for #object_ident #ty_generics #where_clause {}
+        impl #impl_generics #crate_name::OutputTypeName for #object_ident #ty_generics #where_clause {}
         impl #impl_generics #crate_name::Object for #object_ident #ty_generics #where_clause {}
     })
 }
@@ -97,7 +97,7 @@ pub fn impl_input_object(obj: &impl CommonObject) -> darling::Result<TokenStream
                 #name.into()
             }
         }
-        impl #crate_name::InputType for #object_ident {}
+        impl #crate_name::InputTypeName for #object_ident {}
         impl #crate_name::InputObject for #object_ident {}
     })
 }

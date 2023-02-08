@@ -1,6 +1,6 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{
-    App, ExpandObject, ExpandObjectFields, FieldValue, Object, OutputType, ResolveOwned,
+    App, ExpandObject, ExpandObjectFields, FieldValue, Object, OutputTypeName, ResolveOwned,
     SimpleObject,
 };
 
@@ -9,7 +9,7 @@ use crate::schema_utils::normalize_schema;
 #[tokio::test]
 async fn test_base_list() {
     trait Pageable {
-        type Item: OutputType + 'static;
+        type Item: OutputTypeName + 'static;
         fn items(&self, page: i32) -> Vec<Self::Item>;
     }
 
@@ -19,7 +19,7 @@ async fn test_base_list() {
         T: Pageable + 'static,
         T: Send + Sync,
         T: Object,
-        T::Item: OutputType + 'static,
+        T::Item: OutputTypeName + 'static,
         T::Item: Send + Sync,
         T::Item: for<'r> ResolveOwned<'r>;
 
@@ -29,7 +29,7 @@ async fn test_base_list() {
         T: Pageable + 'static,
         T: Send + Sync,
         T: Object,
-        T::Item: OutputType + 'static,
+        T::Item: OutputTypeName + 'static,
         T::Item: Send + Sync,
         T::Item: for<'r> ResolveOwned<'r>,
     {

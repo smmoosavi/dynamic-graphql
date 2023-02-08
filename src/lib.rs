@@ -21,8 +21,8 @@ pub use instance::{Instance, RegisterInstance};
 pub use registry::Registry;
 pub use resolve::{Resolve, ResolveOwned, ResolveRef};
 pub use types::{
-    Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, InputObject, InputType, Interface,
-    InterfaceMark, Mutation, Object, OutputType, ParentType, Register, RegisterFns, Scalar,
+    Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, InputObject, InputTypeName, Interface,
+    InterfaceMark, Mutation, Object, OutputTypeName, ParentType, Register, RegisterFns, Scalar,
     TypeName, Union,
 };
 pub use upload::Upload;

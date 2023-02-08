@@ -59,7 +59,7 @@ pub fn impl_interface(input: &Interface) -> darling::Result<TokenStream> {
                 #name.into()
             }
         }
-        impl #crate_name::OutputType for dyn #ident {}
+        impl #crate_name::OutputTypeName for dyn #ident {}
         impl #crate_name::Interface for dyn #ident {}
     })
 }

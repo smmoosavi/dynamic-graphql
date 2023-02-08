@@ -19,45 +19,45 @@ pub trait TypeName: Register {
     fn get_type_name() -> Cow<'static, str>;
 }
 
-pub trait OutputType: TypeName {
+pub trait OutputTypeName: TypeName {
     fn get_output_type_name() -> Cow<'static, str> {
         <Self as TypeName>::get_type_name()
     }
 }
 
-pub trait InputType: TypeName {
+pub trait InputTypeName: TypeName {
     fn get_input_type_name() -> Cow<'static, str> {
         <Self as TypeName>::get_type_name()
     }
 }
 
-pub trait Object: OutputType + ParentType {
+pub trait Object: OutputTypeName + ParentType {
     fn get_object_type_name() -> Cow<'static, str> {
-        <Self as OutputType>::get_output_type_name()
+        <Self as OutputTypeName>::get_output_type_name()
     }
 }
 
-pub trait Enum: OutputType {
+pub trait Enum: OutputTypeName {
     fn get_enum_type_name() -> Cow<'static, str> {
-        <Self as OutputType>::get_output_type_name()
+        <Self as OutputTypeName>::get_output_type_name()
     }
 }
 
-pub trait Scalar: OutputType {
+pub trait Scalar: OutputTypeName {
     fn get_scalar_type_name() -> Cow<'static, str> {
-        <Self as OutputType>::get_output_type_name()
+        <Self as OutputTypeName>::get_output_type_name()
     }
 }
 
-pub trait Union: OutputType {
+pub trait Union: OutputTypeName {
     fn get_union_type_name() -> Cow<'static, str> {
-        <Self as OutputType>::get_output_type_name()
+        <Self as OutputTypeName>::get_output_type_name()
     }
 }
 
-pub trait Interface: OutputType {
+pub trait Interface: OutputTypeName {
     fn get_interface_type_name() -> Cow<'static, str> {
-        <Self as OutputType>::get_output_type_name()
+        <Self as OutputTypeName>::get_output_type_name()
     }
 }
 
@@ -67,9 +67,9 @@ pub trait ParentType {
 
 pub trait InterfaceMark<T: Interface + ?Sized> {}
 
-pub trait InputObject: InputType {
+pub trait InputObject: InputTypeName {
     fn get_input_object_type_name() -> Cow<'static, str> {
-        <Self as InputType>::get_input_type_name()
+        <Self as InputTypeName>::get_input_type_name()
     }
 }
 

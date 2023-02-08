@@ -142,8 +142,8 @@ fn impl_enum(enm: &impl CommonObject) -> darling::Result<TokenStream> {
                 #name.into()
             }
         }
-        impl #crate_name::InputType for #enum_ident {}
-        impl #crate_name::OutputType for #enum_ident {}
+        impl #crate_name::InputTypeName for #enum_ident {}
+        impl #crate_name::OutputTypeName for #enum_ident {}
         impl #crate_name::Enum for #enum_ident {}
     })
 }

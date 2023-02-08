@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, FieldValue, OutputType, ResolveRef, SimpleObject};
+use dynamic_graphql::{App, FieldValue, OutputTypeName, ResolveRef, SimpleObject};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
 
 use crate::schema_utils::normalize_schema;
@@ -135,14 +135,14 @@ async fn test_query_graphql_generic() {
     #[graphql(root)]
     struct Query<G>(G)
     where
-        G: OutputType + 'static,
+        G: OutputTypeName + 'static,
         G: Send + Sync,
         G: for<'a> ResolveRef<'a>;
 
     #[ResolvedObjectFields]
     impl<G> Query<G>
     where
-        G: OutputType + 'static,
+        G: OutputTypeName + 'static,
         G: Send + Sync,
         G: for<'a> ResolveRef<'a>,
     {
