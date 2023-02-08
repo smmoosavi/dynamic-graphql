@@ -1,5 +1,6 @@
 use crate::registry::Registry;
 use async_graphql::dynamic::TypeRef;
+use std::borrow::Cow;
 
 mod common;
 
@@ -15,35 +16,49 @@ pub trait RegisterFns {
 }
 
 pub trait GraphqlType: Register {
-    const NAME: &'static str;
+    fn get_type_name() -> Cow<'static, str>;
 }
 
 pub trait OutputType: GraphqlType {
-    const NAME: &'static str = <Self as GraphqlType>::NAME;
+    fn get_output_type_name() -> Cow<'static, str> {
+        <Self as GraphqlType>::get_type_name()
+    }
 }
 
 pub trait InputType: GraphqlType {
-    const NAME: &'static str = <Self as GraphqlType>::NAME;
+    fn get_input_type_name() -> Cow<'static, str> {
+        <Self as GraphqlType>::get_type_name()
+    }
 }
 
 pub trait Object: OutputType + ParentType {
-    const NAME: &'static str = <Self as OutputType>::NAME;
+    fn get_object_type_name() -> Cow<'static, str> {
+        <Self as OutputType>::get_output_type_name()
+    }
 }
 
 pub trait Enum: OutputType {
-    const NAME: &'static str = <Self as OutputType>::NAME;
+    fn get_enum_type_name() -> Cow<'static, str> {
+        <Self as OutputType>::get_output_type_name()
+    }
 }
 
 pub trait Scalar: OutputType {
-    const NAME: &'static str = <Self as OutputType>::NAME;
+    fn get_scalar_type_name() -> Cow<'static, str> {
+        <Self as OutputType>::get_output_type_name()
+    }
 }
 
 pub trait Union: OutputType {
-    const NAME: &'static str = <Self as OutputType>::NAME;
+    fn get_union_type_name() -> Cow<'static, str> {
+        <Self as OutputType>::get_output_type_name()
+    }
 }
 
 pub trait Interface: OutputType {
-    const NAME: &'static str = <Self as OutputType>::NAME;
+    fn get_interface_type_name() -> Cow<'static, str> {
+        <Self as OutputType>::get_output_type_name()
+    }
 }
 
 pub trait ParentType {
@@ -53,13 +68,15 @@ pub trait ParentType {
 pub trait InterfaceMark<T: Interface + ?Sized> {}
 
 pub trait InputObject: InputType {
-    const NAME: &'static str = <Self as InputType>::NAME;
+    fn get_input_object_type_name() -> Cow<'static, str> {
+        <Self as InputType>::get_input_type_name()
+    }
 }
 
 pub trait Mutation: ExpandObject {}
 
 pub trait ExpandObject: ParentType {
-    const NAME: &'static str;
+    fn get_expand_object_name() -> Cow<'static, str>;
 }
 
 pub trait GetOutputTypeRef {

@@ -14,7 +14,7 @@ fn test_impl_object() {
         pub string: String,
     }
     assert_eq!(
-        <ExampleInput as dynamic_graphql::InputObject>::NAME,
+        <ExampleInput as dynamic_graphql::InputObject>::get_input_object_type_name(),
         "ExampleInput"
     );
 }
@@ -28,7 +28,7 @@ fn test_impl_object_with_name() {
         pub string: String,
     }
     assert_eq!(
-        <ExampleInput as dynamic_graphql::InputObject>::NAME,
+        <ExampleInput as dynamic_graphql::InputObject>::get_input_object_type_name(),
         "OtherInput"
     );
 }

@@ -12,7 +12,10 @@ fn test_impl_object() {
     struct Example {
         pub string: String,
     }
-    assert_eq!(<Example as dynamic_graphql::Object>::NAME, "Example");
+    assert_eq!(
+        <Example as dynamic_graphql::Object>::get_object_type_name(),
+        "Example"
+    );
 }
 
 #[test]
@@ -23,7 +26,10 @@ fn test_impl_object_with_name() {
     struct Example {
         pub string: String,
     }
-    assert_eq!(<Example as dynamic_graphql::Object>::NAME, "Other");
+    assert_eq!(
+        <Example as dynamic_graphql::Object>::get_object_type_name(),
+        "Other"
+    );
 }
 
 #[test]
@@ -314,7 +320,10 @@ fn test_rename_fields() {
     struct the_query {
         pub the_string: String,
     }
-    assert_eq!(<the_query as dynamic_graphql::Object>::NAME, "TheQuery");
+    assert_eq!(
+        <the_query as dynamic_graphql::Object>::get_object_type_name(),
+        "TheQuery"
+    );
     #[derive(App)]
     struct App(the_query);
 

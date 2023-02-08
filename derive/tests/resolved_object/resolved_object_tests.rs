@@ -13,7 +13,7 @@ fn test_impl_resolved_object() {
 
     impl Register for Example {}
 
-    assert_eq!(<Example as Object>::NAME, "Example");
+    assert_eq!(<Example as Object>::get_object_type_name(), "Example");
 }
 
 #[test]
@@ -24,7 +24,7 @@ fn test_impl_resolved_object_with_name() {
 
     impl Register for Example {}
 
-    assert_eq!(<Example as Object>::NAME, "Other");
+    assert_eq!(<Example as Object>::get_object_type_name(), "Other");
 }
 
 #[test]

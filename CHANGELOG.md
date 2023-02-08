@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Internal
 
 - remove `MARK` from `Interface` trait
+- use function instead constant for type names
 
 ## [0.5.4] - 2023-01-30
 

@@ -244,7 +244,7 @@ fn root_register_code(object: &SimpleObject) -> TokenStream {
     let root = if object.attrs.root {
         let crate_name = get_crate_name();
         Some(quote! {
-            let registry = registry.set_root(<Self as #crate_name::Object>::NAME);
+            let registry = registry.set_root(<Self as #crate_name::Object>::get_object_type_name().as_ref());
         })
     } else {
         None
@@ -252,7 +252,7 @@ fn root_register_code(object: &SimpleObject) -> TokenStream {
     let mutation_root = if object.attrs.mutation_root {
         let crate_name = get_crate_name();
         Some(quote! {
-            let registry = registry.set_mutation(<Self as #crate_name::Object>::NAME);
+            let registry = registry.set_mutation(<Self as #crate_name::Object>::get_object_type_name().as_ref());
         })
     } else {
         None

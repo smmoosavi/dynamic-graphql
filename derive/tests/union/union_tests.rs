@@ -25,7 +25,7 @@ fn test_impl_union() {
         Cat(Cat),
     }
 
-    assert_eq!(<Animal as Union>::NAME, "Animal");
+    assert_eq!(<Animal as Union>::get_union_type_name(), "Animal");
 }
 
 #[test]
@@ -50,7 +50,7 @@ fn test_impl_union_with_rename() {
         Cat(Cat),
     }
 
-    assert_eq!(<Animal as Union>::NAME, "Other");
+    assert_eq!(<Animal as Union>::get_union_type_name(), "Other");
 }
 
 #[test]

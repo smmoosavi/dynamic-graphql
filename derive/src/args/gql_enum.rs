@@ -138,7 +138,9 @@ fn impl_enum(enm: &impl CommonObject) -> darling::Result<TokenStream> {
 
     Ok(quote! {
          impl #crate_name::GraphqlType for #enum_ident {
-            const NAME: &'static str = #name;
+            fn get_type_name() -> std::borrow::Cow<'static, str> {
+                #name.into()
+            }
         }
         impl #crate_name::InputType for #enum_ident {}
         impl #crate_name::OutputType for #enum_ident {}
@@ -236,7 +238,7 @@ fn impl_from_value(enm: &Enum) -> darling::Result<TokenStream> {
                 match string_value {
                     #match_items
                     _ => Err(#crate_name::Error::new(
-                        format!("Unknown variant `{}` for enum `{}`", string_value, <#enum_ident as #crate_name::Enum>::NAME)
+                        format!("Unknown variant `{}` for enum `{}`", string_value, <#enum_ident as #crate_name::Enum>::get_enum_type_name().as_ref()),
                     )),
                 }
             }
@@ -355,7 +357,7 @@ fn impl_register(enm: &Enum) -> darling::Result<TokenStream> {
         impl #crate_name::Register for #enum_ident {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
                 #( #register_attr )*
-                let object = #crate_name::dynamic::Enum::new(<#enum_ident as #crate_name::GraphqlType>::NAME);
+                let object = #crate_name::dynamic::Enum::new(<#enum_ident as #crate_name::Enum>::get_enum_type_name().as_ref());
                 #description
                 #items
                 #register_union

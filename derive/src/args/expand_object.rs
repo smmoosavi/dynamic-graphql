@@ -58,7 +58,9 @@ fn impl_expand_object(object: &ExpandObject) -> darling::Result<TokenStream> {
             type Type = #target;
         }
         impl #impl_generics #crate_name::ExpandObject for #object_ident #ty_generics #where_clause {
-            const NAME: &'static str = #name;
+            fn get_expand_object_name() -> std::borrow::Cow<'static, str> {
+                #name.into()
+            }
         }
     })
 }

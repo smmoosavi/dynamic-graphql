@@ -78,7 +78,9 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
             type Type = #object_ident #ty_generics;
         }
         impl #impl_generics #crate_name::GraphqlType for #object_ident #ty_generics #where_clause {
-            const NAME: &'static str = #name;
+            fn get_type_name() -> std::borrow::Cow<'static, str> {
+                #name.into()
+            }
         }
         impl #impl_generics #crate_name::OutputType for #object_ident #ty_generics #where_clause {}
         impl #impl_generics #crate_name::Object for #object_ident #ty_generics #where_clause {}
@@ -91,7 +93,9 @@ pub fn impl_input_object(obj: &impl CommonObject) -> darling::Result<TokenStream
     let crate_name = get_crate_name();
     Ok(quote! {
         impl #crate_name::GraphqlType for #object_ident {
-            const NAME: &'static str = #name;
+            fn get_type_name() -> std::borrow::Cow<'static, str> {
+                #name.into()
+            }
         }
         impl #crate_name::InputType for #object_ident {}
         impl #crate_name::InputObject for #object_ident {}
@@ -159,7 +163,7 @@ pub fn impl_define_object() -> TokenStream {
     // todo get "object" from input
     let crate_name = get_crate_name();
     quote! {
-        let object = #crate_name::dynamic::Object::new(<Self as #crate_name::Object>::NAME);
+        let object = #crate_name::dynamic::Object::new(<Self as #crate_name::Object>::get_object_type_name().as_ref());
     }
 }
 
@@ -167,7 +171,7 @@ pub fn impl_define_input_object() -> TokenStream {
     // todo get "object" from input
     let crate_name = get_crate_name();
     quote! {
-        let object = #crate_name::dynamic::InputObject::new(<Self as #crate_name::InputObject>::NAME);
+        let object = #crate_name::dynamic::InputObject::new(<Self as #crate_name::InputObject>::get_input_object_type_name().as_ref());
     }
 }
 

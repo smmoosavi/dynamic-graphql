@@ -10,7 +10,7 @@ fn test_impl_interface() {
         fn id(&self) -> String;
     }
 
-    assert_eq!(<dyn Node as Interface>::NAME, "Node");
+    assert_eq!(<dyn Node as Interface>::get_interface_type_name(), "Node");
 }
 
 #[test]
@@ -21,7 +21,7 @@ fn test_impl_interface_with_name() {
         fn id(&self) -> String;
     }
 
-    assert_eq!(<dyn Node as Interface>::NAME, "Other");
+    assert_eq!(<dyn Node as Interface>::get_interface_type_name(), "Other");
 }
 
 #[test]

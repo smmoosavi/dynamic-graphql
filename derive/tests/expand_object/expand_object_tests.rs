@@ -17,10 +17,13 @@ fn test_impl_expand_object() {
     struct ExpandExample<'a>(&'a Example);
 
     assert_eq!(
-        <<ExpandExample as ParentType>::Type as Object>::NAME,
+        <<ExpandExample as ParentType>::Type as Object>::get_object_type_name(),
         "Example"
     );
-    assert_eq!(<ExpandExample as ExpandObject>::NAME, "ExpandExample");
+    assert_eq!(
+        <ExpandExample as ExpandObject>::get_expand_object_name(),
+        "ExpandExample"
+    );
 
     let example = Example {
         field: "field".to_string(),

@@ -27,11 +27,11 @@ fn test_impl_expand_object_with_generic() {
         T: GetName + Object + 'static;
 
     assert_eq!(
-        <<ExpandExample<Example> as ParentType>::Type as Object>::NAME,
+        <<ExpandExample<Example> as ParentType>::Type as Object>::get_object_type_name(),
         "Example"
     );
     assert_eq!(
-        <ExpandExample<Example> as ExpandObject>::NAME,
+        <ExpandExample<Example> as ExpandObject>::get_expand_object_name(),
         "ExpandExample"
     );
     let example = Example {
@@ -66,11 +66,11 @@ fn test_impl_expand_object_with_where() {
         T: GetName + Object + 'static;
 
     assert_eq!(
-        <<ExpandExample<Example> as ParentType>::Type as Object>::NAME,
+        <<ExpandExample<Example> as ParentType>::Type as Object>::get_object_type_name(),
         "Example"
     );
     assert_eq!(
-        <ExpandExample<Example> as ExpandObject>::NAME,
+        <ExpandExample<Example> as ExpandObject>::get_expand_object_name(),
         "ExpandExample"
     );
     let example = Example {

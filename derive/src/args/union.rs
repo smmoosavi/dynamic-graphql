@@ -94,7 +94,9 @@ fn impl_union(union: &Union) -> darling::Result<TokenStream> {
     let ident = union.get_ident();
     Ok(quote! {
         impl #crate_name::GraphqlType for #ident {
-            const NAME: &'static str = #name;
+            fn get_type_name() -> std::borrow::Cow<'static, str> {
+                #name.into()
+            }
         }
         impl #crate_name::OutputType for #ident {}
         impl #crate_name::Union for #ident {}
@@ -111,7 +113,7 @@ fn define_resolve_owned_match_pattern(
     let variant_type = get_type_path(&item.fields.ty)?;
     Ok(quote! {
         #union_ident::#variant_ident(value) => {
-            #crate_name::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::Object>::NAME)))
+            #crate_name::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::Object>::get_object_type_name())))
         }
     })
 }
@@ -147,7 +149,7 @@ fn define_resolve_ref_match_pattern(
     let variant_type = get_type_path(&item.fields.ty)?;
     Ok(quote! {
         #union_ident::#variant_ident(value) => {
-            #create_name::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #create_name::Object>::NAME)))
+            #create_name::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #create_name::Object>::get_object_type_name())))
         }
     })
 }
@@ -185,7 +187,7 @@ fn define_item(item: &UnionItem) -> darling::Result<TokenStream> {
     let create_name = get_crate_name();
     let ty = get_owned_type(&item.fields.ty);
     Ok(quote! {
-        let object = object.possible_type(<#ty as #create_name::Object>::NAME);
+        let object = object.possible_type(<#ty as #create_name::Object>::get_object_type_name().as_ref());
     })
 }
 

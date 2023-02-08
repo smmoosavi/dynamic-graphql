@@ -16,7 +16,9 @@ impl<'a, T> GraphqlType for &'a T
 where
     T: GraphqlType + 'static,
 {
-    const NAME: &'static str = <T as GraphqlType>::NAME;
+    fn get_type_name() -> Cow<'static, str> {
+        <T as GraphqlType>::get_type_name()
+    }
 }
 
 impl<T: OutputType + 'static> OutputType for &T {}
@@ -27,14 +29,18 @@ impl<T: Register + Clone + 'static> Register for Cow<'_, T> {
     }
 }
 impl<T: OutputType + Clone + 'static> GraphqlType for Cow<'_, T> {
-    const NAME: &'static str = <T as GraphqlType>::NAME;
+    fn get_type_name() -> Cow<'static, str> {
+        <T as GraphqlType>::get_type_name()
+    }
 }
 
 impl<T: OutputType + Clone + 'static> OutputType for Cow<'_, T> {}
 
 impl Register for String {}
 impl GraphqlType for String {
-    const NAME: &'static str = dynamic::TypeRef::STRING;
+    fn get_type_name() -> Cow<'static, str> {
+        dynamic::TypeRef::STRING.into()
+    }
 }
 
 impl InputType for String {}
@@ -43,7 +49,9 @@ impl OutputType for String {}
 
 impl Register for &str {}
 impl GraphqlType for &str {
-    const NAME: &'static str = dynamic::TypeRef::STRING;
+    fn get_type_name() -> Cow<'static, str> {
+        dynamic::TypeRef::STRING.into()
+    }
 }
 
 impl InputType for &str {}
@@ -51,7 +59,9 @@ impl InputType for &str {}
 impl OutputType for &str {}
 
 impl GraphqlType for str {
-    const NAME: &'static str = dynamic::TypeRef::STRING;
+    fn get_type_name() -> Cow<'static, str> {
+        dynamic::TypeRef::STRING.into()
+    }
 }
 
 impl Register for str {}
@@ -61,7 +71,9 @@ impl OutputType for str {}
 
 impl Register for async_graphql::ID {}
 impl GraphqlType for async_graphql::ID {
-    const NAME: &'static str = dynamic::TypeRef::ID;
+    fn get_type_name() -> Cow<'static, str> {
+        dynamic::TypeRef::ID.into()
+    }
 }
 
 impl InputType for async_graphql::ID {}
@@ -70,7 +82,9 @@ impl OutputType for async_graphql::ID {}
 
 impl Register for bool {}
 impl GraphqlType for bool {
-    const NAME: &'static str = dynamic::TypeRef::BOOLEAN;
+    fn get_type_name() -> Cow<'static, str> {
+        dynamic::TypeRef::BOOLEAN.into()
+    }
 }
 
 impl InputType for bool {}
@@ -79,7 +93,9 @@ impl OutputType for bool {}
 
 impl Register for f32 {}
 impl GraphqlType for f32 {
-    const NAME: &'static str = dynamic::TypeRef::FLOAT;
+    fn get_type_name() -> Cow<'static, str> {
+        dynamic::TypeRef::FLOAT.into()
+    }
 }
 
 impl InputType for f32 {}
@@ -88,7 +104,9 @@ impl OutputType for f32 {}
 
 impl Register for f64 {}
 impl GraphqlType for f64 {
-    const NAME: &'static str = dynamic::TypeRef::FLOAT;
+    fn get_type_name() -> Cow<'static, str> {
+        dynamic::TypeRef::FLOAT.into()
+    }
 }
 
 impl InputType for f64 {}
@@ -100,7 +118,9 @@ macro_rules! int_output_value {
         $(
             impl Register for $t {}
             impl GraphqlType for $t {
-                const NAME: &'static str = dynamic::TypeRef::INT;
+                fn get_type_name() -> Cow<'static, str> {
+                    dynamic::TypeRef::INT.into()
+                }
             }
             impl InputType for $t {}
             impl OutputType for $t {}
@@ -157,12 +177,12 @@ pub trait TypeRefExt {
 }
 
 pub enum TypeRefInner {
-    Named(&'static str),
-    NamedNN(&'static str),
-    List(&'static str),
-    ListNN(&'static str),
-    NNList(&'static str),
-    NNListNN(&'static str),
+    Named(String),
+    NamedNN(String),
+    List(String),
+    ListNN(String),
+    NNList(String),
+    NNListNN(String),
 }
 
 impl From<TypeRefInner> for dynamic::TypeRef {
@@ -217,7 +237,7 @@ impl<T: OutputType> GetOutputTypeRef for T {
     type Output = TypeRefInner;
     #[inline]
     fn get_output_type_ref() -> Self::Output {
-        TypeRefInner::NamedNN(<T as OutputType>::NAME)
+        TypeRefInner::NamedNN(T::get_output_type_name().to_string())
     }
 }
 
@@ -250,7 +270,7 @@ impl<T: InputType> GetInputTypeRef for T {
     type Output = TypeRefInner;
     #[inline]
     fn get_input_type_ref() -> Self::Output {
-        TypeRefInner::NamedNN(<T as InputType>::NAME)
+        TypeRefInner::NamedNN(T::get_input_type_name().to_string())
     }
 }
 

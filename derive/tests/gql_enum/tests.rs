@@ -12,7 +12,10 @@ fn test_impl_object() {
         Foo,
         Bar,
     }
-    assert_eq!(<Example as dynamic_graphql::Enum>::NAME, "Example");
+    assert_eq!(
+        <Example as dynamic_graphql::Enum>::get_enum_type_name(),
+        "Example"
+    );
 }
 
 #[test]

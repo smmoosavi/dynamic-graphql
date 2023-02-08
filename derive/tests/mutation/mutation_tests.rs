@@ -12,7 +12,10 @@ fn test_mutation_root() {
     #[derive(MutationRoot)]
     struct MutationRoot;
 
-    assert_eq!(<MutationRoot as Object>::NAME, "MutationRoot");
+    assert_eq!(
+        <MutationRoot as Object>::get_object_type_name(),
+        "MutationRoot"
+    );
 }
 
 #[test]
@@ -21,7 +24,7 @@ fn test_mutation_root_with_rename() {
     #[graphql(name = "Mutation")]
     struct MutationRoot;
 
-    assert_eq!(<MutationRoot as Object>::NAME, "Mutation");
+    assert_eq!(<MutationRoot as Object>::get_object_type_name(), "Mutation");
 }
 
 #[test]
@@ -32,9 +35,12 @@ fn test_mutation() {
     #[derive(Mutation)]
     struct MyMutation(MutationRoot);
 
-    assert_eq!(<MyMutation as ExpandObject>::NAME, "MyMutation");
     assert_eq!(
-        <<MyMutation as ParentType>::Type as Object>::NAME,
+        <MyMutation as ExpandObject>::get_expand_object_name(),
+        "MyMutation"
+    );
+    assert_eq!(
+        <<MyMutation as ParentType>::Type as Object>::get_object_type_name(),
         "MutationRoot"
     );
 }

@@ -4,6 +4,7 @@ use crate::{
 };
 use async_graphql::dynamic::FieldValue;
 use async_graphql::Context;
+use std::borrow::Cow;
 
 pub struct Instance<'v, I, T = ()>
 where
@@ -27,7 +28,7 @@ where
         Instance {
             _interface: std::marker::PhantomData,
             _target: std::marker::PhantomData,
-            value: AnyBox::new_owned(value, <T as Object>::NAME.to_string()),
+            value: AnyBox::new_owned(value, <T as Object>::get_object_type_name().to_string()),
         }
     }
     #[inline]
@@ -38,7 +39,7 @@ where
         Instance {
             _interface: std::marker::PhantomData,
             _target: std::marker::PhantomData,
-            value: AnyBox::new_borrowed(value, <T as Object>::NAME.to_string()),
+            value: AnyBox::new_borrowed(value, <T as Object>::get_object_type_name().to_string()),
         }
     }
 }
@@ -95,12 +96,9 @@ impl<I> GraphqlType for Instance<'_, I>
 where
     I: Interface + 'static + ?Sized,
 {
-    const NAME: &'static str = <I as GraphqlType>::NAME;
+    fn get_type_name() -> Cow<'static, str> {
+        <I as Interface>::get_interface_type_name()
+    }
 }
 
-impl<I> OutputType for Instance<'_, I>
-where
-    I: Interface + 'static + ?Sized,
-{
-    const NAME: &'static str = <I as OutputType>::NAME;
-}
+impl<I> OutputType for Instance<'_, I> where I: Interface + 'static + ?Sized {}
