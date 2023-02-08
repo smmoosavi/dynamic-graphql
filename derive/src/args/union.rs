@@ -154,19 +154,19 @@ fn define_resolve_ref_match_pattern(
     union: &Union,
     item: &UnionItem,
 ) -> darling::Result<TokenStream> {
-    let create_name = get_crate_name();
+    let crate_name = get_crate_name();
     let union_ident = union.get_ident();
     let variant_ident = &item.ident;
     let variant_type = get_type_path(&item.fields.ty)?;
     Ok(quote! {
         #union_ident::#variant_ident(value) => {
-            #create_name::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #create_name::Object>::get_object_type_name())))
+            #crate_name::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::Object>::get_object_type_name())))
         }
     })
 }
 
 fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::TokenStream> {
-    let create_name = get_crate_name();
+    let crate_name = get_crate_name();
     let ident = union.get_ident();
 
     let match_patterns = union
@@ -176,8 +176,8 @@ fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::T
         .collect::<Vec<_>>();
 
     Ok(quote! {
-        impl<'__dynamic_graphql_lifetime> #create_name::ResolveRef<'__dynamic_graphql_lifetime> for #ident {
-            fn resolve_ref(&'__dynamic_graphql_lifetime self, ctx: &#create_name::Context) -> #create_name::Result<Option<#create_name::FieldValue<'__dynamic_graphql_lifetime>>> {
+        impl<'__dynamic_graphql_lifetime> #crate_name::ResolveRef<'__dynamic_graphql_lifetime> for #ident {
+            fn resolve_ref(&'__dynamic_graphql_lifetime self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'__dynamic_graphql_lifetime>>> {
                 match self {
                     #(#match_patterns),*
                 }
@@ -187,17 +187,17 @@ fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::T
 }
 
 fn define_union_code() -> darling::Result<TokenStream> {
-    let create_name = get_crate_name();
+    let crate_name = get_crate_name();
     Ok(quote! {
-        let object = #create_name::dynamic::Union::new(<Self as #create_name::Union>::get_union_type_name().as_ref());
+        let object = #crate_name::dynamic::Union::new(<Self as #crate_name::Union>::get_union_type_name().as_ref());
     })
 }
 
 fn define_item(item: &UnionItem) -> darling::Result<TokenStream> {
-    let create_name = get_crate_name();
+    let crate_name = get_crate_name();
     let ty = get_owned_type(&item.fields.ty);
     Ok(quote! {
-        let object = object.possible_type(<#ty as #create_name::Object>::get_object_type_name().as_ref());
+        let object = object.possible_type(<#ty as #crate_name::Object>::get_object_type_name().as_ref());
     })
 }
 
@@ -213,7 +213,7 @@ fn define_items(union: &Union) -> darling::Result<TokenStream> {
 }
 
 fn impl_register(union: &Union) -> darling::Result<TokenStream> {
-    let create_name = get_crate_name();
+    let crate_name = get_crate_name();
     let ident = union.get_ident();
     let register_nested_types = common::get_nested_type_register_code(union).into_token_stream();
 
@@ -227,8 +227,8 @@ fn impl_register(union: &Union) -> darling::Result<TokenStream> {
     let register_attr = &union.attrs.registers;
 
     Ok(quote! {
-        impl #create_name::Register for #ident {
-            fn register(registry: #create_name::Registry) -> #create_name::Registry {
+        impl #crate_name::Register for #ident {
+            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
 
                 #( #register_attr )*
 
