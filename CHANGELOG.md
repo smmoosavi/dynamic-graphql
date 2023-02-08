@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Support generics in `Union` types
+
 ## [0.6.0] - 2023-02-08
 
 ### Added

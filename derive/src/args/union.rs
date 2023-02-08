@@ -4,6 +4,7 @@ use quote::{quote, ToTokens};
 use syn::{Generics, Path, Type};
 
 use crate::args::common;
+use crate::args::common::add_new_lifetime_to_generics;
 use crate::utils::common::{CommonField, CommonObject, GetArgs, GetFields, EMPTY_ARGS};
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::{BaseEnum, NewtypeVariant};
@@ -100,8 +101,10 @@ fn impl_union(union: &Union) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let name = common::get_type_name(union)?;
     let ident = union.get_ident();
+    let (impl_generics, ty_generics, where_clause) = union.get_generics()?.split_for_impl();
+
     let type_name = union.should_impl_type_name().then_some(quote! {
-        impl #crate_name::TypeName for #ident {
+        impl #impl_generics #crate_name::TypeName for #ident #ty_generics #where_clause {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
@@ -109,8 +112,8 @@ fn impl_union(union: &Union) -> darling::Result<TokenStream> {
     });
     Ok(quote! {
         #type_name
-        impl #crate_name::OutputTypeName for #ident {}
-        impl #crate_name::Union for #ident {}
+        impl #impl_generics #crate_name::OutputTypeName for #ident #ty_generics #where_clause {}
+        impl #impl_generics #crate_name::Union for #ident #ty_generics #where_clause {}
     })
 }
 
@@ -138,10 +141,12 @@ fn define_resolve_owned_for_union(union: &Union) -> darling::Result<proc_macro2:
         .iter()
         .map(|item| define_resolve_owned_match_pattern(union, item).into_token_stream())
         .collect::<Vec<_>>();
-
+    let (_, ty_generics, where_clause) = union.get_generics()?.split_for_impl();
+    let (generics_with_lifetime, lifetime) = add_new_lifetime_to_generics(union.get_generics()?);
+    let (impl_generics, _, _) = generics_with_lifetime.split_for_impl();
     Ok(quote! {
-        impl<'__dynamic_graphql_lifetime> #crate_name::ResolveOwned<'__dynamic_graphql_lifetime> for #ident {
-            fn resolve_owned(self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'__dynamic_graphql_lifetime>>> {
+        impl #impl_generics #crate_name::ResolveOwned<#lifetime> for #ident #ty_generics #where_clause {
+            fn resolve_owned(self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<#lifetime>>> {
                 match self {
                     #(#match_patterns),*
                 }
@@ -174,10 +179,12 @@ fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::T
         .iter()
         .map(|item| define_resolve_ref_match_pattern(union, item).into_token_stream())
         .collect::<Vec<_>>();
-
+    let (_, ty_generics, where_clause) = union.get_generics()?.split_for_impl();
+    let (generics_with_lifetime, lifetime) = add_new_lifetime_to_generics(union.get_generics()?);
+    let (impl_generics, _, _) = generics_with_lifetime.split_for_impl();
     Ok(quote! {
-        impl<'__dynamic_graphql_lifetime> #crate_name::ResolveRef<'__dynamic_graphql_lifetime> for #ident {
-            fn resolve_ref(&'__dynamic_graphql_lifetime self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'__dynamic_graphql_lifetime>>> {
+        impl #impl_generics #crate_name::ResolveRef<#lifetime> for #ident #ty_generics #where_clause {
+            fn resolve_ref(&#lifetime self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<#lifetime>>> {
                 match self {
                     #(#match_patterns),*
                 }
@@ -225,9 +232,10 @@ fn impl_register(union: &Union) -> darling::Result<TokenStream> {
     let define_items = define_items(union).into_token_stream();
     let register_union = common::register_object_code().into_token_stream();
     let register_attr = &union.attrs.registers;
+    let (impl_generics, ty_generics, where_clause) = union.generics.split_for_impl();
 
     Ok(quote! {
-        impl #crate_name::Register for #ident {
+        impl #impl_generics #crate_name::Register for #ident #ty_generics #where_clause {
             fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
 
                 #( #register_attr )*
