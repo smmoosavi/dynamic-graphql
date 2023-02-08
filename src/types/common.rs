@@ -1,4 +1,4 @@
-use crate::types::{GetInputTypeRef, GetOutputTypeRef, GraphqlType, InputType, OutputType};
+use crate::types::{GetInputTypeRef, GetOutputTypeRef, InputType, OutputType, TypeName};
 use crate::{Register, Registry};
 use async_graphql::{dynamic, MaybeUndefined};
 use std::borrow::Cow;
@@ -12,12 +12,12 @@ where
     }
 }
 
-impl<'a, T> GraphqlType for &'a T
+impl<'a, T> TypeName for &'a T
 where
-    T: GraphqlType + 'static,
+    T: TypeName + 'static,
 {
     fn get_type_name() -> Cow<'static, str> {
-        <T as GraphqlType>::get_type_name()
+        <T as TypeName>::get_type_name()
     }
 }
 
@@ -28,16 +28,16 @@ impl<T: Register + Clone + 'static> Register for Cow<'_, T> {
         registry.register::<T>()
     }
 }
-impl<T: OutputType + Clone + 'static> GraphqlType for Cow<'_, T> {
+impl<T: OutputType + Clone + 'static> TypeName for Cow<'_, T> {
     fn get_type_name() -> Cow<'static, str> {
-        <T as GraphqlType>::get_type_name()
+        <T as TypeName>::get_type_name()
     }
 }
 
 impl<T: OutputType + Clone + 'static> OutputType for Cow<'_, T> {}
 
 impl Register for String {}
-impl GraphqlType for String {
+impl TypeName for String {
     fn get_type_name() -> Cow<'static, str> {
         dynamic::TypeRef::STRING.into()
     }
@@ -48,7 +48,7 @@ impl InputType for String {}
 impl OutputType for String {}
 
 impl Register for &str {}
-impl GraphqlType for &str {
+impl TypeName for &str {
     fn get_type_name() -> Cow<'static, str> {
         dynamic::TypeRef::STRING.into()
     }
@@ -58,7 +58,7 @@ impl InputType for &str {}
 
 impl OutputType for &str {}
 
-impl GraphqlType for str {
+impl TypeName for str {
     fn get_type_name() -> Cow<'static, str> {
         dynamic::TypeRef::STRING.into()
     }
@@ -70,7 +70,7 @@ impl InputType for str {}
 impl OutputType for str {}
 
 impl Register for async_graphql::ID {}
-impl GraphqlType for async_graphql::ID {
+impl TypeName for async_graphql::ID {
     fn get_type_name() -> Cow<'static, str> {
         dynamic::TypeRef::ID.into()
     }
@@ -81,7 +81,7 @@ impl InputType for async_graphql::ID {}
 impl OutputType for async_graphql::ID {}
 
 impl Register for bool {}
-impl GraphqlType for bool {
+impl TypeName for bool {
     fn get_type_name() -> Cow<'static, str> {
         dynamic::TypeRef::BOOLEAN.into()
     }
@@ -92,7 +92,7 @@ impl InputType for bool {}
 impl OutputType for bool {}
 
 impl Register for f32 {}
-impl GraphqlType for f32 {
+impl TypeName for f32 {
     fn get_type_name() -> Cow<'static, str> {
         dynamic::TypeRef::FLOAT.into()
     }
@@ -103,7 +103,7 @@ impl InputType for f32 {}
 impl OutputType for f32 {}
 
 impl Register for f64 {}
-impl GraphqlType for f64 {
+impl TypeName for f64 {
     fn get_type_name() -> Cow<'static, str> {
         dynamic::TypeRef::FLOAT.into()
     }
@@ -117,7 +117,7 @@ macro_rules! int_output_value {
     ($($t:ty),*) => {
         $(
             impl Register for $t {}
-            impl GraphqlType for $t {
+            impl TypeName for $t {
                 fn get_type_name() -> Cow<'static, str> {
                     dynamic::TypeRef::INT.into()
                 }

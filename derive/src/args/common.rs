@@ -77,7 +77,7 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
         impl #impl_generics #crate_name::ParentType for #object_ident #ty_generics #where_clause {
             type Type = #object_ident #ty_generics;
         }
-        impl #impl_generics #crate_name::GraphqlType for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::TypeName for #object_ident #ty_generics #where_clause {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
@@ -92,7 +92,7 @@ pub fn impl_input_object(obj: &impl CommonObject) -> darling::Result<TokenStream
     let name = get_type_name(obj)?;
     let crate_name = get_crate_name();
     Ok(quote! {
-        impl #crate_name::GraphqlType for #object_ident {
+        impl #crate_name::TypeName for #object_ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }

@@ -137,7 +137,7 @@ fn impl_enum(enm: &impl CommonObject) -> darling::Result<TokenStream> {
     let name = get_type_name(enm)?;
 
     Ok(quote! {
-         impl #crate_name::GraphqlType for #enum_ident {
+         impl #crate_name::TypeName for #enum_ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }

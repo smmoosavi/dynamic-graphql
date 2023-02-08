@@ -15,19 +15,19 @@ pub trait RegisterFns {
     const REGISTER_FNS: &'static [fn(registry: Registry) -> Registry];
 }
 
-pub trait GraphqlType: Register {
+pub trait TypeName: Register {
     fn get_type_name() -> Cow<'static, str>;
 }
 
-pub trait OutputType: GraphqlType {
+pub trait OutputType: TypeName {
     fn get_output_type_name() -> Cow<'static, str> {
-        <Self as GraphqlType>::get_type_name()
+        <Self as TypeName>::get_type_name()
     }
 }
 
-pub trait InputType: GraphqlType {
+pub trait InputType: TypeName {
     fn get_input_type_name() -> Cow<'static, str> {
-        <Self as GraphqlType>::get_type_name()
+        <Self as TypeName>::get_type_name()
     }
 }
 

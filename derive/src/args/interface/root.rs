@@ -54,7 +54,7 @@ pub fn impl_interface(input: &Interface) -> darling::Result<TokenStream> {
 
     let ident = &input.ident;
     Ok(quote! {
-        impl #crate_name::GraphqlType for dyn #ident {
+        impl #crate_name::TypeName for dyn #ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }

@@ -1,11 +1,11 @@
-use crate::{FromValue, GraphqlType, InputType, Register, Registry};
+use crate::{FromValue, InputType, Register, Registry, TypeName};
 use async_graphql::dynamic::ValueAccessor;
 use async_graphql::{dynamic, Context, UploadValue};
 use std::borrow::Cow;
 
 pub struct Upload(usize);
 
-impl GraphqlType for Upload {
+impl TypeName for Upload {
     fn get_type_name() -> Cow<'static, str> {
         "Upload".into()
     }

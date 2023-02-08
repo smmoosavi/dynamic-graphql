@@ -93,7 +93,7 @@ fn impl_union(union: &Union) -> darling::Result<TokenStream> {
     let name = common::get_type_name(union)?;
     let ident = union.get_ident();
     Ok(quote! {
-        impl #crate_name::GraphqlType for #ident {
+        impl #crate_name::TypeName for #ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }

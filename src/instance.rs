@@ -1,6 +1,6 @@
 use crate::{
-    AnyBox, GraphqlType, Interface, InterfaceMark, Object, OutputType, Register, Registry,
-    ResolveOwned,
+    AnyBox, Interface, InterfaceMark, Object, OutputType, Register, Registry, ResolveOwned,
+    TypeName,
 };
 use async_graphql::dynamic::FieldValue;
 use async_graphql::Context;
@@ -92,7 +92,7 @@ where
     }
 }
 
-impl<I> GraphqlType for Instance<'_, I>
+impl<I> TypeName for Instance<'_, I>
 where
     I: Interface + 'static + ?Sized,
 {
