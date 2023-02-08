@@ -7,6 +7,26 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- add `#[graphql(get_type_name)` attribute to override type name
+
+```rust
+use std::borrow::Cow;
+
+#[derive(SimpleObject)]
+#[graphql(get_type_name)]
+struct Foo {
+    value: String
+}
+
+impl TypeName for Foo {
+    fn get_type_name() -> Cow<'static, str> {
+        "Bar".into()
+    }
+}
+```
+
 ### Internal
 
 - remove `MARK` from `Interface` trait

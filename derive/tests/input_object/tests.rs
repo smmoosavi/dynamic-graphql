@@ -1,8 +1,9 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::App;
+use dynamic_graphql::{App, TypeName};
 use dynamic_graphql::{FieldValue, InputObject};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
 use dynamic_graphql_derive::SimpleObject;
+use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -134,6 +135,69 @@ async fn test_schema_with_rename() {
     let query = r#"
         query {
             example(input: { other: "hello" })
+        }
+    "#;
+
+    let root = Query;
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(data, serde_json::json!({ "example": "hello" }));
+}
+
+#[tokio::test]
+async fn test_schema_with_type_name() {
+    #[derive(InputObject)]
+    #[graphql(get_type_name)]
+    struct ExampleInput {
+        pub the_string: String,
+    }
+
+    impl TypeName for ExampleInput {
+        fn get_type_name() -> Cow<'static, str> {
+            "OtherInput".into()
+        }
+    }
+
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        async fn example(&self, input: ExampleInput) -> String {
+            input.the_string
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query, ExampleInput);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+                input OtherInput {
+                    theString: String!
+                }
+                type Query {
+                    example(input: OtherInput!): String!
+                }
+                schema {
+                    query: Query
+                }
+            "#,
+        ),
+    );
+
+    let query = r#"
+        query {
+            example(input: { theString: "hello" })
         }
     "#;
 

@@ -45,6 +45,10 @@ pub struct InputObjectAttrs {
     pub name: Option<String>,
 
     #[darling(default)]
+    #[darling(rename = "get_type_name")]
+    pub type_name: bool,
+
+    #[darling(default)]
     pub rename_fields: Option<RenameRule>,
 
     #[darling(default, multiple)]
@@ -69,6 +73,10 @@ impl MakeContext<InputObjectFieldContext> for InputObject {
 impl CommonObject for InputObject {
     fn get_name(&self) -> Option<&str> {
         self.attrs.name.as_deref()
+    }
+
+    fn should_impl_type_name(&self) -> bool {
+        !self.attrs.type_name
     }
 
     fn get_ident(&self) -> &syn::Ident {

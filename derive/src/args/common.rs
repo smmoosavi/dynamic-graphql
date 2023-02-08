@@ -73,15 +73,19 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let (impl_generics, ty_generics, where_clause) = obj.get_generics()?.split_for_impl();
 
-    Ok(quote! {
-        impl #impl_generics #crate_name::ParentType for #object_ident #ty_generics #where_clause {
-            type Type = #object_ident #ty_generics;
-        }
+    let type_name = obj.should_impl_type_name().then_some(quote! {
         impl #impl_generics #crate_name::TypeName for #object_ident #ty_generics #where_clause {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
         }
+    });
+
+    Ok(quote! {
+        impl #impl_generics #crate_name::ParentType for #object_ident #ty_generics #where_clause {
+            type Type = #object_ident #ty_generics;
+        }
+        #type_name
         impl #impl_generics #crate_name::OutputTypeName for #object_ident #ty_generics #where_clause {}
         impl #impl_generics #crate_name::Object for #object_ident #ty_generics #where_clause {}
     })
@@ -91,12 +95,15 @@ pub fn impl_input_object(obj: &impl CommonObject) -> darling::Result<TokenStream
     let object_ident = obj.get_ident();
     let name = get_type_name(obj)?;
     let crate_name = get_crate_name();
-    Ok(quote! {
+    let type_name = obj.should_impl_type_name().then_some(quote! {
         impl #crate_name::TypeName for #object_ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
         }
+    });
+    Ok(quote! {
+        #type_name
         impl #crate_name::InputTypeName for #object_ident {}
         impl #crate_name::InputObject for #object_ident {}
     })

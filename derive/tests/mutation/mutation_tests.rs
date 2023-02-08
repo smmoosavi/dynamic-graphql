@@ -1,9 +1,10 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::{
     App, ExpandObject, FieldValue, Mutation, MutationFields, MutationRoot, Object, ParentType,
-    SimpleObject,
+    SimpleObject, TypeName,
 };
 use dynamic_graphql_derive::InputObject;
+use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -100,6 +101,63 @@ fn test_schema_with_rename() {
     #[derive(MutationRoot)]
     #[graphql(name = "Mutation")]
     struct MutationRoot;
+
+    #[derive(Mutation)]
+    struct MyMutation(MutationRoot);
+
+    #[MutationFields]
+    impl MyMutation {
+        fn the_example() -> String {
+            "field".to_string()
+        }
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(root)]
+    struct Query {
+        foo: String,
+    }
+
+    #[derive(App)]
+    struct App(Query, MutationRoot, MyMutation);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+
+                type Mutation {
+                  theExample: String!
+                }
+
+                type Query {
+                  foo: String!
+                }
+
+                schema {
+                  query: Query
+                  mutation: Mutation
+                }
+
+            "#
+        ),
+    );
+}
+
+#[test]
+fn test_schema_with_type_name() {
+    #[derive(MutationRoot)]
+    #[graphql(get_type_name)]
+    struct MutationRoot;
+
+    impl TypeName for MutationRoot {
+        fn get_type_name() -> Cow<'static, str> {
+            "Mutation".into()
+        }
+    }
 
     #[derive(Mutation)]
     struct MyMutation(MutationRoot);

@@ -1,5 +1,6 @@
-use dynamic_graphql::{App, Interface, Object, SimpleObject};
+use dynamic_graphql::{App, Interface, Object, SimpleObject, TypeName};
 use dynamic_graphql_derive::{ExpandObject, ExpandObjectFields};
+use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -93,6 +94,81 @@ fn test_schema_with_name() {
 
             interface Other {
               id: String!
+            }
+
+            type Query {
+              foo: String!
+            }
+
+            schema {
+              query: Query
+            }
+
+            "#
+        ),
+    );
+}
+
+#[test]
+fn test_schema_with_type_name() {
+    #[Interface]
+    #[graphql(get_type_name)]
+    trait Node {
+        fn the_id(&self) -> String;
+    }
+
+    impl TypeName for dyn Node {
+        fn get_type_name() -> Cow<'static, str> {
+            "Other".into()
+        }
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(mark(Node))]
+    struct FooNode {
+        the_id: String,
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(impl(Node))]
+    struct BarNode {
+        #[graphql(skip)]
+        the_id: String,
+    }
+
+    impl Node for BarNode {
+        fn the_id(&self) -> String {
+            self.the_id.clone()
+        }
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(root)]
+    struct Query {
+        foo: String,
+    }
+
+    #[derive(App)]
+    struct App(Query, FooNode, BarNode, dyn Node);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+
+            type BarNode implements Other {
+              theId: String!
+            }
+
+            type FooNode implements Other {
+              theId: String!
+            }
+
+            interface Other {
+              theId: String!
             }
 
             type Query {

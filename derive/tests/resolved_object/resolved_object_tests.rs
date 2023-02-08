@@ -1,8 +1,9 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, Register};
+use dynamic_graphql::{App, Register, TypeName};
 use dynamic_graphql::{FieldValue, Object};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
 use dynamic_graphql_derive::{InputObject, SimpleObject};
+use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -86,6 +87,45 @@ fn test_schema_with_rename() {
             r#"
             type Other {
               other: String!
+            }
+            schema {
+              query: Other
+            }
+            "#
+        ),
+    );
+}
+
+#[test]
+fn test_schema_with_type_name() {
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    #[graphql(get_type_name)]
+    struct Query;
+
+    impl TypeName for Query {
+        fn get_type_name() -> Cow<'static, str> {
+            "Other".into()
+        }
+    }
+
+    #[ResolvedObjectFields]
+    impl Query {
+        fn the_string(&self) -> String {
+            "Hello".to_string()
+        }
+    }
+
+    let registry = dynamic_graphql::Registry::new();
+    let registry = registry.register::<Query>();
+    let schema = registry.create_schema().finish().unwrap();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+            type Other {
+              theString: String!
             }
             schema {
               query: Other

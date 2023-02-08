@@ -1,6 +1,7 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, ResolvedObject, ResolvedObjectFields, SimpleObject};
+use dynamic_graphql::{App, ResolvedObject, ResolvedObjectFields, SimpleObject, TypeName};
 use dynamic_graphql::{FieldValue, Union};
+use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -134,6 +135,74 @@ fn test_schema_with_rename() {
     enum Animal {
         Dog(Dog),
         Cat(Cat),
+    }
+
+    #[derive(SimpleObject)]
+    #[graphql(root)]
+    struct Query {
+        pet: Animal,
+    }
+
+    #[derive(App)]
+    struct App(Query, Animal, Dog, Cat);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+                type Cat {
+                  name: String!
+                  life: Int!
+                }
+
+                type Dog {
+                  name: String!
+                  power: Int!
+                }
+
+                union Other = Dog | Cat
+
+                type Query {
+                  pet: Other!
+                }
+
+                schema {
+                  query: Query
+                }
+            "#
+        )
+    );
+}
+
+#[test]
+fn test_schema_with_type_name() {
+    #[derive(SimpleObject)]
+    struct Cat {
+        name: String,
+        life: i32,
+    }
+
+    #[derive(SimpleObject)]
+    struct Dog {
+        name: String,
+        power: i32,
+    }
+
+    #[allow(dead_code)]
+    #[derive(Union)]
+    #[graphql(get_type_name)]
+    enum Animal {
+        Dog(Dog),
+        Cat(Cat),
+    }
+
+    impl TypeName for Animal {
+        fn get_type_name() -> Cow<'static, str> {
+            "Other".into()
+        }
     }
 
     #[derive(SimpleObject)]

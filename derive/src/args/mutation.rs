@@ -30,6 +30,10 @@ impl CommonObject for Mutation {
         None
     }
 
+    fn should_impl_type_name(&self) -> bool {
+        false
+    }
+
     fn get_ident(&self) -> &Ident {
         &self.ident
     }

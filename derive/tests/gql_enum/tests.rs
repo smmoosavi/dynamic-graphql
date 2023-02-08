@@ -1,6 +1,7 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql::{App, ResolvedObject, ResolvedObjectFields, TypeName};
 use dynamic_graphql::{Enum, FieldValue, Variables};
+use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -218,6 +219,102 @@ async fn test_rename() {
     let data = res.data.into_json().unwrap();
 
     assert_eq!(data, serde_json::json!({ "byExample": "Other" }));
+}
+
+#[tokio::test]
+async fn test_type_name() {
+    #[derive(Enum)]
+    #[graphql(get_type_name)]
+    enum Example {
+        Foo,
+        Bar,
+    }
+
+    impl TypeName for Example {
+        fn get_type_name() -> Cow<'static, str> {
+            "Other".into()
+        }
+    }
+
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query {
+        example: Example,
+    }
+
+    #[ResolvedObjectFields]
+    impl Query {
+        fn example(&self) -> &Example {
+            &self.example
+        }
+        fn by_example(&self, example: Example) -> Example {
+            example
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query, Example);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+            enum Other {
+                FOO
+                BAR
+            }
+            type Query {
+              example: Other!
+              byExample(example: Other!): Other!
+            }
+            schema {
+              query: Query
+            }
+            "#
+        )
+    );
+
+    let query = r#"
+        query {
+            example
+            byExample(example: FOO)
+        }
+    "#;
+    let root = Query {
+        example: Example::Foo,
+    };
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!({ "example": "FOO", "byExample": "FOO" })
+    );
+
+    let query = r#"
+        query($example: Other!) {
+            byExample(example: $example)
+        }
+    "#;
+    let root = Query {
+        example: Example::Foo,
+    };
+    let variables = serde_json::json!({
+        "example": "FOO"
+    });
+    let req = dynamic_graphql::Request::new(query)
+        .variables(Variables::from_json(variables))
+        .root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(data, serde_json::json!({ "byExample": "FOO" }));
 }
 
 #[tokio::test]

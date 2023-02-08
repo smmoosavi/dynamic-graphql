@@ -27,6 +27,10 @@ impl CommonObject for ExpandObject {
         None
     }
 
+    fn should_impl_type_name(&self) -> bool {
+        false
+    }
+
     fn get_ident(&self) -> &syn::Ident {
         &self.ident
     }

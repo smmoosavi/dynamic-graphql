@@ -45,6 +45,10 @@ pub struct EnumAttributes {
     pub name: Option<String>,
 
     #[darling(default)]
+    #[darling(rename = "get_type_name")]
+    pub type_name: bool,
+
+    #[darling(default)]
     pub rename_items: Option<RenameRule>,
 
     #[darling(default)]
@@ -72,6 +76,10 @@ impl MakeContext<EnumVariantContext> for Enum {
 impl CommonObject for Enum {
     fn get_name(&self) -> Option<&str> {
         self.attrs.name.as_deref()
+    }
+
+    fn should_impl_type_name(&self) -> bool {
+        !self.attrs.type_name
     }
 
     fn get_ident(&self) -> &syn::Ident {
@@ -136,12 +144,16 @@ fn impl_enum(enm: &impl CommonObject) -> darling::Result<TokenStream> {
     let enum_ident = enm.get_ident();
     let name = get_type_name(enm)?;
 
-    Ok(quote! {
+    let type_name = enm.should_impl_type_name().then_some(quote! {
          impl #crate_name::TypeName for #enum_ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
         }
+    });
+
+    Ok(quote! {
+        #type_name
         impl #crate_name::InputTypeName for #enum_ident {}
         impl #crate_name::OutputTypeName for #enum_ident {}
         impl #crate_name::Enum for #enum_ident {}

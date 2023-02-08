@@ -127,6 +127,10 @@ impl CommonObject for ResolvedObjectFields {
         unreachable!("ResolvedObjectFields does not have a name");
     }
 
+    fn should_impl_type_name(&self) -> bool {
+        false
+    }
+
     fn get_ident(&self) -> &Ident {
         unreachable!("ResolvedObjectFields does not have an ident");
     }

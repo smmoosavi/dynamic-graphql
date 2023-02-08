@@ -6,6 +6,7 @@ use crate::utils::rename_rule::RenameRule;
 pub trait CommonObject {
     /// user defined name
     fn get_name(&self) -> Option<&str>;
+    fn should_impl_type_name(&self) -> bool;
     fn get_ident(&self) -> &syn::Ident;
     fn get_type(&self) -> darling::Result<syn::Path>;
     fn get_generics(&self) -> darling::Result<&syn::Generics>;

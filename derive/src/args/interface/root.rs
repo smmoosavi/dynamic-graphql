@@ -53,12 +53,17 @@ pub fn impl_interface(input: &Interface) -> darling::Result<TokenStream> {
     let name = get_type_name(input)?;
 
     let ident = &input.ident;
-    Ok(quote! {
+
+    let type_name = input.should_impl_type_name().then_some(quote! {
         impl #crate_name::TypeName for dyn #ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
         }
+    });
+
+    Ok(quote! {
+        #type_name
         impl #crate_name::OutputTypeName for dyn #ident {}
         impl #crate_name::Interface for dyn #ident {}
     })

@@ -18,6 +18,10 @@ pub struct MutationRootAttrs {
     #[darling(default)]
     pub name: Option<String>,
 
+    #[darling(default)]
+    #[darling(rename = "get_type_name")]
+    pub type_name: bool,
+
     #[darling(default, multiple)]
     #[darling(rename = "register")]
     pub registers: Vec<RegisterAttr>,
@@ -32,6 +36,7 @@ from_derive_input!(
 impl From<MutationRoot> for SimpleObject {
     fn from(value: MutationRoot) -> Self {
         let name = value.0.attrs.inner.name;
+        let type_name = value.0.attrs.inner.type_name;
         let doc = value.0.attrs.doc;
         let ident = value.0.inner.ident;
         let registers = value.0.attrs.inner.registers;
@@ -43,6 +48,7 @@ impl From<MutationRoot> for SimpleObject {
                     root: false,
                     mutation_root: true,
                     name,
+                    type_name,
                     rename_fields: None,
                     registers,
                     marks: vec![],

@@ -22,6 +22,10 @@ pub struct UnionAttrs {
     #[darling(default)]
     name: Option<String>,
 
+    #[darling(default)]
+    #[darling(rename = "get_type_name")]
+    pub type_name: bool,
+
     #[darling(default, multiple)]
     #[darling(rename = "register")]
     pub registers: Vec<RegisterAttr>,
@@ -35,6 +39,10 @@ from_derive_input!(
 impl CommonObject for Union {
     fn get_name(&self) -> Option<&str> {
         self.attrs.name.as_deref()
+    }
+
+    fn should_impl_type_name(&self) -> bool {
+        !self.attrs.type_name
     }
 
     fn get_ident(&self) -> &Ident {
@@ -92,12 +100,15 @@ fn impl_union(union: &Union) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let name = common::get_type_name(union)?;
     let ident = union.get_ident();
-    Ok(quote! {
+    let type_name = union.should_impl_type_name().then_some(quote! {
         impl #crate_name::TypeName for #ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
         }
+    });
+    Ok(quote! {
+        #type_name
         impl #crate_name::OutputTypeName for #ident {}
         impl #crate_name::Union for #ident {}
     })
@@ -175,11 +186,10 @@ fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::T
     })
 }
 
-fn define_union_code(union: &Union) -> darling::Result<TokenStream> {
+fn define_union_code() -> darling::Result<TokenStream> {
     let create_name = get_crate_name();
-    let name = common::get_type_name(union)?;
     Ok(quote! {
-        let object = #create_name::dynamic::Union::new(#name);
+        let object = #create_name::dynamic::Union::new(<Self as #create_name::Union>::get_union_type_name().as_ref());
     })
 }
 
@@ -207,7 +217,7 @@ fn impl_register(union: &Union) -> darling::Result<TokenStream> {
     let ident = union.get_ident();
     let register_nested_types = common::get_nested_type_register_code(union).into_token_stream();
 
-    let define_union = define_union_code(union).into_token_stream();
+    let define_union = define_union_code().into_token_stream();
     let description = union
         .get_doc()
         .and_then(|doc| common::object_description(doc.as_deref()))

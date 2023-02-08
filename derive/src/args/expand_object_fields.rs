@@ -129,6 +129,10 @@ impl CommonObject for ExpandObjectFields {
         unreachable!("ResolvedObjectFields does not have a name");
     }
 
+    fn should_impl_type_name(&self) -> bool {
+        false
+    }
+
     fn get_ident(&self) -> &syn::Ident {
         unreachable!("ResolvedObjectFields does not have an ident");
     }
