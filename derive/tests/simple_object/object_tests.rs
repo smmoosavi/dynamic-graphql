@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::internal::{Object, Registry, TypeName};
+use dynamic_graphql::internal::{Object, TypeName};
 use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::SimpleObject;
@@ -51,9 +51,10 @@ fn test_schema() {
     struct Query {
         pub string: String,
     }
-    let registry = Registry::new();
-    let registry = registry.register::<Query>();
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
@@ -115,9 +116,10 @@ fn test_schema_with_type_name() {
         }
     }
 
-    let registry = Registry::new();
-    let registry = registry.register::<Query>();
-    let schema = registry.create_schema().finish().unwrap();
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     assert_eq!(
         normalize_schema(&sdl),
