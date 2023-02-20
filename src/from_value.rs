@@ -40,7 +40,14 @@ macro_rules! uint_from_value {
         $(
             impl FromValue for $t {
                 fn from_value(value: Result<dynamic::ValueAccessor>) -> InputValueResult<Self> {
-                    Ok(value?.u64()? as $t)
+                    Self::try_from(value?.u64()?).map_err(|_| {
+                        InputValueError::custom(format!(
+                            "Only integers from {} to {} are accepted for {}.",
+                            Self::MIN,
+                            Self::MAX,
+                            stringify!($t),
+                        ))
+                    })
                 }
             }
         )*
@@ -51,7 +58,14 @@ macro_rules! int_from_value {
         $(
             impl FromValue for $t {
                 fn from_value(value: Result<dynamic::ValueAccessor>) -> InputValueResult<Self> {
-                    Ok(value?.i64()? as $t)
+                    Self::try_from(value?.u64()?).map_err(|_| {
+                        InputValueError::custom(format!(
+                            "Only integers from {} to {} are accepted for {}.",
+                            Self::MIN,
+                            Self::MAX,
+                            stringify!($t),
+                        ))
+                    })
                 }
             }
         )*

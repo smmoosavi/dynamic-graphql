@@ -471,3 +471,72 @@ async fn test_query_with_maybe_undefined() {
         }),
     );
 }
+
+#[tokio::test]
+async fn test_query_numbers() {
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query {}
+
+    #[ResolvedObjectFields]
+    impl Query {
+        fn by_u8(&self, name: u8) -> String {
+            format!("u8: {}", name)
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+            type Query {
+                byU8(name: Int!): String!
+            }
+            schema {
+              query: Query
+            }
+
+            "#,
+        )
+    );
+
+    let query = r#"{
+        byU8(name: 1)
+     }"#;
+    let root = Query {};
+    let req = dynamic_graphql::Request::new(query)
+        .data("Hello".to_string())
+        .root_value(FieldValue::owned_any(root));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "byU8": "u8: 1",
+        }),
+    );
+
+    // error on overflow
+    let query = r#"{
+        byU8(name: 300)
+     }"#;
+    let root = Query {};
+    let req = dynamic_graphql::Request::new(query)
+        .data("Hello".to_string())
+        .root_value(FieldValue::owned_any(root));
+
+    let res = schema.execute(req).await;
+    println!("{:?}", res.errors);
+    assert_eq!(
+        res.errors[0].message,
+        r#"Invalid value for argument "name": Failed to parse "Int": Only integers from 0 to 255 are accepted for u8."#,
+    );
+}

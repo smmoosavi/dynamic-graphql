@@ -196,3 +196,77 @@ async fn test_object_type() {
 
     assert_eq!(data, serde_json::json!({ "example": "hello" }));
 }
+
+#[tokio::test]
+async fn test_number() {
+    #[derive(InputObject)]
+    struct ExampleInput {
+        pub value: u8,
+    }
+
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        async fn example(&self, input: ExampleInput) -> u8 {
+            input.value
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query, ExampleInput);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+                input ExampleInput {
+                  value: Int!
+                }
+                type Query {
+                    example(input: ExampleInput!): Int!
+                }
+                schema {
+                    query: Query
+                }
+            "#,
+        ),
+    );
+
+    let query = r#"
+        query {
+            example(input: { value: 1 })
+        }
+    "#;
+
+    let root = Query;
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(data, serde_json::json!({ "example": 1 }));
+
+    let query = r#"
+        query {
+            example(input: { value: 256 })
+        }
+    "#;
+
+    let root = Query;
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+
+    assert_eq!(res.errors.len(), 1);
+
+    let error = res.errors.first().unwrap();
+    assert_eq!(
+        error.message,
+        r#"Invalid value for argument "input": Failed to parse "ExampleInput": Invalid value for field "value": Failed to parse "Int": Only integers from 0 to 255 are accepted for u8."#
+    );
+}
