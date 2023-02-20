@@ -1,5 +1,5 @@
 use crate::registry::Registry;
-use async_graphql::dynamic::TypeRef;
+use crate::types::common::TypeRefInner;
 use std::borrow::Cow;
 
 mod common;
@@ -80,11 +80,9 @@ pub trait ExpandObject: ParentType {
 }
 
 pub trait GetOutputTypeRef {
-    type Output: Into<TypeRef>;
-    fn get_output_type_ref() -> Self::Output;
+    fn get_output_type_ref() -> TypeRefInner;
 }
 
 pub trait GetInputTypeRef {
-    type Output: Into<TypeRef>;
-    fn get_input_type_ref() -> Self::Output;
+    fn get_input_type_ref() -> TypeRefInner;
 }

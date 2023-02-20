@@ -226,81 +226,71 @@ impl<T, E> GetOutputTypeRef for Result<T, E>
 where
     T: GetOutputTypeRef,
 {
-    type Output = T::Output;
     #[inline]
-    fn get_output_type_ref() -> Self::Output {
+    fn get_output_type_ref() -> TypeRefInner {
         T::get_output_type_ref()
     }
 }
 
 impl<T: OutputTypeName> GetOutputTypeRef for T {
-    type Output = TypeRefInner;
     #[inline]
-    fn get_output_type_ref() -> Self::Output {
+    fn get_output_type_ref() -> TypeRefInner {
         TypeRefInner::NamedNN(T::get_output_type_name().to_string())
     }
 }
 
-impl<T: GetOutputTypeRef<Output = TypeRefInner>> GetOutputTypeRef for Option<T> {
-    type Output = TypeRefInner;
+impl<T: GetOutputTypeRef> GetOutputTypeRef for Option<T> {
     #[inline]
-    fn get_output_type_ref() -> Self::Output {
+    fn get_output_type_ref() -> TypeRefInner {
         let t = T::get_output_type_ref();
         t.optional()
     }
 }
 
-impl<T: GetOutputTypeRef<Output = TypeRefInner>> GetOutputTypeRef for Vec<T> {
-    type Output = TypeRefInner;
+impl<T: GetOutputTypeRef> GetOutputTypeRef for Vec<T> {
     #[inline]
-    fn get_output_type_ref() -> Self::Output {
+    fn get_output_type_ref() -> TypeRefInner {
         T::get_output_type_ref().list()
     }
 }
 
-impl<T: GetOutputTypeRef<Output = TypeRefInner>> GetOutputTypeRef for &[T] {
-    type Output = TypeRefInner;
+impl<T: GetOutputTypeRef> GetOutputTypeRef for &[T] {
     #[inline]
-    fn get_output_type_ref() -> Self::Output {
+    fn get_output_type_ref() -> TypeRefInner {
         T::get_output_type_ref().list()
     }
 }
 
 impl<T: InputTypeName> GetInputTypeRef for T {
-    type Output = TypeRefInner;
     #[inline]
-    fn get_input_type_ref() -> Self::Output {
+    fn get_input_type_ref() -> TypeRefInner {
         TypeRefInner::NamedNN(T::get_input_type_name().to_string())
     }
 }
 
-impl<T: GetInputTypeRef<Output = TypeRefInner>> GetInputTypeRef for Option<T> {
-    type Output = TypeRefInner;
+impl<T: GetInputTypeRef> GetInputTypeRef for Option<T> {
     #[inline]
-    fn get_input_type_ref() -> Self::Output {
+    fn get_input_type_ref() -> TypeRefInner {
         T::get_input_type_ref().optional()
     }
 }
 
-impl<T: GetInputTypeRef<Output = TypeRefInner>> GetInputTypeRef for MaybeUndefined<T> {
-    type Output = TypeRefInner;
+impl<T: GetInputTypeRef> GetInputTypeRef for MaybeUndefined<T> {
     #[inline]
-    fn get_input_type_ref() -> Self::Output {
+    fn get_input_type_ref() -> TypeRefInner {
         T::get_input_type_ref().optional()
     }
 }
 
-impl<T: GetInputTypeRef<Output = TypeRefInner>> GetInputTypeRef for Vec<T> {
-    type Output = TypeRefInner;
+impl<T: GetInputTypeRef> GetInputTypeRef for Vec<T> {
     #[inline]
-    fn get_input_type_ref() -> Self::Output {
+    fn get_input_type_ref() -> TypeRefInner {
         T::get_input_type_ref().list()
     }
 }
-impl<T: GetInputTypeRef<Output = TypeRefInner>> GetInputTypeRef for &[T] {
-    type Output = TypeRefInner;
+impl<T: GetInputTypeRef> GetInputTypeRef for &[T] {
     #[inline]
-    fn get_input_type_ref() -> Self::Output {
+    fn get_input_type_ref() -> TypeRefInner {
         T::get_input_type_ref().list()
     }
 }
