@@ -7,6 +7,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- fix silent integer overflow cast in `FromValue` trait. Now it returns error if value is out of range.
+
+### Internal
+
+- simplify `GetOutputTypeRef`/`GetInputTypeRef` signatures
+- change signature of `FromValue` trait. Now it returns `InputValueResult<Self>`
+
 ## [0.6.1] - 2023-02-08
 
 ### Added
