@@ -1,8 +1,10 @@
+use std::borrow::Cow;
+
 use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::internal::{Object, Registry, TypeName};
+use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::SimpleObject;
-use dynamic_graphql::{App, TypeName};
-use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -13,10 +15,7 @@ fn test_impl_object() {
     struct Example {
         pub string: String,
     }
-    assert_eq!(
-        <Example as dynamic_graphql::Object>::get_object_type_name(),
-        "Example"
-    );
+    assert_eq!(<Example as Object>::get_object_type_name(), "Example");
 }
 
 #[test]
@@ -27,10 +26,7 @@ fn test_impl_object_with_name() {
     struct Example {
         pub string: String,
     }
-    assert_eq!(
-        <Example as dynamic_graphql::Object>::get_object_type_name(),
-        "Other"
-    );
+    assert_eq!(<Example as Object>::get_object_type_name(), "Other");
 }
 
 #[test]
@@ -55,7 +51,7 @@ fn test_schema() {
     struct Query {
         pub string: String,
     }
-    let registry = dynamic_graphql::Registry::new();
+    let registry = Registry::new();
     let registry = registry.register::<Query>();
     let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -119,7 +115,7 @@ fn test_schema_with_type_name() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
+    let registry = Registry::new();
     let registry = registry.register::<Query>();
     let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -356,10 +352,7 @@ fn test_rename_fields() {
     struct the_query {
         pub the_string: String,
     }
-    assert_eq!(
-        <the_query as dynamic_graphql::Object>::get_object_type_name(),
-        "TheQuery"
-    );
+    assert_eq!(<the_query as Object>::get_object_type_name(), "TheQuery");
     #[derive(App)]
     struct App(the_query);
 

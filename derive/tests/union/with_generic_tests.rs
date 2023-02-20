@@ -1,9 +1,13 @@
-use crate::schema_utils::normalize_schema;
-use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{FieldValue, Object, OutputTypeName, ResolveOwned, ResolveRef, TypeName};
-use dynamic_graphql_derive::{App, SimpleObject, Union};
 use std::borrow::Cow;
+
 use syn::__private::str;
+
+use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::internal::{Object, OutputTypeName, ResolveOwned, ResolveRef, TypeName};
+use dynamic_graphql::FieldValue;
+use dynamic_graphql::{App, SimpleObject, Union};
+
+use crate::schema_utils::normalize_schema;
 
 #[tokio::test]
 async fn test_query_simple_generic() {

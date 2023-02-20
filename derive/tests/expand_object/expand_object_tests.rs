@@ -1,8 +1,11 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{
-    App, ExpandObject, ExpandObjectFields, FieldValue, Object, ParentType, SimpleObject,
-};
-use dynamic_graphql_derive::InputObject;
+use dynamic_graphql::internal::{ExpandObject, Object, ParentType};
+use dynamic_graphql::App;
+use dynamic_graphql::ExpandObject;
+use dynamic_graphql::ExpandObjectFields;
+use dynamic_graphql::FieldValue;
+use dynamic_graphql::InputObject;
+use dynamic_graphql::SimpleObject;
 
 use crate::schema_utils::normalize_schema;
 

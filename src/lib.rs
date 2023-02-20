@@ -16,19 +16,26 @@ pub use async_graphql::{
     Variables, ID,
 };
 
-pub use any_box::AnyBox;
-pub use data::GetSchemaData;
-pub use errors::{InputValueError, InputValueResult};
-pub use from_value::FromValue;
-pub use instance::{Instance, RegisterInstance};
-pub use registry::Registry;
-pub use resolve::{Resolve, ResolveOwned, ResolveRef};
-pub use type_ref_builder::TypeRefBuilder;
-pub use types::{
-    Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, InputObject, InputTypeName, Interface,
-    InterfaceMark, Mutation, Object, OutputTypeName, ParentType, Register, RegisterFns, Scalar,
-    TypeName, Union,
-};
+pub mod internal {
+    pub use crate::any_box::AnyBox;
+    pub use crate::errors::{InputValueError, InputValueResult};
+    pub use crate::from_value::FromValue;
+    pub use crate::instance::RegisterInstance;
+    pub use crate::registry::Registry;
+    pub use crate::resolve::{Resolve, ResolveOwned, ResolveRef};
+    pub use crate::type_ref_builder::TypeRefBuilder;
+    pub use crate::types::{
+        Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, InputObject, InputTypeName,
+        Interface, InterfaceMark, Mutation, Object, OutputTypeName, ParentType, Register,
+        RegisterFns, Scalar, TypeName, Union,
+    };
+}
+
+pub mod experimental {
+    pub use crate::data::GetSchemaData;
+}
+
+pub use instance::Instance;
 pub use upload::Upload;
 
 pub use dynamic_graphql_derive::{

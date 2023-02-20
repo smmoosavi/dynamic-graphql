@@ -37,7 +37,7 @@ pub fn get_interface_mark_code(obj: &impl CommonInterfaceAttrs) -> darling::Resu
         .map(|interface| {
             let path = &interface.path;
             quote! {
-                let object = object.implement(<dyn #path as #crate_name::Interface>::get_interface_type_name());
+                let object = object.implement(<dyn #path as #crate_name::internal::Interface>::get_interface_type_name());
             }
         })
         .collect();
@@ -83,7 +83,7 @@ pub fn impl_interface_mark(object: &impl CommonInterfaceAttrs) -> darling::Resul
         .map(|interface| {
             let path = &interface.path;
             quote! {
-                impl #crate_name::InterfaceMark<dyn #path> for #object_ident {}
+                impl #crate_name::internal::InterfaceMark<dyn #path> for #object_ident {}
             }
         })
         .collect();
@@ -94,7 +94,7 @@ pub fn impl_interface_mark(object: &impl CommonInterfaceAttrs) -> darling::Resul
         .map(|interface| {
             let path = &interface.path;
             quote! {
-                impl #crate_name::InterfaceMark<dyn #path> for #object_ident {}
+                impl #crate_name::internal::InterfaceMark<dyn #path> for #object_ident {}
             }
         })
         .collect();

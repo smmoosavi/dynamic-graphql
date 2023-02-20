@@ -13,6 +13,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Internal
 
+- move internal types to `internal` module
 - simplify `GetOutputTypeRef`/`GetInputTypeRef` signatures
 - change signature of `FromValue` trait. Now it returns `InputValueResult<Self>`
 

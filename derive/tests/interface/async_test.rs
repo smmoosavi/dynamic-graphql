@@ -1,8 +1,10 @@
-use crate::schema_utils::normalize_schema;
 use async_trait::async_trait;
+
 use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::{App, Interface, ResolvedObject, ResolvedObjectFields, SimpleObject};
 use dynamic_graphql::{FieldValue, Instance};
-use dynamic_graphql_derive::{App, Interface, ResolvedObject, ResolvedObjectFields, SimpleObject};
+
+use crate::schema_utils::normalize_schema;
 
 #[tokio::test]
 async fn test_async_trait() {

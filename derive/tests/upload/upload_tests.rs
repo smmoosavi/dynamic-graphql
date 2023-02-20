@@ -1,7 +1,9 @@
-use crate::schema_utils::normalize_schema;
-use dynamic_graphql::{App, Context, Upload, UploadValue, Variables};
-use dynamic_graphql_derive::{InputObject, Mutation, MutationFields, MutationRoot, SimpleObject};
 use std::io::{Read, Write};
+
+use dynamic_graphql::{App, Context, Upload, UploadValue, Variables};
+use dynamic_graphql::{InputObject, Mutation, MutationFields, MutationRoot, SimpleObject};
+
+use crate::schema_utils::normalize_schema;
 
 fn create_upload_value(content: String) -> (tempfile::NamedTempFile, UploadValue) {
     let mut temp_file = tempfile::NamedTempFile::new().unwrap();

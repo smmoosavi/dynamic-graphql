@@ -88,7 +88,7 @@ where
     let execute = method.get_execute_code()?;
     let resolve = method.get_resolve_code()?;
     Ok(quote! {
-        let field = #crate_name::dynamic::Field::new(#field_name, <#field_type as #crate_name::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
+        let field = #crate_name::dynamic::Field::new(#field_name, <#field_type as #crate_name::internal::GetOutputTypeRef>::get_output_type_ref(), |ctx| {
             #crate_name::dynamic::FieldFuture::new(async move {
                 #graphql_args_definition
                 #execute
@@ -122,6 +122,6 @@ pub fn resolve_value_code() -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
 
     Ok(quote! {
-        #crate_name::Resolve::resolve(value, &ctx)
+        #crate_name::internal::Resolve::resolve(value, &ctx)
     })
 }

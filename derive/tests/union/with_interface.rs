@@ -1,7 +1,8 @@
-use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::FieldValue;
-use dynamic_graphql_derive::{App, Interface, SimpleObject, Union};
+use dynamic_graphql::{App, Interface, SimpleObject, Union};
+
+use crate::schema_utils::normalize_schema;
 
 #[tokio::test]
 #[ignore]

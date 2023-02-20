@@ -145,7 +145,7 @@ fn impl_enum(enm: &impl CommonObject) -> darling::Result<TokenStream> {
     let name = get_type_name(enm)?;
 
     let type_name = enm.should_impl_type_name().then_some(quote! {
-         impl #crate_name::TypeName for #enum_ident {
+         impl #crate_name::internal::TypeName for #enum_ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
@@ -154,9 +154,9 @@ fn impl_enum(enm: &impl CommonObject) -> darling::Result<TokenStream> {
 
     Ok(quote! {
         #type_name
-        impl #crate_name::InputTypeName for #enum_ident {}
-        impl #crate_name::OutputTypeName for #enum_ident {}
-        impl #crate_name::Enum for #enum_ident {}
+        impl #crate_name::internal::InputTypeName for #enum_ident {}
+        impl #crate_name::internal::OutputTypeName for #enum_ident {}
+        impl #crate_name::internal::Enum for #enum_ident {}
     })
 }
 
@@ -243,14 +243,14 @@ fn impl_from_value(enm: &Enum) -> darling::Result<TokenStream> {
     let match_items = get_from_value_match_items(enm)?;
 
     Ok(quote! {
-        impl #crate_name::FromValue for #enum_ident {
-            fn from_value(__value: #crate_name::Result<#crate_name::dynamic::ValueAccessor>) -> #crate_name::InputValueResult<Self> {
+        impl #crate_name::internal::FromValue for #enum_ident {
+            fn from_value(__value: #crate_name::Result<#crate_name::dynamic::ValueAccessor>) -> #crate_name::internal::InputValueResult<Self> {
                 let __value = __value?;
                 let string_value = __value.enum_name()?;
                 match string_value {
                     #match_items
-                    _ => Err(#crate_name::InputValueError::custom(
-                        format!("Unknown variant `{}` for enum `{}`", string_value, <#enum_ident as #crate_name::Enum>::get_enum_type_name().as_ref()),
+                    _ => Err(#crate_name::internal::InputValueError::custom(
+                        format!("Unknown variant `{}` for enum `{}`", string_value, <#enum_ident as #crate_name::internal::Enum>::get_enum_type_name().as_ref()),
                     )),
                 }
             }
@@ -366,10 +366,10 @@ fn impl_register(enm: &Enum) -> darling::Result<TokenStream> {
     let register_attr = &enm.attrs.registers;
     // todo rename object to enm
     Ok(quote! {
-        impl #crate_name::Register for #enum_ident {
-            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+        impl #crate_name::internal::Register for #enum_ident {
+            fn register(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
                 #( #register_attr )*
-                let object = #crate_name::dynamic::Enum::new(<#enum_ident as #crate_name::Enum>::get_enum_type_name().as_ref());
+                let object = #crate_name::dynamic::Enum::new(<#enum_ident as #crate_name::internal::Enum>::get_enum_type_name().as_ref());
                 #description
                 #items
                 #register_union

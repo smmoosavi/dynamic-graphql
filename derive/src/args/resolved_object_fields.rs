@@ -238,7 +238,7 @@ impl ArgImplementor for ResolvedObjectFieldsArg {
         let arg_ident = common::get_arg_ident(self);
 
         Ok(quote! {
-            let parent = ctx.parent_value.try_downcast_ref::<<Self as #crate_name::ParentType>::Type>()?.into();
+            let parent = ctx.parent_value.try_downcast_ref::<<Self as #crate_name::internal::ParentType>::Type>()?.into();
             let #arg_ident = parent;
         })
     }
@@ -318,8 +318,8 @@ fn impl_register(object: &ResolvedObjectFields) -> darling::Result<TokenStream> 
     let (impl_generics, _, where_clause) = object.get_generics()?.split_for_impl();
 
     Ok(quote! {
-        impl #impl_generics #crate_name::Register for #ty #where_clause {
-            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+        impl #impl_generics #crate_name::internal::Register for #ty #where_clause {
+            fn register(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
 
                 #register_nested_types
 

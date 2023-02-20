@@ -104,7 +104,7 @@ fn impl_union(union: &Union) -> darling::Result<TokenStream> {
     let (impl_generics, ty_generics, where_clause) = union.get_generics()?.split_for_impl();
 
     let type_name = union.should_impl_type_name().then_some(quote! {
-        impl #impl_generics #crate_name::TypeName for #ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::internal::TypeName for #ident #ty_generics #where_clause {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
@@ -112,8 +112,8 @@ fn impl_union(union: &Union) -> darling::Result<TokenStream> {
     });
     Ok(quote! {
         #type_name
-        impl #impl_generics #crate_name::OutputTypeName for #ident #ty_generics #where_clause {}
-        impl #impl_generics #crate_name::Union for #ident #ty_generics #where_clause {}
+        impl #impl_generics #crate_name::internal::OutputTypeName for #ident #ty_generics #where_clause {}
+        impl #impl_generics #crate_name::internal::Union for #ident #ty_generics #where_clause {}
     })
 }
 
@@ -127,7 +127,7 @@ fn define_resolve_owned_match_pattern(
     let variant_type = get_type_path(&item.fields.ty)?;
     Ok(quote! {
         #union_ident::#variant_ident(value) => {
-            #crate_name::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::Object>::get_object_type_name())))
+            #crate_name::internal::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::internal::Object>::get_object_type_name())))
         }
     })
 }
@@ -145,7 +145,7 @@ fn define_resolve_owned_for_union(union: &Union) -> darling::Result<proc_macro2:
     let (generics_with_lifetime, lifetime) = add_new_lifetime_to_generics(union.get_generics()?);
     let (impl_generics, _, _) = generics_with_lifetime.split_for_impl();
     Ok(quote! {
-        impl #impl_generics #crate_name::ResolveOwned<#lifetime> for #ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::internal::ResolveOwned<#lifetime> for #ident #ty_generics #where_clause {
             fn resolve_owned(self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<#lifetime>>> {
                 match self {
                     #(#match_patterns),*
@@ -165,7 +165,7 @@ fn define_resolve_ref_match_pattern(
     let variant_type = get_type_path(&item.fields.ty)?;
     Ok(quote! {
         #union_ident::#variant_ident(value) => {
-            #crate_name::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::Object>::get_object_type_name())))
+            #crate_name::internal::Resolve::resolve(value,ctx).map(|value| value.map(|value| value.with_type(<#variant_type as #crate_name::internal::Object>::get_object_type_name())))
         }
     })
 }
@@ -183,7 +183,7 @@ fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::T
     let (generics_with_lifetime, lifetime) = add_new_lifetime_to_generics(union.get_generics()?);
     let (impl_generics, _, _) = generics_with_lifetime.split_for_impl();
     Ok(quote! {
-        impl #impl_generics #crate_name::ResolveRef<#lifetime> for #ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::internal::ResolveRef<#lifetime> for #ident #ty_generics #where_clause {
             fn resolve_ref(&#lifetime self, ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<#lifetime>>> {
                 match self {
                     #(#match_patterns),*
@@ -196,7 +196,7 @@ fn define_resolve_ref_for_union(union: &Union) -> darling::Result<proc_macro2::T
 fn define_union_code() -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     Ok(quote! {
-        let object = #crate_name::dynamic::Union::new(<Self as #crate_name::Union>::get_union_type_name().as_ref());
+        let object = #crate_name::dynamic::Union::new(<Self as #crate_name::internal::Union>::get_union_type_name().as_ref());
     })
 }
 
@@ -204,7 +204,7 @@ fn define_item(item: &UnionItem) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let ty = get_owned_type(&item.fields.ty);
     Ok(quote! {
-        let object = object.possible_type(<#ty as #crate_name::Object>::get_object_type_name().as_ref());
+        let object = object.possible_type(<#ty as #crate_name::internal::Object>::get_object_type_name().as_ref());
     })
 }
 
@@ -235,8 +235,8 @@ fn impl_register(union: &Union) -> darling::Result<TokenStream> {
     let (impl_generics, ty_generics, where_clause) = union.generics.split_for_impl();
 
     Ok(quote! {
-        impl #impl_generics #crate_name::Register for #ident #ty_generics #where_clause {
-            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+        impl #impl_generics #crate_name::internal::Register for #ident #ty_generics #where_clause {
+            fn register(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
 
                 #( #register_attr )*
 

@@ -1,4 +1,4 @@
-use dynamic_graphql::Registry;
+use dynamic_graphql::internal::{Register, Registry};
 use dynamic_graphql::{App, SimpleObject};
 
 use crate::schema_utils::normalize_schema;
@@ -69,7 +69,7 @@ fn test_app_with_generic() {
     }
 
     struct Other<T: GetFoo>(T);
-    impl<T: GetFoo> dynamic_graphql::Register for Other<T> {
+    impl<T: GetFoo> Register for Other<T> {
         fn register(registry: Registry) -> Registry {
             registry
         }
@@ -114,7 +114,7 @@ fn test_app_with_lifetime() {
     }
 
     struct Other<'a>(&'a Foo);
-    impl<'a> dynamic_graphql::Register for Other<'a> {
+    impl<'a> Register for Other<'a> {
         fn register(registry: Registry) -> Registry {
             registry
         }
@@ -174,7 +174,7 @@ fn test_app_with_generic_and_lifetime() {
     struct Other<'a, T>(&'a T)
     where
         T: GetFoo;
-    impl<'a, T: GetFoo> dynamic_graphql::Register for Other<'a, T> {
+    impl<'a, T: GetFoo> Register for Other<'a, T> {
         fn register(registry: Registry) -> Registry {
             registry
         }

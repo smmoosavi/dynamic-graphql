@@ -183,23 +183,23 @@ pub fn impl_others_register(input: &Interface) -> darling::Result<TokenStream> {
 
     Ok(quote! {
 
-        impl <T> #crate_name::RegisterInstance<dyn #ident, T> for dyn #ident
+        impl <T> #crate_name::internal::RegisterInstance<dyn #ident, T> for dyn #ident
                                 where
-        T: #ident + #crate_name::Object + 'static,
+        T: #ident + #crate_name::internal::Object + 'static,
         T: Send + Sync,
 
         {
-            fn register_instance(registry: #crate_name::Registry) -> #crate_name::Registry
+            fn register_instance(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry
 
             {
                 #( #auto_registers )*
                 #define_fields
                 registry.update_object(
-                    <T as #crate_name::Object>::get_object_type_name().as_ref(),
-                    <dyn #ident as #crate_name::Interface>::get_interface_type_name().as_ref(),
+                    <T as #crate_name::internal::Object>::get_object_type_name().as_ref(),
+                    <dyn #ident as #crate_name::internal::Interface>::get_interface_type_name().as_ref(),
                     |object| {
                         #use_fields
-                        let object = object.implement(<dyn #ident as #crate_name::Interface>::get_interface_type_name().as_ref());
+                        let object = object.implement(<dyn #ident as #crate_name::internal::Interface>::get_interface_type_name().as_ref());
                         object
                     },
                 )

@@ -1,9 +1,11 @@
+use std::borrow::Cow;
+
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, TypeName};
+use dynamic_graphql::internal::{InputObject, TypeName};
+use dynamic_graphql::App;
+use dynamic_graphql::SimpleObject;
 use dynamic_graphql::{FieldValue, InputObject};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
-use dynamic_graphql_derive::SimpleObject;
-use std::borrow::Cow;
 
 use crate::schema_utils::normalize_schema;
 
@@ -15,7 +17,7 @@ fn test_impl_object() {
         pub string: String,
     }
     assert_eq!(
-        <ExampleInput as dynamic_graphql::InputObject>::get_input_object_type_name(),
+        <ExampleInput as InputObject>::get_input_object_type_name(),
         "ExampleInput"
     );
 }
@@ -29,7 +31,7 @@ fn test_impl_object_with_name() {
         pub string: String,
     }
     assert_eq!(
-        <ExampleInput as dynamic_graphql::InputObject>::get_input_object_type_name(),
+        <ExampleInput as InputObject>::get_input_object_type_name(),
         "OtherInput"
     );
 }

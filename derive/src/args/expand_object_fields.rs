@@ -239,7 +239,7 @@ impl ArgImplementor for ExpandObjectFieldsArg {
         let crate_name = get_crate_name();
         let arg_ident = common::get_arg_ident(self);
         Ok(quote! {
-            let parent = ctx.parent_value.try_downcast_ref::<<Self as #crate_name::ParentType>::Type>()?.into();
+            let parent = ctx.parent_value.try_downcast_ref::<<Self as #crate_name::internal::ParentType>::Type>()?.into();
             let #arg_ident = &parent;
         })
     }
@@ -349,8 +349,8 @@ fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
 
     let register_fns = common::call_register_fns();
     Ok(quote! {
-        impl #impl_generics #crate_name::Register for #ty #where_clause {
-            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+        impl #impl_generics #crate_name::internal::Register for #ty #where_clause {
+            fn register(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
 
                 #register_nested_types
 
@@ -358,8 +358,8 @@ fn impl_register(expand: &ExpandObjectFields) -> darling::Result<TokenStream> {
 
                 #define_fields
                 registry.update_object(
-                    <<Self as #crate_name::ParentType>::Type as #crate_name::Object>::get_object_type_name().as_ref(),
-                    <Self as #crate_name::ExpandObject>::get_expand_object_name().as_ref(),
+                    <<Self as #crate_name::internal::ParentType>::Type as #crate_name::internal::Object>::get_object_type_name().as_ref(),
+                    <Self as #crate_name::internal::ExpandObject>::get_expand_object_name().as_ref(),
                     |object| {
                         #use_fields
                         object

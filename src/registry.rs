@@ -1,6 +1,6 @@
 use crate::data::SchemaData;
 use crate::dynamic;
-use crate::Register;
+use crate::types::Register;
 use std::any::TypeId;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::mem;

@@ -16,7 +16,7 @@ fn impl_create_schema(app: &App) -> TokenStream {
     quote! {
         impl #impl_generics #ident #ty_generics #where_clause {
             pub fn create_schema() -> #crate_name::dynamic::SchemaBuilder {
-                let registry = #crate_name::Registry::new();
+                let registry = #crate_name::internal::Registry::new();
                 let registry = registry.register::<Self>();
                 registry.create_schema()
             }
@@ -40,8 +40,8 @@ fn impl_register(app: &App) -> TokenStream {
         .collect();
     let (impl_generics, ty_generics, where_clause) = app.generics.split_for_impl();
     quote! {
-        impl #impl_generics #crate_name::Register for #ident #ty_generics #where_clause {
-            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+        impl #impl_generics #crate_name::internal::Register for #ident #ty_generics #where_clause {
+            fn register(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
                 #registers
                 registry
             }

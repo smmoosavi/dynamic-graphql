@@ -1,6 +1,8 @@
+use crate::registry::Registry;
 use crate::type_ref_builder::TypeRefBuilder;
-use crate::types::{GetInputTypeRef, GetOutputTypeRef, InputTypeName, OutputTypeName, TypeName};
-use crate::{Register, Registry};
+use crate::types::{
+    GetInputTypeRef, GetOutputTypeRef, InputTypeName, OutputTypeName, Register, TypeName,
+};
 use async_graphql::{dynamic, MaybeUndefined};
 use std::borrow::Cow;
 

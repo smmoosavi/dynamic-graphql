@@ -173,8 +173,8 @@ fn impl_register(object: &InputObject) -> darling::Result<TokenStream> {
     let register_attr = &object.attrs.registers;
 
     Ok(quote! {
-        impl #crate_name::Register for #ident {
-            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+        impl #crate_name::internal::Register for #ident {
+            fn register(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
 
                 #( #register_attr )*
 
@@ -207,7 +207,7 @@ fn get_field_value(index: usize, field: &InputObjectField) -> darling::Result<To
         });
     }
     Ok(quote! {
-        let #item = #crate_name::FromValue::from_value(__object.try_get(#field_name)).map_err(|e| e.into_field_error(#field_name))?;
+        let #item = #crate_name::internal::FromValue::from_value(__object.try_get(#field_name)).map_err(|e| e.into_field_error(#field_name))?;
     })
 }
 
@@ -254,8 +254,8 @@ fn impl_from_value(object: &InputObject) -> darling::Result<TokenStream> {
     let fields_value = get_fields_value(object);
     let fields_usage = get_fields_usage(object)?;
     Ok(quote!(
-        impl #crate_name::FromValue for #ident {
-            fn from_value(__value: #crate_name::Result<#crate_name::dynamic::ValueAccessor>) -> #crate_name::InputValueResult<Self> {
+        impl #crate_name::internal::FromValue for #ident {
+            fn from_value(__value: #crate_name::Result<#crate_name::dynamic::ValueAccessor>) -> #crate_name::internal::InputValueResult<Self> {
                 let __value = __value?;
                 let __object = __value.object()?;
                 #fields_value

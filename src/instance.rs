@@ -1,7 +1,7 @@
-use crate::{
-    AnyBox, Interface, InterfaceMark, Object, OutputTypeName, Register, Registry, ResolveOwned,
-    TypeName,
-};
+use crate::any_box::AnyBox;
+use crate::registry::Registry;
+use crate::resolve::ResolveOwned;
+use crate::types::{Interface, InterfaceMark, Object, OutputTypeName, Register, TypeName};
 use async_graphql::dynamic::FieldValue;
 use async_graphql::Context;
 use std::borrow::Cow;

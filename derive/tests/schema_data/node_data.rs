@@ -1,14 +1,19 @@
+use dynamic_graphql::App;
+
+use crate::schema_utils::normalize_schema;
+
 use self::node::NodeQuery;
 use self::query::Query;
-use crate::schema_utils::normalize_schema;
-use dynamic_graphql_derive::App;
 
 mod node {
-    use super::query::Query;
-    use dynamic_graphql::{Context, GetSchemaData, Instance};
-    use dynamic_graphql_derive::{ExpandObject, ExpandObjectFields, Interface};
     use std::collections::HashMap;
     use std::ops::{Deref, DerefMut};
+
+    use dynamic_graphql::experimental::GetSchemaData;
+    use dynamic_graphql::{Context, Instance};
+    use dynamic_graphql::{ExpandObject, ExpandObjectFields, Interface};
+
+    use super::query::Query;
 
     pub type GetNode = fn(&str) -> Option<Instance<'static, dyn Node>>;
     #[derive(Default)]
@@ -67,10 +72,12 @@ mod node {
 }
 
 mod foo {
+    use dynamic_graphql::internal::{Object, Register, Registry};
+    use dynamic_graphql::Instance;
+    use dynamic_graphql::SimpleObject;
+
     use super::node::Node;
     use super::node::NodeData;
-    use dynamic_graphql::{Instance, Object, Register, Registry};
-    use dynamic_graphql_derive::SimpleObject;
 
     #[derive(SimpleObject)]
     #[graphql(impl(Node))]
@@ -109,7 +116,7 @@ mod foo {
 }
 
 mod query {
-    use dynamic_graphql_derive::SimpleObject;
+    use dynamic_graphql::SimpleObject;
 
     #[derive(SimpleObject)]
     #[graphql(root)]

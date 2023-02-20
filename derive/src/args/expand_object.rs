@@ -58,10 +58,10 @@ fn impl_expand_object(object: &ExpandObject) -> darling::Result<TokenStream> {
     let (impl_generics, ty_generics, where_clause) = object.get_generics()?.split_for_impl();
 
     Ok(quote! {
-        impl #impl_generics #crate_name::ParentType for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::internal::ParentType for #object_ident #ty_generics #where_clause {
             type Type = #target;
         }
-        impl #impl_generics #crate_name::ExpandObject for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::internal::ExpandObject for #object_ident #ty_generics #where_clause {
             fn get_expand_object_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
@@ -92,7 +92,7 @@ fn impl_registers_fn(object: &ExpandObject) -> darling::Result<TokenStream> {
 
     Ok(quote! {
         impl #impl_generics #object_ident #ty_generics #where_clause {
-            fn __registers(registry: #crate_name::Registry) -> #crate_name::Registry {
+            fn __registers(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
                 #( #register_attr )*
                 registry
             }
@@ -108,8 +108,8 @@ fn impl_register_fns_trait(object: &impl CommonObject) -> darling::Result<TokenS
     let turbofish_generics = ty_generics.as_turbofish();
 
     let q = quote! {
-        impl #impl_generics #crate_name::RegisterFns for #object_ident #ty_generics #where_clause {
-            const REGISTER_FNS: &'static [fn (registry: #crate_name::Registry) -> #crate_name::Registry] = &[
+        impl #impl_generics #crate_name::internal::RegisterFns for #object_ident #ty_generics #where_clause {
+            const REGISTER_FNS: &'static [fn (registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry] = &[
                 #object_ident #turbofish_generics ::__registers,
             ];
         }

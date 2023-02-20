@@ -74,7 +74,7 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let (impl_generics, ty_generics, where_clause) = obj.get_generics()?.split_for_impl();
 
     let type_name = obj.should_impl_type_name().then_some(quote! {
-        impl #impl_generics #crate_name::TypeName for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::internal::TypeName for #object_ident #ty_generics #where_clause {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
@@ -82,12 +82,12 @@ pub fn impl_object(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     });
 
     Ok(quote! {
-        impl #impl_generics #crate_name::ParentType for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::internal::ParentType for #object_ident #ty_generics #where_clause {
             type Type = #object_ident #ty_generics;
         }
         #type_name
-        impl #impl_generics #crate_name::OutputTypeName for #object_ident #ty_generics #where_clause {}
-        impl #impl_generics #crate_name::Object for #object_ident #ty_generics #where_clause {}
+        impl #impl_generics #crate_name::internal::OutputTypeName for #object_ident #ty_generics #where_clause {}
+        impl #impl_generics #crate_name::internal::Object for #object_ident #ty_generics #where_clause {}
     })
 }
 
@@ -96,7 +96,7 @@ pub fn impl_input_object(obj: &impl CommonObject) -> darling::Result<TokenStream
     let name = get_type_name(obj)?;
     let crate_name = get_crate_name();
     let type_name = obj.should_impl_type_name().then_some(quote! {
-        impl #crate_name::TypeName for #object_ident {
+        impl #crate_name::internal::TypeName for #object_ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
@@ -104,8 +104,8 @@ pub fn impl_input_object(obj: &impl CommonObject) -> darling::Result<TokenStream
     });
     Ok(quote! {
         #type_name
-        impl #crate_name::InputTypeName for #object_ident {}
-        impl #crate_name::InputObject for #object_ident {}
+        impl #crate_name::internal::InputTypeName for #object_ident {}
+        impl #crate_name::internal::InputObject for #object_ident {}
     })
 }
 
@@ -117,7 +117,7 @@ pub fn impl_resolve_owned(obj: &impl CommonObject) -> darling::Result<TokenStrea
     let (impl_generics, _, _) = generics_with_lifetime.split_for_impl();
 
     Ok(quote! {
-        impl #impl_generics #crate_name::ResolveOwned<#lifetime> for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::internal::ResolveOwned<#lifetime> for #object_ident #ty_generics #where_clause {
             fn resolve_owned(self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<#lifetime>>> {
                 Ok(Some(#crate_name::FieldValue::owned_any(self)))
             }
@@ -133,7 +133,7 @@ pub fn impl_resolve_ref(obj: &impl CommonObject) -> darling::Result<TokenStream>
     let (impl_generics, _, _) = generics_with_lifetime.split_for_impl();
 
     Ok(quote! {
-        impl #impl_generics #crate_name::ResolveRef<#lifetime> for #object_ident #ty_generics #where_clause {
+        impl #impl_generics #crate_name::internal::ResolveRef<#lifetime> for #object_ident #ty_generics #where_clause {
             fn resolve_ref(&#lifetime self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<#lifetime>>> {
                 Ok(Some(#crate_name::FieldValue::borrowed_any(self)))
             }
@@ -146,7 +146,7 @@ pub fn impl_resolve_owned_by_value(obj: &impl CommonObject) -> darling::Result<T
     let object_ident = obj.get_ident();
 
     Ok(quote! {
-        impl<'__dynamic_graphql_lifetime> #crate_name::ResolveOwned<'__dynamic_graphql_lifetime> for #object_ident {
+        impl<'__dynamic_graphql_lifetime> #crate_name::internal::ResolveOwned<'__dynamic_graphql_lifetime> for #object_ident {
             fn resolve_owned(self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'__dynamic_graphql_lifetime>>> {
                 Ok(Some(#crate_name::FieldValue::value(&self)))
             }
@@ -158,7 +158,7 @@ pub fn impl_resolve_ref_by_value(obj: &impl CommonObject) -> darling::Result<Tok
     let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
     Ok(quote! {
-        impl<'__dynamic_graphql_lifetime> #crate_name::ResolveRef<'__dynamic_graphql_lifetime> for #object_ident {
+        impl<'__dynamic_graphql_lifetime> #crate_name::internal::ResolveRef<'__dynamic_graphql_lifetime> for #object_ident {
             fn resolve_ref(&'__dynamic_graphql_lifetime self, _ctx: &#crate_name::Context) -> #crate_name::Result<Option<#crate_name::FieldValue<'__dynamic_graphql_lifetime>>> {
                 Ok(Some(#crate_name::FieldValue::value(self)))
             }
@@ -170,7 +170,7 @@ pub fn impl_define_object() -> TokenStream {
     // todo get "object" from input
     let crate_name = get_crate_name();
     quote! {
-        let object = #crate_name::dynamic::Object::new(<Self as #crate_name::Object>::get_object_type_name().as_ref());
+        let object = #crate_name::dynamic::Object::new(<Self as #crate_name::internal::Object>::get_object_type_name().as_ref());
     }
 }
 
@@ -178,7 +178,7 @@ pub fn impl_define_input_object() -> TokenStream {
     // todo get "object" from input
     let crate_name = get_crate_name();
     quote! {
-        let object = #crate_name::dynamic::InputObject::new(<Self as #crate_name::InputObject>::get_input_object_type_name().as_ref());
+        let object = #crate_name::dynamic::InputObject::new(<Self as #crate_name::internal::InputObject>::get_input_object_type_name().as_ref());
     }
 }
 
@@ -223,7 +223,7 @@ pub fn get_input_type_ref_code(field: &impl CommonField) -> darling::Result<Toke
     let crate_name = get_crate_name();
     let field_type = get_owned_type(field.get_type()?);
     Ok(quote! {
-        <#field_type as #crate_name::GetInputTypeRef>::get_input_type_ref()
+        <#field_type as #crate_name::internal::GetInputTypeRef>::get_input_type_ref()
     })
 }
 
@@ -241,7 +241,7 @@ pub fn get_new_input_value_code(field: &impl CommonField) -> darling::Result<Tok
 pub fn call_register_fns() -> TokenStream {
     let crate_name = get_crate_name();
     quote!(
-        let registry = <Self as #crate_name::RegisterFns>::REGISTER_FNS.iter().fold(registry, |registry, f| f(registry));
+        let registry = <Self as #crate_name::internal::RegisterFns>::REGISTER_FNS.iter().fold(registry, |registry, f| f(registry));
     )
 }
 

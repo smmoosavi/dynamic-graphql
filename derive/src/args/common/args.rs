@@ -52,7 +52,7 @@ pub fn get_argument_definition(arg: &impl CommonArg) -> TokenStream {
     let arg_type = get_owned_type(&typed.ty);
 
     quote! {
-        let arg = #crate_name::dynamic::InputValue::new(#arg_name, <#arg_type as #crate_name::GetInputTypeRef>::get_input_type_ref());
+        let arg = #crate_name::dynamic::InputValue::new(#arg_name, <#arg_type as #crate_name::internal::GetInputTypeRef>::get_input_type_ref());
         let field = field.argument(arg);
     }
 }
@@ -80,10 +80,10 @@ pub fn get_typed_arg_definition(arg: &impl CommonArg) -> darling::Result<TokenSt
         let value_type = get_value_type(&typed.ty);
         match value_type {
             None => Ok(quote! {
-                let #arg_ident = #crate_name::FromValue::from_value(ctx.args.try_get(#arg_name)).map_err(|e| e.into_arg_error(#arg_name))?;
+                let #arg_ident = #crate_name::internal::FromValue::from_value(ctx.args.try_get(#arg_name)).map_err(|e| e.into_arg_error(#arg_name))?;
             }),
             Some(ty) => Ok(quote! {
-                let #arg_ident: #ty = #crate_name::FromValue::from_value(ctx.args.try_get(#arg_name)).map_err(|e| e.into_arg_error(#arg_name))?;
+                let #arg_ident: #ty = #crate_name::internal::FromValue::from_value(ctx.args.try_get(#arg_name)).map_err(|e| e.into_arg_error(#arg_name))?;
             }),
         }
     }

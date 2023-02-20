@@ -1,4 +1,4 @@
-use crate::ResolveOwned;
+use crate::resolve::ResolveOwned;
 use async_graphql::dynamic::FieldValue;
 use async_graphql::Context;
 use std::any::Any;

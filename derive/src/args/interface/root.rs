@@ -16,7 +16,7 @@ impl FieldImplementor for InterfaceMethod {
         Ok(quote! {
             let field = #crate_name::dynamic::InterfaceField::new(
                 #field_name,
-                <#field_type as #crate_name::GetOutputTypeRef>::get_output_type_ref(),
+                <#field_type as #crate_name::internal::GetOutputTypeRef>::get_output_type_ref(),
             );
         })
     }
@@ -55,7 +55,7 @@ pub fn impl_interface(input: &Interface) -> darling::Result<TokenStream> {
     let ident = &input.ident;
 
     let type_name = input.should_impl_type_name().then_some(quote! {
-        impl #crate_name::TypeName for dyn #ident {
+        impl #crate_name::internal::TypeName for dyn #ident {
             fn get_type_name() -> std::borrow::Cow<'static, str> {
                 #name.into()
             }
@@ -64,8 +64,8 @@ pub fn impl_interface(input: &Interface) -> darling::Result<TokenStream> {
 
     Ok(quote! {
         #type_name
-        impl #crate_name::OutputTypeName for dyn #ident {}
-        impl #crate_name::Interface for dyn #ident {}
+        impl #crate_name::internal::OutputTypeName for dyn #ident {}
+        impl #crate_name::internal::Interface for dyn #ident {}
     })
 }
 
@@ -81,15 +81,15 @@ pub fn impl_register(input: &Interface) -> darling::Result<TokenStream> {
     let register_attr = &input.attrs.registers;
 
     Ok(quote! {
-        impl #crate_name::Register for dyn #ident {
-            fn register(registry: #crate_name::Registry) -> #crate_name::Registry {
+        impl #crate_name::internal::Register for dyn #ident {
+            fn register(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
 
                 #( #register_attr )*
 
                 #register_nested_types
 
                 // todo rename to interface
-                let object = #crate_name::dynamic::Interface::new(<Self as #crate_name::Interface>::get_interface_type_name().as_ref());
+                let object = #crate_name::dynamic::Interface::new(<Self as #crate_name::internal::Interface>::get_interface_type_name().as_ref());
 
                 #description
                 #define_fields

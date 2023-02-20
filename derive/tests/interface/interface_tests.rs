@@ -1,6 +1,8 @@
-use dynamic_graphql::{App, Interface, Object, SimpleObject, TypeName};
-use dynamic_graphql_derive::{ExpandObject, ExpandObjectFields};
 use std::borrow::Cow;
+
+use dynamic_graphql::internal::{Interface, Object, TypeName};
+use dynamic_graphql::{App, Interface, SimpleObject};
+use dynamic_graphql::{ExpandObject, ExpandObjectFields};
 
 use crate::schema_utils::normalize_schema;
 

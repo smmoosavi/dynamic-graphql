@@ -1,7 +1,8 @@
 use std::marker::PhantomData;
 
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, FieldValue, OutputTypeName, ResolveRef, SimpleObject};
+use dynamic_graphql::internal::{OutputTypeName, ResolveRef};
+use dynamic_graphql::{App, FieldValue, SimpleObject};
 use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
 
 use crate::schema_utils::normalize_schema;

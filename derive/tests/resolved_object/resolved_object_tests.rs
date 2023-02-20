@@ -1,9 +1,11 @@
-use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, Register, TypeName};
-use dynamic_graphql::{FieldValue, Object};
-use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
-use dynamic_graphql_derive::{InputObject, SimpleObject};
 use std::borrow::Cow;
+
+use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::internal::{Object, Register, Registry, TypeName};
+use dynamic_graphql::App;
+use dynamic_graphql::FieldValue;
+use dynamic_graphql::{InputObject, SimpleObject};
+use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
 
 use crate::schema_utils::normalize_schema;
 
@@ -41,7 +43,7 @@ fn test_schema() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
+    let registry = Registry::new();
     let registry = registry.register::<Query>();
     let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();
@@ -116,7 +118,7 @@ fn test_schema_with_type_name() {
         }
     }
 
-    let registry = dynamic_graphql::Registry::new();
+    let registry = Registry::new();
     let registry = registry.register::<Query>();
     let schema = registry.create_schema().finish().unwrap();
     let sdl = schema.sdl();

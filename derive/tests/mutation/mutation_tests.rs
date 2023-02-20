@@ -1,10 +1,9 @@
-use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{
-    App, ExpandObject, FieldValue, Mutation, MutationFields, MutationRoot, Object, ParentType,
-    SimpleObject, TypeName,
-};
-use dynamic_graphql_derive::InputObject;
 use std::borrow::Cow;
+
+use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::internal::{ExpandObject, Object, ParentType, TypeName};
+use dynamic_graphql::InputObject;
+use dynamic_graphql::{App, FieldValue, Mutation, MutationFields, MutationRoot, SimpleObject};
 
 use crate::schema_utils::normalize_schema;
 

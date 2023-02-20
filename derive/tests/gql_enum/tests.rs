@@ -1,7 +1,9 @@
-use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::{App, ResolvedObject, ResolvedObjectFields, TypeName};
-use dynamic_graphql::{Enum, FieldValue, Variables};
 use std::borrow::Cow;
+
+use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::internal::TypeName;
+use dynamic_graphql::{App, ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql::{Enum, FieldValue, Variables};
 
 use crate::schema_utils::normalize_schema;
 
@@ -14,7 +16,7 @@ fn test_impl_object() {
         Bar,
     }
     assert_eq!(
-        <Example as dynamic_graphql::Enum>::get_enum_type_name(),
+        <Example as dynamic_graphql::internal::Enum>::get_enum_type_name(),
         "Example"
     );
 }
@@ -427,10 +429,11 @@ async fn test_doc() {
 }
 
 mod in_mod {
-    use crate::schema_utils::normalize_schema;
     use dynamic_graphql::dynamic::DynamicRequestExt;
+    use dynamic_graphql::{App, Enum, ResolvedObject, ResolvedObjectFields};
     use dynamic_graphql::{FieldValue, Variables};
-    use dynamic_graphql_derive::{App, Enum, ResolvedObject, ResolvedObjectFields};
+
+    use crate::schema_utils::normalize_schema;
 
     mod remote {
         pub enum Example {

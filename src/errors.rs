@@ -1,4 +1,5 @@
-use crate::{GetInputTypeRef, Value};
+use crate::types::GetInputTypeRef;
+use crate::Value;
 use async_graphql::dynamic::TypeRef;
 use async_graphql::{ErrorExtensionValues, Pos, ServerError};
 use std::fmt::Display;

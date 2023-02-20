@@ -95,12 +95,12 @@ fn impl_register_interface(object: &impl CommonInterfaceAttrs) -> darling::Resul
 
     Ok(quote! {
         impl #impl_generics #object_ident #ty_generics #where_clause {
-            fn __register_interface(registry: #crate_name::Registry) -> #crate_name::Registry {
+            fn __register_interface(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
                 #register_interface_code
                 #implement
                 let registry = registry.update_object(
-                    <Self as #crate_name::Object>::get_object_type_name().as_ref(),
-                    <Self as #crate_name::Object>::get_object_type_name().as_ref(),
+                    <Self as #crate_name::internal::Object>::get_object_type_name().as_ref(),
+                    <Self as #crate_name::internal::Object>::get_object_type_name().as_ref(),
                     |object| {
                         #add_interfaces
                         object
@@ -120,7 +120,7 @@ fn impl_register_root(object: &ResolvedObject) -> darling::Result<TokenStream> {
     let root = if object.attrs.root {
         let crate_name = get_crate_name();
         Some(quote! {
-            let registry = registry.set_root(<Self as #crate_name::Object>::get_object_type_name().as_ref());
+            let registry = registry.set_root(<Self as #crate_name::internal::Object>::get_object_type_name().as_ref());
         })
     } else {
         None
@@ -128,7 +128,7 @@ fn impl_register_root(object: &ResolvedObject) -> darling::Result<TokenStream> {
 
     Ok(quote! {
         impl #impl_generics #object_ident #ty_generics #where_clause {
-            fn __register_root(registry: #crate_name::Registry) -> #crate_name::Registry {
+            fn __register_root(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
                 #root
                 registry
             }
@@ -149,8 +149,8 @@ fn impl_graphql_doc_fn(object: &impl CommonObject) -> darling::Result<TokenStrea
                 Some(quote! {
 
                         let registry = registry.update_object(
-                            <Self as #crate_name::Object>::get_object_type_name().as_ref(),
-                            <Self as #crate_name::Object>::get_object_type_name().as_ref(),
+                            <Self as #crate_name::internal::Object>::get_object_type_name().as_ref(),
+                            <Self as #crate_name::internal::Object>::get_object_type_name().as_ref(),
                             |object| {
                                 object.description(#doc)
                             },
@@ -165,7 +165,7 @@ fn impl_graphql_doc_fn(object: &impl CommonObject) -> darling::Result<TokenStrea
 
     Ok(quote! {
         impl #impl_generics #object_ident #ty_generics #where_clause {
-            fn __register_doc(registry: #crate_name::Registry) -> #crate_name::Registry {
+            fn __register_doc(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
                 #doc
                 registry
             }
@@ -182,7 +182,7 @@ fn impl_registers_fn(object: &ResolvedObject) -> darling::Result<TokenStream> {
 
     Ok(quote! {
         impl #impl_generics #object_ident #ty_generics #where_clause {
-            fn __registers(registry: #crate_name::Registry) -> #crate_name::Registry {
+            fn __registers(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
                 #( #register_attr )*
                 registry
             }
@@ -199,8 +199,8 @@ fn impl_register_fns_trait(obj: &impl CommonInterfaceAttrs) -> darling::Result<T
     let turbofish_generics = ty_generics.as_turbofish();
 
     Ok(quote! {
-        impl #impl_generics #crate_name::RegisterFns for #object_ident #ty_generics #where_clause {
-            const REGISTER_FNS: &'static [fn (registry: #crate_name::Registry) -> #crate_name::Registry] = &[
+        impl #impl_generics #crate_name::internal::RegisterFns for #object_ident #ty_generics #where_clause {
+            const REGISTER_FNS: &'static [fn (registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry] = &[
                 #object_ident #turbofish_generics ::__register_interface,
                 #object_ident #turbofish_generics ::__register_root,
                 #object_ident #turbofish_generics ::__register_doc,
