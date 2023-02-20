@@ -1,10 +1,17 @@
+use std::borrow::Cow;
+
+use async_graphql::dynamic::FieldValue;
+use async_graphql::Context;
+
 use crate::any_box::AnyBox;
 use crate::registry::Registry;
 use crate::resolve::ResolveOwned;
-use crate::types::{Interface, InterfaceMark, Object, OutputTypeName, Register, TypeName};
-use async_graphql::dynamic::FieldValue;
-use async_graphql::Context;
-use std::borrow::Cow;
+use crate::types::Interface;
+use crate::types::InterfaceMark;
+use crate::types::Object;
+use crate::types::OutputTypeName;
+use crate::types::Register;
+use crate::types::TypeName;
 
 pub struct Instance<'v, I, T = ()>
 where

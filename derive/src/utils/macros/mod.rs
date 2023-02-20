@@ -1,4 +1,9 @@
-pub(crate) use base::{define, deref, impl_from, impl_from_mut, set_context, set_index};
+pub(crate) use base::define;
+pub(crate) use base::deref;
+pub(crate) use base::impl_from;
+pub(crate) use base::impl_from_mut;
+pub(crate) use base::set_context;
+pub(crate) use base::set_index;
 pub(crate) use from_derive_input::from_derive_input;
 pub(crate) use from_field::from_field;
 pub(crate) use from_fn_arg::from_fn_arg;

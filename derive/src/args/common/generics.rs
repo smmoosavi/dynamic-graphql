@@ -1,4 +1,6 @@
-use syn::{parse_quote, GenericParam, Generics};
+use syn::parse_quote;
+use syn::GenericParam;
+use syn::Generics;
 
 pub fn add_new_lifetime_to_generics(generics: &Generics) -> (Generics, GenericParam) {
     let mut generics = generics.clone();

@@ -1,9 +1,10 @@
-use darling::{FromDeriveInput, FromGenerics, FromVariant};
+use darling::FromDeriveInput;
+use darling::FromGenerics;
+use darling::FromVariant;
 use syn::DeriveInput;
 
-use crate::utils::with_context::SetContext;
-
 use super::Base;
+use crate::utils::with_context::SetContext;
 
 #[derive(Debug, Clone)]
 pub struct BaseEnum<V: FromVariant, G: FromGenerics = ()> {

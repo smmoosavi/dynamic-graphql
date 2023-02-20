@@ -1,9 +1,8 @@
 use darling::util::Ignored;
 use darling::FromVariant;
 
-use crate::utils::with_context::SetContext;
-
 use super::BaseVariant;
+use crate::utils::with_context::SetContext;
 
 #[derive(Debug, Clone)]
 pub struct UnitVariant {

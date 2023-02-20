@@ -1,7 +1,9 @@
-use crate::resolve::ResolveOwned;
+use std::any::Any;
+
 use async_graphql::dynamic::FieldValue;
 use async_graphql::Context;
-use std::any::Any;
+
+use crate::resolve::ResolveOwned;
 
 pub enum AnyBox<'a> {
     Owned(Box<dyn Any + Send + Sync>, String),

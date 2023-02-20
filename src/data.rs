@@ -1,6 +1,8 @@
+use std::any::Any;
+use std::any::TypeId;
+
 use async_graphql::Context;
 use fnv::FnvHashMap;
-use std::any::{Any, TypeId};
 
 pub struct SchemaData(FnvHashMap<TypeId, Box<dyn Any + Sync + Send>>);
 

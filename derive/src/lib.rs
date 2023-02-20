@@ -1,11 +1,14 @@
 extern crate core;
 extern crate proc_macro;
 
-use darling::{FromDeriveInput, ToTokens};
+use darling::FromDeriveInput;
+use darling::ToTokens;
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput};
+use syn::parse_macro_input;
+use syn::DeriveInput;
 
-use crate::utils::impl_block::{FromItemImpl, FromItemTrait};
+use crate::utils::impl_block::FromItemImpl;
+use crate::utils::impl_block::FromItemTrait;
 
 mod args;
 mod utils;

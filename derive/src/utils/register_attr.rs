@@ -1,9 +1,12 @@
-use crate::utils::meta_match::{MatchMetaPath, MatchNestedMetaList};
 use darling::FromMeta;
 use proc_macro2::Span;
-use quote::{quote, ToTokens};
+use quote::quote;
+use quote::ToTokens;
 use syn::spanned::Spanned;
 use syn::NestedMeta;
+
+use crate::utils::meta_match::MatchMetaPath;
+use crate::utils::meta_match::MatchNestedMetaList;
 
 #[derive(Debug, Clone)]
 pub struct RegisterAttr {

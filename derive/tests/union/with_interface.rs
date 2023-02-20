@@ -1,6 +1,9 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
-use dynamic_graphql::{App, Interface, SimpleObject, Union};
+use dynamic_graphql::Interface;
+use dynamic_graphql::SimpleObject;
+use dynamic_graphql::Union;
 
 use crate::schema_utils::normalize_schema;
 

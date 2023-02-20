@@ -1,6 +1,9 @@
-use crate::utils::meta_match::{MatchNestedMeta, MatchString};
 use std::ops::Deref;
+
 use syn::spanned::Spanned;
+
+use crate::utils::meta_match::MatchNestedMeta;
+use crate::utils::meta_match::MatchString;
 
 pub struct MatchLitStr<S: MatchString = String>(pub S, pub proc_macro2::Span);
 

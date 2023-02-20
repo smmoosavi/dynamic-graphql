@@ -1,4 +1,6 @@
-pub use base::{Base, BaseField, BaseVariant};
+pub use base::Base;
+pub use base::BaseField;
+pub use base::BaseVariant;
 pub use base_enum::BaseEnum;
 pub use base_struct::BaseStruct;
 pub use named_enum::NamedEnum;

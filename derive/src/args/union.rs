@@ -1,17 +1,27 @@
 use darling::FromAttributes;
-use proc_macro2::{Ident, TokenStream};
-use quote::{quote, ToTokens};
-use syn::{Generics, Path, Type};
+use proc_macro2::Ident;
+use proc_macro2::TokenStream;
+use quote::quote;
+use quote::ToTokens;
+use syn::Generics;
+use syn::Path;
+use syn::Type;
 
 use crate::args::common;
 use crate::args::common::add_new_lifetime_to_generics;
-use crate::utils::common::{CommonField, CommonObject, GetArgs, GetFields, EMPTY_ARGS};
+use crate::utils::common::CommonField;
+use crate::utils::common::CommonObject;
+use crate::utils::common::GetArgs;
+use crate::utils::common::GetFields;
+use crate::utils::common::EMPTY_ARGS;
 use crate::utils::crate_name::get_crate_name;
-use crate::utils::derive_types::{BaseEnum, NewtypeVariant};
+use crate::utils::derive_types::BaseEnum;
+use crate::utils::derive_types::NewtypeVariant;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
 use crate::utils::register_attr::RegisterAttr;
-use crate::utils::type_utils::{get_owned_type, get_type_path};
+use crate::utils::type_utils::get_owned_type;
+use crate::utils::type_utils::get_type_path;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
 

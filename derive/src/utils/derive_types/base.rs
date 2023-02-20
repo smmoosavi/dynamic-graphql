@@ -1,5 +1,8 @@
 use darling::ast::Data;
-use darling::{FromDeriveInput, FromField, FromGenerics, FromVariant};
+use darling::FromDeriveInput;
+use darling::FromField;
+use darling::FromGenerics;
+use darling::FromVariant;
 
 #[derive(FromDeriveInput)]
 pub struct Base<V: FromVariant, F: FromField, G: FromGenerics> {

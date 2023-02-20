@@ -1,5 +1,8 @@
-use proc_macro2::{Ident, Span, TokenStream};
-use proc_macro_crate::{crate_name, FoundCrate};
+use proc_macro2::Ident;
+use proc_macro2::Span;
+use proc_macro2::TokenStream;
+use proc_macro_crate::crate_name;
+use proc_macro_crate::FoundCrate;
 use quote::quote;
 
 pub fn get_crate_name() -> TokenStream {

@@ -1,6 +1,8 @@
 use darling::FromGenerics;
 
-use crate::utils::impl_block::{BaseMethod, FromImplItemMethod, Methods};
+use crate::utils::impl_block::BaseMethod;
+use crate::utils::impl_block::FromImplItemMethod;
+use crate::utils::impl_block::Methods;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;

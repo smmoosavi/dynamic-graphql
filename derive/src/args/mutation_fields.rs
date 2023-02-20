@@ -4,7 +4,8 @@ use quote::ToTokens;
 
 use crate::args::ExpandObjectFields;
 use crate::utils::common::CommonArg;
-use crate::utils::impl_block::{BaseFnArg, FromItemImpl};
+use crate::utils::impl_block::BaseFnArg;
+use crate::utils::impl_block::FromItemImpl;
 
 pub struct MutationFields(ExpandObjectFields);
 

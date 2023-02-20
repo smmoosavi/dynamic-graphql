@@ -1,9 +1,13 @@
-use crate::types::GetInputTypeRef;
-use crate::Value;
-use async_graphql::dynamic::TypeRef;
-use async_graphql::{ErrorExtensionValues, Pos, ServerError};
 use std::fmt::Display;
 use std::marker::PhantomData;
+
+use async_graphql::dynamic::TypeRef;
+use async_graphql::ErrorExtensionValues;
+use async_graphql::Pos;
+use async_graphql::ServerError;
+
+use crate::types::GetInputTypeRef;
+use crate::Value;
 
 fn get_type_name<T: GetInputTypeRef>() -> String {
     let type_ref: TypeRef = <Option<T>>::get_input_type_ref().into();

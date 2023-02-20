@@ -1,10 +1,9 @@
 use dynamic_graphql::App;
 
-use crate::schema_utils::normalize_schema;
-
 use self::example::ExampleApp;
 use self::expand_example::AnotherValueApp;
 use self::root::Query;
+use crate::schema_utils::normalize_schema;
 
 #[derive(App)]
 struct App(Query, ExampleApp, AnotherValueApp);
@@ -18,9 +17,11 @@ mod root {
 }
 
 mod prepare {
-    use std::any::{Any, TypeId};
+    use std::any::Any;
+    use std::any::TypeId;
 
-    use dynamic_graphql::{Context, Data};
+    use dynamic_graphql::Context;
+    use dynamic_graphql::Data;
 
     pub fn get_data<T: Any + Sync + Send>(data: &Data) -> Option<&T> {
         data.get(&TypeId::of::<T>())
@@ -32,14 +33,16 @@ mod prepare {
 
 mod example {
     use dynamic_graphql::experimental::GetSchemaData;
-    use dynamic_graphql::{
-        App, ExpandObject, ExpandObjectFields, ResolvedObject, ResolvedObjectFields,
-    };
-    use dynamic_graphql::{Context, Data};
-
-    use crate::schema_data::prepare_data::prepare::PrepareFn;
+    use dynamic_graphql::App;
+    use dynamic_graphql::Context;
+    use dynamic_graphql::Data;
+    use dynamic_graphql::ExpandObject;
+    use dynamic_graphql::ExpandObjectFields;
+    use dynamic_graphql::ResolvedObject;
+    use dynamic_graphql::ResolvedObjectFields;
 
     use super::root;
+    use crate::schema_data::prepare_data::prepare::PrepareFn;
 
     #[derive(Default)]
     pub struct ExamplePrepares(pub Vec<PrepareFn<Example>>);
@@ -86,8 +89,11 @@ mod example {
 }
 
 mod expand_example {
-    use dynamic_graphql::internal::{Register, Registry};
-    use dynamic_graphql::{App, ExpandObject, ExpandObjectFields};
+    use dynamic_graphql::internal::Register;
+    use dynamic_graphql::internal::Registry;
+    use dynamic_graphql::App;
+    use dynamic_graphql::ExpandObject;
+    use dynamic_graphql::ExpandObjectFields;
 
     use super::example::Example;
     use super::example::ExamplePrepares;

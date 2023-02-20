@@ -1,23 +1,33 @@
 use darling::FromAttributes;
-use proc_macro2::{Ident, TokenStream};
-use quote::{quote, ToTokens};
+use proc_macro2::Ident;
+use proc_macro2::TokenStream;
+use quote::quote;
+use quote::ToTokens;
 use syn::Generics;
 
 use crate::args::common;
-use crate::args::common::{ArgImplementor, FieldImplementor};
+use crate::args::common::ArgImplementor;
+use crate::args::common::FieldImplementor;
 use crate::utils::attributes::Attributes;
-use crate::utils::common::{
-    CommonArg, CommonField, CommonMethod, CommonObject, GetArgs, GetFields,
-};
+use crate::utils::common::CommonArg;
+use crate::utils::common::CommonField;
+use crate::utils::common::CommonMethod;
+use crate::utils::common::CommonObject;
+use crate::utils::common::GetArgs;
+use crate::utils::common::GetFields;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
-use crate::utils::impl_block::{BaseFnArg, BaseItemImpl, BaseMethod};
+use crate::utils::impl_block::BaseFnArg;
+use crate::utils::impl_block::BaseItemImpl;
+use crate::utils::impl_block::BaseMethod;
 use crate::utils::macros::*;
 use crate::utils::rename_rule::RenameRule;
-use crate::utils::type_utils::{get_type_path, remove_path_generics};
+use crate::utils::type_utils::get_type_path;
+use crate::utils::type_utils::remove_path_generics;
 use crate::utils::with_attributes::WithAttributes;
-use crate::utils::with_context::{MakeContext, WithContext};
+use crate::utils::with_context::MakeContext;
+use crate::utils::with_context::WithContext;
 use crate::utils::with_doc::WithDoc;
 use crate::utils::with_index::WithIndex;
 

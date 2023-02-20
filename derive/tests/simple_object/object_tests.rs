@@ -1,7 +1,8 @@
 use std::borrow::Cow;
 
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::internal::{Object, TypeName};
+use dynamic_graphql::internal::Object;
+use dynamic_graphql::internal::TypeName;
 use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::SimpleObject;

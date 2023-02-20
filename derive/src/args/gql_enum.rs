@@ -1,21 +1,30 @@
-use darling::{FromAttributes, ToTokens};
-use proc_macro2::{Ident, TokenStream};
+use darling::FromAttributes;
+use darling::ToTokens;
+use proc_macro2::Ident;
+use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Generics, Path};
+use syn::Generics;
+use syn::Path;
 
 use crate::args::common;
-use crate::args::common::{field_deprecation_code, get_enum_item_name, get_type_name};
-use crate::utils::common::{CommonField, CommonObject, GetFields};
+use crate::args::common::field_deprecation_code;
+use crate::args::common::get_enum_item_name;
+use crate::args::common::get_type_name;
+use crate::utils::common::CommonField;
+use crate::utils::common::CommonObject;
+use crate::utils::common::GetFields;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
-use crate::utils::derive_types::{BaseEnum, UnitVariant};
+use crate::utils::derive_types::BaseEnum;
+use crate::utils::derive_types::UnitVariant;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
 use crate::utils::register_attr::RegisterAttr;
 use crate::utils::remove_attr::RemoteAttr;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
-use crate::utils::with_context::{MakeContext, WithContext};
+use crate::utils::with_context::MakeContext;
+use crate::utils::with_context::WithContext;
 use crate::utils::with_doc::WithDoc;
 
 #[derive(FromAttributes, Debug, Clone)]

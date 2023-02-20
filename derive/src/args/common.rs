@@ -1,18 +1,24 @@
-use proc_macro2::TokenStream;
-use quote::quote;
+use std::collections::HashSet;
 
-use crate::args::common;
 pub use args::*;
 pub use fields::*;
 pub use generics::*;
 pub use interfaces::*;
-use std::collections::HashSet;
+use proc_macro2::TokenStream;
+use quote::quote;
 
-use crate::utils::common::{CommonArg, CommonField, CommonObject, GetArgs, GetFields};
+use crate::args::common;
+use crate::utils::common::CommonArg;
+use crate::utils::common::CommonField;
+use crate::utils::common::CommonObject;
+use crate::utils::common::GetArgs;
+use crate::utils::common::GetFields;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::impl_block::BaseFnArg;
-use crate::utils::rename_rule::{calc_enum_item_name, calc_input_field_name, calc_type_name};
+use crate::utils::rename_rule::calc_enum_item_name;
+use crate::utils::rename_rule::calc_input_field_name;
+use crate::utils::rename_rule::calc_type_name;
 use crate::utils::type_utils::get_owned_type;
 
 mod args;

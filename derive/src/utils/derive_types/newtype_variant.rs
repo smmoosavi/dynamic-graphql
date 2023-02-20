@@ -1,8 +1,9 @@
-use darling::{FromField, FromVariant};
+use darling::FromField;
+use darling::FromVariant;
 
+use super::BaseVariant;
+use super::TupleField;
 use crate::utils::with_context::SetContext;
-
-use super::{BaseVariant, TupleField};
 
 #[derive(Debug, Clone)]
 pub struct NewtypeVariant<F: FromField = TupleField> {

@@ -4,7 +4,8 @@ use quote::quote;
 use syn::Generics;
 
 use crate::utils::crate_name::get_crate_name;
-use crate::utils::derive_types::{BaseStruct, TupleField};
+use crate::utils::derive_types::BaseStruct;
+use crate::utils::derive_types::TupleField;
 
 pub type App = BaseStruct<TupleField, Generics>;
 

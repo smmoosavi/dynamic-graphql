@@ -2,8 +2,12 @@ use std::borrow::Cow;
 
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::internal::TypeName;
-use dynamic_graphql::{App, ResolvedObject, ResolvedObjectFields};
-use dynamic_graphql::{Enum, FieldValue, Variables};
+use dynamic_graphql::App;
+use dynamic_graphql::Enum;
+use dynamic_graphql::FieldValue;
+use dynamic_graphql::ResolvedObject;
+use dynamic_graphql::ResolvedObjectFields;
+use dynamic_graphql::Variables;
 
 use crate::schema_utils::normalize_schema;
 
@@ -430,8 +434,12 @@ async fn test_doc() {
 
 mod in_mod {
     use dynamic_graphql::dynamic::DynamicRequestExt;
-    use dynamic_graphql::{App, Enum, ResolvedObject, ResolvedObjectFields};
-    use dynamic_graphql::{FieldValue, Variables};
+    use dynamic_graphql::App;
+    use dynamic_graphql::Enum;
+    use dynamic_graphql::FieldValue;
+    use dynamic_graphql::ResolvedObject;
+    use dynamic_graphql::ResolvedObjectFields;
+    use dynamic_graphql::Variables;
 
     use crate::schema_utils::normalize_schema;
 

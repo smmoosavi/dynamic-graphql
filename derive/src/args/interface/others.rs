@@ -1,11 +1,20 @@
-use proc_macro2::{Ident, TokenStream};
+use proc_macro2::Ident;
+use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{parse_quote, Type};
+use syn::parse_quote;
+use syn::Type;
 
-use crate::args::common::{ArgImplementor, FieldImplementor};
-use crate::args::interface::{InterfaceMethod, InterfaceMethodArg};
-use crate::args::{common, Interface};
-use crate::utils::common::{CommonArg, CommonField, CommonMethod, GetArgs, GetFields};
+use crate::args::common;
+use crate::args::common::ArgImplementor;
+use crate::args::common::FieldImplementor;
+use crate::args::interface::InterfaceMethod;
+use crate::args::interface::InterfaceMethodArg;
+use crate::args::Interface;
+use crate::utils::common::CommonArg;
+use crate::utils::common::CommonField;
+use crate::utils::common::CommonMethod;
+use crate::utils::common::GetArgs;
+use crate::utils::common::GetFields;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;

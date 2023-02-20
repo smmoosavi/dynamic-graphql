@@ -1,6 +1,7 @@
+use std::borrow::Cow;
+
 use crate::registry::Registry;
 use crate::type_ref_builder::TypeRefBuilder;
-use std::borrow::Cow;
 
 mod common;
 

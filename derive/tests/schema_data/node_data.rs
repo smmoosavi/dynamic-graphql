@@ -1,17 +1,20 @@
 use dynamic_graphql::App;
 
-use crate::schema_utils::normalize_schema;
-
 use self::node::NodeQuery;
 use self::query::Query;
+use crate::schema_utils::normalize_schema;
 
 mod node {
     use std::collections::HashMap;
-    use std::ops::{Deref, DerefMut};
+    use std::ops::Deref;
+    use std::ops::DerefMut;
 
     use dynamic_graphql::experimental::GetSchemaData;
-    use dynamic_graphql::{Context, Instance};
-    use dynamic_graphql::{ExpandObject, ExpandObjectFields, Interface};
+    use dynamic_graphql::Context;
+    use dynamic_graphql::ExpandObject;
+    use dynamic_graphql::ExpandObjectFields;
+    use dynamic_graphql::Instance;
+    use dynamic_graphql::Interface;
 
     use super::query::Query;
 
@@ -72,7 +75,9 @@ mod node {
 }
 
 mod foo {
-    use dynamic_graphql::internal::{Object, Register, Registry};
+    use dynamic_graphql::internal::Object;
+    use dynamic_graphql::internal::Register;
+    use dynamic_graphql::internal::Registry;
     use dynamic_graphql::Instance;
     use dynamic_graphql::SimpleObject;
 

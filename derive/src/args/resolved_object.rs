@@ -2,17 +2,20 @@ use darling::FromAttributes;
 use proc_macro2::TokenStream;
 use quote::quote;
 use quote::ToTokens;
-use syn::{Generics, Path};
+use syn::Generics;
+use syn::Path;
 
 use crate::args::common;
-use crate::args::common::{
-    get_add_implement_code, get_interface_mark_code, get_register_interface_code,
-};
-use crate::utils::common::{CommonInterfaceAttrs, CommonObject};
+use crate::args::common::get_add_implement_code;
+use crate::args::common::get_interface_mark_code;
+use crate::args::common::get_register_interface_code;
+use crate::utils::common::CommonInterfaceAttrs;
+use crate::utils::common::CommonObject;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::BaseStruct;
 use crate::utils::error::IntoTokenStream;
-use crate::utils::interface_attr::{InterfaceImplAttr, InterfaceMarkAttr};
+use crate::utils::interface_attr::InterfaceImplAttr;
+use crate::utils::interface_attr::InterfaceMarkAttr;
 use crate::utils::macros::*;
 use crate::utils::register_attr::RegisterAttr;
 use crate::utils::with_attributes::WithAttributes;

@@ -1,7 +1,16 @@
-use std::io::{Read, Write};
+use std::io::Read;
+use std::io::Write;
 
-use dynamic_graphql::{App, Context, Upload, UploadValue, Variables};
-use dynamic_graphql::{InputObject, Mutation, MutationFields, MutationRoot, SimpleObject};
+use dynamic_graphql::App;
+use dynamic_graphql::Context;
+use dynamic_graphql::InputObject;
+use dynamic_graphql::Mutation;
+use dynamic_graphql::MutationFields;
+use dynamic_graphql::MutationRoot;
+use dynamic_graphql::SimpleObject;
+use dynamic_graphql::Upload;
+use dynamic_graphql::UploadValue;
+use dynamic_graphql::Variables;
 
 use crate::schema_utils::normalize_schema;
 

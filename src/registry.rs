@@ -1,9 +1,12 @@
+use std::any::TypeId;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::VecDeque;
+use std::mem;
+
 use crate::data::SchemaData;
 use crate::dynamic;
 use crate::types::Register;
-use std::any::TypeId;
-use std::collections::{HashMap, HashSet, VecDeque};
-use std::mem;
 
 pub struct Registry {
     pub data: SchemaData,

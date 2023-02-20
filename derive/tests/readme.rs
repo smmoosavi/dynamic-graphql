@@ -1,7 +1,10 @@
 use dynamic_graphql::App;
 
 mod foo {
-    use dynamic_graphql::{App, ExpandObject, ExpandObjectFields, SimpleObject};
+    use dynamic_graphql::App;
+    use dynamic_graphql::ExpandObject;
+    use dynamic_graphql::ExpandObjectFields;
+    use dynamic_graphql::SimpleObject;
 
     use super::root::Query;
 

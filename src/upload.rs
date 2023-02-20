@@ -1,10 +1,17 @@
-use crate::errors::{InputValueError, InputValueResult};
+use std::borrow::Cow;
+
+use async_graphql::dynamic;
+use async_graphql::dynamic::ValueAccessor;
+use async_graphql::Context;
+use async_graphql::UploadValue;
+
+use crate::errors::InputValueError;
+use crate::errors::InputValueResult;
 use crate::from_value::FromValue;
 use crate::registry::Registry;
-use crate::types::{InputTypeName, Register, TypeName};
-use async_graphql::dynamic::ValueAccessor;
-use async_graphql::{dynamic, Context, UploadValue};
-use std::borrow::Cow;
+use crate::types::InputTypeName;
+use crate::types::Register;
+use crate::types::TypeName;
 
 pub struct Upload(usize);
 

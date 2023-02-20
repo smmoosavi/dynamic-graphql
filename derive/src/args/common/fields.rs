@@ -1,8 +1,10 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::args::common::{ArgImplementor, FieldImplementor};
-use crate::utils::common::{CommonField, GetArgs};
+use crate::args::common::ArgImplementor;
+use crate::args::common::FieldImplementor;
+use crate::utils::common::CommonField;
+use crate::utils::common::GetArgs;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;

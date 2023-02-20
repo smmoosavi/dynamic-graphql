@@ -1,10 +1,16 @@
-use std::ops::{Deref, DerefMut};
+use std::ops::Deref;
+use std::ops::DerefMut;
 
 use darling::ast::Data;
 use darling::util::Ignored;
-use darling::{FromDeriveInput, FromField, FromVariant};
+use darling::FromDeriveInput;
+use darling::FromField;
+use darling::FromVariant;
 
-use crate::utils::impl_block::{FromFnArg, FromImplItemMethod, FromItemTrait, FromTraitItemMethod};
+use crate::utils::impl_block::FromFnArg;
+use crate::utils::impl_block::FromImplItemMethod;
+use crate::utils::impl_block::FromItemTrait;
+use crate::utils::impl_block::FromTraitItemMethod;
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
 

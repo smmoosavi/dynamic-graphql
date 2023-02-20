@@ -1,5 +1,6 @@
 use crate::dynamic;
-use crate::errors::{InputValueError, InputValueResult};
+use crate::errors::InputValueError;
+use crate::errors::InputValueResult;
 use crate::types::GetInputTypeRef;
 use crate::MaybeUndefined;
 use crate::Result;

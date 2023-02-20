@@ -1,5 +1,10 @@
-use crate::{Context, Error, FieldValue, Result, ID};
 use std::borrow::Cow;
+
+use crate::Context;
+use crate::Error;
+use crate::FieldValue;
+use crate::Result;
+use crate::ID;
 
 pub trait ResolveRef<'a> {
     fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>>;

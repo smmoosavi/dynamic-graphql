@@ -1,6 +1,9 @@
-use crate::utils::meta_match::{MatchNestedMeta, MatchPath};
 use std::ops::Deref;
+
 use syn::spanned::Spanned;
+
+use crate::utils::meta_match::MatchNestedMeta;
+use crate::utils::meta_match::MatchPath;
 
 pub struct MatchMetaPath<P: MatchPath = syn::Path>(pub P);
 

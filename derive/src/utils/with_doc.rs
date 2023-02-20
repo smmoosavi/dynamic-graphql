@@ -1,4 +1,5 @@
-use std::ops::{Deref, DerefMut};
+use std::ops::Deref;
+use std::ops::DerefMut;
 
 use darling::FromAttributes;
 

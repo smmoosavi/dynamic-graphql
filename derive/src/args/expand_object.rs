@@ -1,11 +1,13 @@
-use darling::{FromAttributes, ToTokens};
+use darling::FromAttributes;
+use darling::ToTokens;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Generics;
 
 use crate::utils::common::CommonObject;
 use crate::utils::crate_name::get_crate_name;
-use crate::utils::derive_types::{NewtypeStruct, TupleField};
+use crate::utils::derive_types::NewtypeStruct;
+use crate::utils::derive_types::TupleField;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
 use crate::utils::register_attr::RegisterAttr;

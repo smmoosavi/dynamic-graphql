@@ -1,6 +1,7 @@
 use crate::utils::deprecation::Deprecation;
 use crate::utils::impl_block::BaseFnArg;
-use crate::utils::interface_attr::{InterfaceImplAttr, InterfaceMarkAttr};
+use crate::utils::interface_attr::InterfaceImplAttr;
+use crate::utils::interface_attr::InterfaceMarkAttr;
 use crate::utils::rename_rule::RenameRule;
 
 pub trait CommonObject {

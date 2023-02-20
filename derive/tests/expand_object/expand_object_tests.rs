@@ -1,5 +1,7 @@
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::internal::{ExpandObject, Object, ParentType};
+use dynamic_graphql::internal::ExpandObject;
+use dynamic_graphql::internal::Object;
+use dynamic_graphql::internal::ParentType;
 use dynamic_graphql::App;
 use dynamic_graphql::ExpandObject;
 use dynamic_graphql::ExpandObjectFields;

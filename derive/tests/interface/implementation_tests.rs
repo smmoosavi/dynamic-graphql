@@ -1,5 +1,8 @@
-use dynamic_graphql::{App, Interface, SimpleObject};
-use dynamic_graphql::{ResolvedObject, ResolvedObjectFields};
+use dynamic_graphql::App;
+use dynamic_graphql::Interface;
+use dynamic_graphql::ResolvedObject;
+use dynamic_graphql::ResolvedObjectFields;
+use dynamic_graphql::SimpleObject;
 
 use crate::schema_utils::normalize_schema;
 

@@ -1,7 +1,9 @@
 use darling::util::Ignored;
 use syn::spanned::Spanned;
 
-use crate::utils::impl_block::{FromFnArg, SelfArg, TypedArg};
+use crate::utils::impl_block::FromFnArg;
+use crate::utils::impl_block::SelfArg;
+use crate::utils::impl_block::TypedArg;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 

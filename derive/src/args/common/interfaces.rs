@@ -1,7 +1,8 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::utils::common::{CommonInterfaceAttrs, CommonObject};
+use crate::utils::common::CommonInterfaceAttrs;
+use crate::utils::common::CommonObject;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::interface_attr::InterfaceImplAttr;

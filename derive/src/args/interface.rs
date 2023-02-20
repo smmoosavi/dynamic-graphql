@@ -1,21 +1,36 @@
 use std::ops::Deref;
 
-use darling::{FromAttributes, FromMeta, ToTokens};
+use darling::FromAttributes;
+use darling::FromMeta;
+use darling::ToTokens;
 use proc_macro2::Ident;
 use quote::quote;
-use syn::{Generics, ItemTrait, Meta, Path, Type};
+use syn::Generics;
+use syn::ItemTrait;
+use syn::Meta;
+use syn::Path;
+use syn::Type;
 
 use crate::args::interface::others::impl_others_register;
 use crate::utils::attributes::Attributes;
-use crate::utils::common::{CommonArg, CommonField, CommonObject, GetArgs, GetFields};
+use crate::utils::common::CommonArg;
+use crate::utils::common::CommonField;
+use crate::utils::common::CommonObject;
+use crate::utils::common::GetArgs;
+use crate::utils::common::GetFields;
 use crate::utils::deprecation::Deprecation;
 use crate::utils::error::IntoTokenStream;
-use crate::utils::impl_block::{BaseFnArg, BaseItemTrait, BaseMethod, FromItemTrait};
+use crate::utils::impl_block::BaseFnArg;
+use crate::utils::impl_block::BaseItemTrait;
+use crate::utils::impl_block::BaseMethod;
+use crate::utils::impl_block::FromItemTrait;
 use crate::utils::macros::*;
 use crate::utils::register_attr::RegisterAttr;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
-use crate::utils::with_context::{MakeContext, SetContext, WithContext};
+use crate::utils::with_context::MakeContext;
+use crate::utils::with_context::SetContext;
+use crate::utils::with_context::WithContext;
 use crate::utils::with_doc::WithDoc;
 use crate::utils::with_index::WithIndex;
 

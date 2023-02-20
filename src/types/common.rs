@@ -1,10 +1,16 @@
+use std::borrow::Cow;
+
+use async_graphql::dynamic;
+use async_graphql::MaybeUndefined;
+
 use crate::registry::Registry;
 use crate::type_ref_builder::TypeRefBuilder;
-use crate::types::{
-    GetInputTypeRef, GetOutputTypeRef, InputTypeName, OutputTypeName, Register, TypeName,
-};
-use async_graphql::{dynamic, MaybeUndefined};
-use std::borrow::Cow;
+use crate::types::GetInputTypeRef;
+use crate::types::GetOutputTypeRef;
+use crate::types::InputTypeName;
+use crate::types::OutputTypeName;
+use crate::types::Register;
+use crate::types::TypeName;
 
 impl<T> Register for &T
 where
