@@ -1,5 +1,6 @@
 mod any_box;
 mod data;
+mod errors;
 mod from_value;
 mod instance;
 mod registry;
@@ -16,6 +17,7 @@ pub use async_graphql::{
 
 pub use any_box::AnyBox;
 pub use data::GetSchemaData;
+pub use errors::{InputValueError, InputValueResult};
 pub use from_value::FromValue;
 pub use instance::{Instance, RegisterInstance};
 pub use registry::Registry;

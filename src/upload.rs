@@ -1,4 +1,6 @@
-use crate::{FromValue, InputTypeName, Register, Registry, TypeName};
+use crate::{
+    FromValue, InputTypeName, InputValueError, InputValueResult, Register, Registry, TypeName,
+};
 use async_graphql::dynamic::ValueAccessor;
 use async_graphql::{dynamic, Context, UploadValue};
 use std::borrow::Cow;
@@ -24,7 +26,7 @@ impl Upload {
 }
 
 impl FromValue for Upload {
-    fn from_value(value: async_graphql::Result<ValueAccessor>) -> async_graphql::Result<Self> {
+    fn from_value(value: async_graphql::Result<ValueAccessor>) -> InputValueResult<Self> {
         const PREFIX: &str = "#__graphql_file__:";
         let value = value?;
         let value = value.string()?;
@@ -37,7 +39,7 @@ impl FromValue for Upload {
             })?;
             return Ok(Upload(index));
         }
-        Err(async_graphql::Error::new(
+        Err(InputValueError::custom(
             "Invalid upload value, expected #__graphql_file__:index format",
         ))
     }
