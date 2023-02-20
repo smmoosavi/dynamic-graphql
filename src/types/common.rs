@@ -1,3 +1,4 @@
+use crate::type_ref_builder::TypeRefBuilder;
 use crate::types::{GetInputTypeRef, GetOutputTypeRef, InputTypeName, OutputTypeName, TypeName};
 use crate::{Register, Registry};
 use async_graphql::{dynamic, MaybeUndefined};
@@ -171,77 +172,26 @@ where
     }
 }
 
-pub trait TypeRefExt {
-    fn optional(self) -> Self;
-    fn list(self) -> Self;
-}
-
-pub enum TypeRefInner {
-    Named(String),
-    NamedNN(String),
-    List(String),
-    ListNN(String),
-    NNList(String),
-    NNListNN(String),
-}
-
-impl From<TypeRefInner> for dynamic::TypeRef {
-    fn from(value: TypeRefInner) -> Self {
-        match value {
-            TypeRefInner::Named(name) => dynamic::TypeRef::named(name),
-            TypeRefInner::NamedNN(name) => dynamic::TypeRef::named_nn(name),
-            TypeRefInner::List(name) => dynamic::TypeRef::named_list(name),
-            TypeRefInner::ListNN(name) => dynamic::TypeRef::named_list_nn(name),
-            TypeRefInner::NNList(name) => dynamic::TypeRef::named_nn_list(name),
-            TypeRefInner::NNListNN(name) => dynamic::TypeRef::named_nn_list_nn(name),
-        }
-    }
-}
-
-impl TypeRefExt for TypeRefInner {
-    fn optional(self) -> Self {
-        match self {
-            TypeRefInner::Named(name) => TypeRefInner::Named(name),
-            TypeRefInner::NamedNN(name) => TypeRefInner::Named(name),
-            TypeRefInner::List(name) => TypeRefInner::List(name),
-            TypeRefInner::ListNN(name) => TypeRefInner::List(name),
-            TypeRefInner::NNList(name) => TypeRefInner::NNList(name),
-            TypeRefInner::NNListNN(name) => TypeRefInner::NNList(name),
-        }
-    }
-
-    fn list(self) -> Self {
-        match self {
-            TypeRefInner::Named(name) => TypeRefInner::ListNN(name),
-            TypeRefInner::NamedNN(name) => TypeRefInner::NNListNN(name),
-            TypeRefInner::List(name) => TypeRefInner::List(name),
-            TypeRefInner::ListNN(name) => TypeRefInner::ListNN(name),
-            TypeRefInner::NNList(name) => TypeRefInner::NNList(name),
-            TypeRefInner::NNListNN(name) => TypeRefInner::NNListNN(name),
-        }
-    }
-}
-
 impl<T, E> GetOutputTypeRef for Result<T, E>
 where
     T: GetOutputTypeRef,
 {
     #[inline]
-    fn get_output_type_ref() -> TypeRefInner {
+    fn get_output_type_ref() -> TypeRefBuilder {
         T::get_output_type_ref()
     }
 }
 
 impl<T: OutputTypeName> GetOutputTypeRef for T {
     #[inline]
-    fn get_output_type_ref() -> TypeRefInner {
-        TypeRefInner::NamedNN(T::get_output_type_name().to_string())
+    fn get_output_type_ref() -> TypeRefBuilder {
+        TypeRefBuilder::NamedNN(T::get_output_type_name().to_string())
     }
 }
 
 impl<T: GetOutputTypeRef> GetOutputTypeRef for Option<T> {
     #[inline]
-    fn get_output_type_ref() -> TypeRefInner {
+    fn get_output_type_ref() -> TypeRefBuilder {
         let t = T::get_output_type_ref();
         t.optional()
     }
@@ -249,48 +199,48 @@ impl<T: GetOutputTypeRef> GetOutputTypeRef for Option<T> {
 
 impl<T: GetOutputTypeRef> GetOutputTypeRef for Vec<T> {
     #[inline]
-    fn get_output_type_ref() -> TypeRefInner {
+    fn get_output_type_ref() -> TypeRefBuilder {
         T::get_output_type_ref().list()
     }
 }
 
 impl<T: GetOutputTypeRef> GetOutputTypeRef for &[T] {
     #[inline]
-    fn get_output_type_ref() -> TypeRefInner {
+    fn get_output_type_ref() -> TypeRefBuilder {
         T::get_output_type_ref().list()
     }
 }
 
 impl<T: InputTypeName> GetInputTypeRef for T {
     #[inline]
-    fn get_input_type_ref() -> TypeRefInner {
-        TypeRefInner::NamedNN(T::get_input_type_name().to_string())
+    fn get_input_type_ref() -> TypeRefBuilder {
+        TypeRefBuilder::NamedNN(T::get_input_type_name().to_string())
     }
 }
 
 impl<T: GetInputTypeRef> GetInputTypeRef for Option<T> {
     #[inline]
-    fn get_input_type_ref() -> TypeRefInner {
+    fn get_input_type_ref() -> TypeRefBuilder {
         T::get_input_type_ref().optional()
     }
 }
 
 impl<T: GetInputTypeRef> GetInputTypeRef for MaybeUndefined<T> {
     #[inline]
-    fn get_input_type_ref() -> TypeRefInner {
+    fn get_input_type_ref() -> TypeRefBuilder {
         T::get_input_type_ref().optional()
     }
 }
 
 impl<T: GetInputTypeRef> GetInputTypeRef for Vec<T> {
     #[inline]
-    fn get_input_type_ref() -> TypeRefInner {
+    fn get_input_type_ref() -> TypeRefBuilder {
         T::get_input_type_ref().list()
     }
 }
 impl<T: GetInputTypeRef> GetInputTypeRef for &[T] {
     #[inline]
-    fn get_input_type_ref() -> TypeRefInner {
+    fn get_input_type_ref() -> TypeRefBuilder {
         T::get_input_type_ref().list()
     }
 }

@@ -1,5 +1,5 @@
 use crate::registry::Registry;
-use crate::types::common::TypeRefInner;
+use crate::type_ref_builder::TypeRefBuilder;
 use std::borrow::Cow;
 
 mod common;
@@ -80,9 +80,9 @@ pub trait ExpandObject: ParentType {
 }
 
 pub trait GetOutputTypeRef {
-    fn get_output_type_ref() -> TypeRefInner;
+    fn get_output_type_ref() -> TypeRefBuilder;
 }
 
 pub trait GetInputTypeRef {
-    fn get_input_type_ref() -> TypeRefInner;
+    fn get_input_type_ref() -> TypeRefBuilder;
 }

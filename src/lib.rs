@@ -5,6 +5,7 @@ mod from_value;
 mod instance;
 mod registry;
 mod resolve;
+mod type_ref_builder;
 mod types;
 mod upload;
 
@@ -22,6 +23,7 @@ pub use from_value::FromValue;
 pub use instance::{Instance, RegisterInstance};
 pub use registry::Registry;
 pub use resolve::{Resolve, ResolveOwned, ResolveRef};
+pub use type_ref_builder::TypeRefBuilder;
 pub use types::{
     Enum, ExpandObject, GetInputTypeRef, GetOutputTypeRef, InputObject, InputTypeName, Interface,
     InterfaceMark, Mutation, Object, OutputTypeName, ParentType, Register, RegisterFns, Scalar,
