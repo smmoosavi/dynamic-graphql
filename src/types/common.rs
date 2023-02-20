@@ -1,5 +1,5 @@
 use crate::types::{GetInputTypeRef, GetOutputTypeRef, InputTypeName, OutputTypeName, TypeName};
-use crate::{Register, Registry};
+use crate::{Newtype, Register, Registry};
 use async_graphql::{dynamic, MaybeUndefined};
 use std::borrow::Cow;
 
@@ -35,6 +35,36 @@ impl<T: OutputTypeName + Clone + 'static> TypeName for Cow<'_, T> {
 }
 
 impl<T: OutputTypeName + Clone + 'static> OutputTypeName for Cow<'_, T> {}
+
+impl<T> Register for T
+where
+    T: Newtype,
+    T::Inner: Register + 'static,
+{
+    fn register(registry: Registry) -> Registry {
+        registry.register::<T::Inner>()
+    }
+}
+
+impl<T> TypeName for T
+where
+    T: Newtype,
+    T::Inner: TypeName + 'static,
+{
+    fn get_type_name() -> Cow<'static, str> {
+        <T::Inner as TypeName>::get_type_name()
+    }
+}
+
+impl<T> OutputTypeName for T
+where
+    T: Newtype,
+    T::Inner: OutputTypeName + 'static,
+{
+    fn get_output_type_name() -> Cow<'static, str> {
+        <T::Inner as OutputTypeName>::get_output_type_name()
+    }
+}
 
 impl Register for String {}
 impl TypeName for String {

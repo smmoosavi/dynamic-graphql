@@ -15,6 +15,19 @@ pub trait Resolve<'a> {
 
 mod resolve_ref {
     use super::*;
+
+    // Newtype
+    impl<'a, T> ResolveRef<'a> for T
+    where
+        T: crate::Newtype + AsRef<T::Inner>,
+        T::Inner: ResolveRef<'a>,
+    {
+        #[inline]
+        fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            self.as_ref().resolve_ref(ctx)
+        }
+    }
+
     // &Option<T>
     impl<'a, T> ResolveRef<'a> for Option<T>
     where
@@ -63,6 +76,19 @@ mod resolve_ref {
 }
 mod resolve_own {
     use super::*;
+
+    // Newtype
+    impl<'a, T> ResolveOwned<'a> for T
+    where
+        T: crate::Newtype + Into<T::Inner>,
+        T::Inner: ResolveOwned<'a>,
+    {
+        #[inline]
+        fn resolve_owned(self, ctx: &Context) -> Result<Option<FieldValue<'a>>> {
+            self.into().resolve_owned(ctx)
+        }
+    }
+
     // &T
     impl<'a, T> ResolveOwned<'a> for &'a T
     where

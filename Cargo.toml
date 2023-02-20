@@ -15,6 +15,7 @@ categories = ["network-programming"]
 fnv = "1"
 async-graphql = { version= "5.0.5", features = ["dynamic-schema"] }
 dynamic-graphql-derive = { path = "./derive", version = "0.6.1" }
+the-newtype = "0.1"
 
 [workspace]
 members = [

@@ -86,3 +86,14 @@ pub trait GetOutputTypeRef {
 pub trait GetInputTypeRef {
     fn get_input_type_ref() -> TypeRefInner;
 }
+
+pub trait Newtype {
+    type Inner;
+}
+
+// impl<T> Newtype for T
+// where
+//     T: the_newtype::Newtype,
+// {
+//     type Inner = T::Inner;
+// }
