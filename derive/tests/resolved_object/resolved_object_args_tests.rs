@@ -5,6 +5,7 @@ use dynamic_graphql::FieldValue;
 use dynamic_graphql::MaybeUndefined;
 use dynamic_graphql::ResolvedObject;
 use dynamic_graphql::ResolvedObjectFields;
+use dynamic_graphql::Result;
 use dynamic_graphql::Variables;
 
 use crate::schema_utils::normalize_schema;
@@ -376,6 +377,158 @@ async fn test_query_with_option() {
         serde_json::json!({
             "withOption": "None",
             "withOptionRef": "None"
+        }),
+    );
+}
+
+#[tokio::test]
+async fn test_query_with_result() {
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        fn with_result(value: Result<u8>) -> String {
+            match value {
+                Ok(name) => format!("Ok({})", name),
+                Err(err) => format!("Err({})", err.message),
+            }
+        }
+
+        fn with_result_of_option(value: Result<Option<u8>>) -> String {
+            match value {
+                Ok(Some(name)) => format!("Ok(Some({}))", name),
+                Ok(None) => "Ok(None)".to_string(),
+                Err(err) => format!("Err({})", err.message),
+            }
+        }
+        fn with_option_of_result(value: Option<Result<u8>>) -> String {
+            match value {
+                Some(Ok(name)) => format!("Some(Ok({}))", name),
+                Some(Err(err)) => format!("Some(Err({}))", err.message),
+                None => "None".to_string(),
+            }
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+
+    let query = r#"
+    query {
+        withResult
+    }"#;
+
+    let req = dynamic_graphql::Request::new(query);
+
+    let res = schema.execute(req).await;
+    assert_eq!(res.errors.len(), 1);
+    assert_eq!(
+        res.errors[0].message,
+        r#"Invalid value for argument "value": Failed to parse "Int": internal: key "value" not found"#
+    );
+
+    let query = r#"
+    query {
+        withResultOfOption
+    }"#;
+
+    let req = dynamic_graphql::Request::new(query);
+
+    let res = schema.execute(req).await;
+    assert_eq!(res.errors.len(), 1);
+    assert_eq!(
+        res.errors[0].message,
+        r#"Invalid value for argument "value": Failed to parse "Int": internal: key "value" not found"#
+    );
+
+    let query = r#"
+    query {
+        withOptionOfResult
+    }"#;
+
+    let req = dynamic_graphql::Request::new(query);
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "withOptionOfResult":"None",
+        }),
+    );
+
+    let query = r#"
+    query ($value: Int) {
+        withResult(value: $value)
+        withResultOfOption(value: $value)
+        withOptionOfResult(value: $value)
+    }"#;
+
+    let variables = serde_json::json!({ "value": 255 }); // max u8
+
+    let req = dynamic_graphql::Request::new(query).variables(Variables::from_json(variables));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "withResult": "Ok(255)",
+            "withResultOfOption": "Ok(Some(255))",
+            "withOptionOfResult": "Some(Ok(255))",
+        }),
+    );
+
+    let variables = serde_json::json!({ "value": 2565 }); // max u8 + 1
+
+    let req = dynamic_graphql::Request::new(query).variables(Variables::from_json(variables));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "withResult":"Err(Failed to parse \"Int\": Only integers from 0 to 255 are accepted for u8.)",
+            "withResultOfOption":"Err(Failed to parse \"Int\": Only integers from 0 to 255 are accepted for u8.)",
+            "withOptionOfResult":"Some(Err(Failed to parse \"Int\": Only integers from 0 to 255 are accepted for u8.))",
+        }),
+    );
+
+    let variables = serde_json::json!({ "value": null });
+
+    let req = dynamic_graphql::Request::new(query).variables(Variables::from_json(variables));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "withResult": "Err(Failed to parse \"Int\": internal: not an unsigned integer)",
+            "withResultOfOption": "Ok(None)",
+            "withOptionOfResult": "None",
+        }),
+    );
+
+    let variables = serde_json::json!({});
+
+    let req = dynamic_graphql::Request::new(query).variables(Variables::from_json(variables));
+
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!({
+            "withResult": "Err(Failed to parse \"Int\": internal: not an unsigned integer)",
+            "withResultOfOption": "Ok(None)",
+            "withOptionOfResult": "None",
         }),
     );
 }

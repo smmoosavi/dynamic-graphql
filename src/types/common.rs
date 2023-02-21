@@ -226,6 +226,13 @@ impl<T: InputTypeName> GetInputTypeRef for T {
     }
 }
 
+impl<T: GetInputTypeRef, E> GetInputTypeRef for Result<T, E> {
+    #[inline]
+    fn get_input_type_ref() -> TypeRefBuilder {
+        T::get_input_type_ref().optional()
+    }
+}
+
 impl<T: GetInputTypeRef> GetInputTypeRef for Option<T> {
     #[inline]
     fn get_input_type_ref() -> TypeRefBuilder {

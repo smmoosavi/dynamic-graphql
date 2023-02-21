@@ -94,6 +94,16 @@ where
     }
 }
 
+impl<T> FromValue for Result<T>
+where
+    T: FromValue + GetInputTypeRef,
+{
+    fn from_value(value: Result<dynamic::ValueAccessor>) -> InputValueResult<Self> {
+        let value = T::from_value(Ok(value?)).map_err(Into::into);
+        Ok(value)
+    }
+}
+
 impl<T> FromValue for MaybeUndefined<T>
 where
     T: FromValue + GetInputTypeRef,

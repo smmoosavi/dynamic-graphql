@@ -31,6 +31,7 @@ impl ScalarValue for MyScalar {
 }
 ```
 
+- support `Result` as input type
 
 ### Fixed
 
