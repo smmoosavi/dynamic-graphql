@@ -7,6 +7,31 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- add Scalar support
+
+```rust
+#[derive(Scalar)]
+struct MyScalar {
+    value: String
+}
+
+impl ScalarValue for MyScalar {
+    fn from_value(value: dynamic_graphql::Value) -> dynamic_graphql::Result<Self> {
+        match value {
+            dynamic_graphql::Value::String(value) => Ok(MyScalar { value }),
+            _ => Err(dynamic_graphql::Error::new("Invalid value")),
+        }
+    }
+
+    fn to_value(&self) -> dynamic_graphql::Value {
+        dynamic_graphql::Value::String(self.value.clone())
+    }
+}
+```
+
+
 ### Fixed
 
 - fix silent integer overflow cast in `FromValue` trait. Now it returns error if value is out of range.

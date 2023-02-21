@@ -106,7 +106,19 @@ impl<T> InputValueError<T> {
 
 impl<T: GetInputTypeRef> From<async_graphql::Error> for InputValueError<T> {
     fn from(value: async_graphql::Error) -> Self {
-        Self::custom(value.message)
+        let mut err = Self::custom(value.message);
+        err.extensions = value.extensions;
+        err
+    }
+}
+
+impl<T> From<InputValueError<T>> for async_graphql::Error {
+    fn from(value: InputValueError<T>) -> Self {
+        Self {
+            message: value.message,
+            source: None,
+            extensions: value.extensions,
+        }
     }
 }
 

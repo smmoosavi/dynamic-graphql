@@ -72,6 +72,14 @@ pub fn drive_enum(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     }
 }
 
+#[proc_macro_derive(Scalar, attributes(graphql))]
+pub fn drive_scalar(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match args::Scalar::from_derive_input(&parse_macro_input!(input as DeriveInput)) {
+        Ok(scalar_args) => scalar_args.into_token_stream().into(),
+        Err(err) => err.write_errors().into(),
+    }
+}
+
 #[proc_macro_derive(App, attributes(graphql))]
 pub fn drive_app(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     match args::App::from_derive_input(&parse_macro_input!(input as DeriveInput)) {

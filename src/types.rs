@@ -44,10 +44,17 @@ pub trait Enum: OutputTypeName {
     }
 }
 
-pub trait Scalar: OutputTypeName {
+pub trait Scalar: OutputTypeName + InputTypeName {
     fn get_scalar_type_name() -> Cow<'static, str> {
-        <Self as OutputTypeName>::get_output_type_name()
+        <Self as TypeName>::get_type_name()
     }
+}
+
+pub trait ScalarValue {
+    fn from_value(value: crate::Value) -> crate::Result<Self>
+    where
+        Self: Sized;
+    fn to_value(&self) -> crate::Value;
 }
 
 pub trait Union: OutputTypeName {

@@ -10,6 +10,7 @@ pub use mutation_fields::MutationFields;
 pub use mutation_root::MutationRoot;
 pub use resolved_object::ResolvedObject;
 pub use resolved_object_fields::ResolvedObjectFields;
+pub use scalar::Scalar;
 pub use simple_object::SimpleObject;
 pub use union::Union;
 
@@ -25,5 +26,6 @@ mod mutation_fields;
 mod mutation_root;
 mod resolved_object;
 mod resolved_object_fields;
+mod scalar;
 mod simple_object;
 mod union;

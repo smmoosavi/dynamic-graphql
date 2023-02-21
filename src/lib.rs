@@ -11,6 +11,7 @@ mod upload;
 
 pub use async_graphql::dynamic;
 pub use async_graphql::dynamic::FieldValue;
+pub use async_graphql::value;
 pub use async_graphql::Context;
 pub use async_graphql::Data;
 pub use async_graphql::Error;
@@ -69,7 +70,9 @@ pub use dynamic_graphql_derive::MutationFields;
 pub use dynamic_graphql_derive::MutationRoot;
 pub use dynamic_graphql_derive::ResolvedObject;
 pub use dynamic_graphql_derive::ResolvedObjectFields;
+pub use dynamic_graphql_derive::Scalar;
 pub use dynamic_graphql_derive::SimpleObject;
 pub use dynamic_graphql_derive::Union;
 pub use instance::Instance;
+pub use types::ScalarValue;
 pub use upload::Upload;
