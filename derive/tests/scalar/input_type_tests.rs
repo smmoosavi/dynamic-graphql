@@ -87,6 +87,56 @@ async fn test_query_validation() {
 }
 
 #[tokio::test]
+async fn test_query_validation_with_result() {
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        async fn value(value: dynamic_graphql::Result<IP>) -> String {
+            match value {
+                Ok(ip) => format!("OK({})", ip.0),
+                Err(e) => format!("Err({})", e.message),
+            }
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+    let root = Query;
+    let query = r#"
+        query {
+            value(value: "192.168.10.10")
+        }
+    "#;
+
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+    assert_eq!(data, serde_json::json!({ "value": "OK(192.168.10.10)" }));
+
+    let query = r#"
+        query
+        {
+            value(value: "invalid")
+        }
+    "#;
+
+    let root = Query;
+    let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
+    let res = schema.execute(req).await;
+    let data = res.data.into_json().unwrap();
+
+    assert_eq!(
+        data,
+        serde_json::json!({ "value": r#"Err(Failed to parse "IP": invalid IP address syntax)"# })
+    );
+}
+
+#[tokio::test]
 async fn test_query_input_object() {
     #[derive(InputObject)]
     struct MyInput {
