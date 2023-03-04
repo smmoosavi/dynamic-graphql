@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Internal
+
+- add `Registry::apply_into_schema_builder` method
+
 ## [0.7.0] - 2023-02-21
 
 ### Added

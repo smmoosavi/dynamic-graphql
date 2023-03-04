@@ -122,12 +122,19 @@ impl Registry {
             }
         }
     }
-    pub fn create_schema(mut self) -> dynamic::SchemaBuilder {
-        self.apply_pending_objects();
+    pub fn create_schema(self) -> dynamic::SchemaBuilder {
         let Some(ref root) = self.root else {
             panic!("No root object defined");
         };
         let schema = dynamic::Schema::build(root, self.mutation.as_deref(), None);
+        self.apply_into_schema_builder(schema)
+    }
+
+    pub fn apply_into_schema_builder(
+        mut self,
+        schema: dynamic::SchemaBuilder,
+    ) -> dynamic::SchemaBuilder {
+        self.apply_pending_objects();
         let schema = self
             .objects
             .into_iter()
