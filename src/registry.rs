@@ -12,6 +12,7 @@ pub struct Registry {
     pub data: SchemaData,
     root: Option<String>,
     mutation: Option<String>,
+    subscription: Option<String>,
     objects: HashMap<String, dynamic::Object>,
     types: Vec<dynamic::Type>,
     // name of all registered types
@@ -31,6 +32,7 @@ impl Registry {
             data: Default::default(),
             root: None,
             mutation: None,
+            subscription: None,
             objects: Default::default(),
             types: Default::default(),
             names: Default::default(),
@@ -54,6 +56,11 @@ impl Registry {
     #[inline]
     pub fn set_mutation(mut self, name: &str) -> Self {
         self.mutation = Some(name.to_string());
+        self
+    }
+    #[inline]
+    pub fn set_subscription(mut self, name: &str) -> Self {
+        self.subscription = Some(name.to_string());
         self
     }
     pub fn register_type(mut self, ty: impl Into<dynamic::Type>) -> Self {
@@ -126,7 +133,8 @@ impl Registry {
         let Some(ref root) = self.root else {
             panic!("No root object defined");
         };
-        let schema = dynamic::Schema::build(root, self.mutation.as_deref(), None);
+        let schema =
+            dynamic::Schema::build(root, self.mutation.as_deref(), self.subscription.as_deref());
         self.apply_into_schema_builder(schema)
     }
 
