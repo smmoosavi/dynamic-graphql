@@ -18,6 +18,67 @@ use std::borrow::Cow;
 mod schema_utils;
 
 #[tokio::test]
+async fn test_app() {
+    #[derive(SimpleObject)]
+    struct Foo {
+        value: String,
+    }
+
+    struct Query;
+
+    impl Register for Query {
+        fn register(registry: Registry) -> Registry {
+            let registry = registry.register::<Foo>();
+            let object = dynamic::Object::new("Query");
+            let object = object.field(dynamic::Field::new(
+                "foo",
+                dynamic::TypeRef::named("Foo"),
+                |_ctx| {
+                    dynamic::FieldFuture::new(async move {
+                        Ok(Some(dynamic::FieldValue::owned_any(Foo {
+                            value: "the foo".to_string(),
+                        })))
+                    })
+                },
+            ));
+
+            registry.register_type(object).set_root("Query")
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+    let sdl = schema.sdl();
+    assert_eq!(
+        normalize_schema(&sdl),
+        normalize_schema(
+            r#"
+            type Foo {
+              value: String!
+            }
+
+            type Query {
+              foo: Foo
+            }
+
+            schema {
+              query: Query
+            }
+            "#
+        ),
+    );
+
+    let result = schema
+        .execute("{ foo { value } }")
+        .await
+        .into_result()
+        .unwrap();
+    assert_eq!(result.data, value!({ "foo": { "value": "the foo" } }));
+}
+
+#[tokio::test]
 async fn test_apply() {
     #[derive(SimpleObject)]
     struct Foo {
