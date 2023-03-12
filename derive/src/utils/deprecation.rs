@@ -1,13 +1,8 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub enum Deprecation {
+    #[default]
     NoDeprecated,
     Deprecated { reason: Option<String> },
-}
-
-impl Default for Deprecation {
-    fn default() -> Self {
-        Deprecation::NoDeprecated
-    }
 }
 
 impl darling::FromMeta for Deprecation {
