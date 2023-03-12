@@ -2,7 +2,9 @@
 pub enum Deprecation {
     #[default]
     NoDeprecated,
-    Deprecated { reason: Option<String> },
+    Deprecated {
+        reason: Option<String>,
+    },
 }
 
 impl darling::FromMeta for Deprecation {
