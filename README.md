@@ -1,5 +1,12 @@
 # Dynamic graphql
 
+
+[![Build Status](https://github.com/smmoosavi/dynamic-graphql/workflows/CI/badge.svg)](https://github.com/smmoosavi/dynamic-graphql/actions)
+[![Latest Version](https://img.shields.io/crates/v/dynamic-graphql.svg)](https://crates.io/crates/dynamic-graphql)
+[![Rust Documentation](https://docs.rs/dynamic-graphql/badge.svg)](https://docs.rs/dynamic-graphql)
+![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)
+
+
 extendable and dynamic graphql schema definition for [async-graphql]
 
 ## Usage
