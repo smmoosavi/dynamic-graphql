@@ -1,8 +1,10 @@
-use graphql_parser::schema::parse_schema;
-
 pub fn normalize_schema(sdl: &str) -> String {
-    let ast = parse_schema::<String>(sdl).unwrap().to_owned();
-    format!("\n{}", ast)
+    format!(
+        "\n{}",
+        graphql_parser::schema::parse_schema::<String>(sdl)
+            .unwrap()
+            .to_owned()
+    )
 }
 
 #[cfg(test)]
