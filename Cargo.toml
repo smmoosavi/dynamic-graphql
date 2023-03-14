@@ -16,6 +16,9 @@ fnv = "1"
 async-graphql = { version= "5.0.5", features = ["dynamic-schema"] }
 dynamic-graphql-derive = { path = "./derive", version = "0.7.1" }
 
+[dev-dependencies]
+graphql-parser = "0.4"
+
 [workspace]
 members = [
     "derive",

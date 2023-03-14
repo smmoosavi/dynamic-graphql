@@ -11,6 +11,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - add `Registry::set_subscription` method
 
+### Doc
+
+- add docs for `SimpleObject` macro
+
 ## [0.7.1] - 2023-03-04
 
 ### Internal
