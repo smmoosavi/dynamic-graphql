@@ -1,9 +1,7 @@
 use crate::schema_utils::normalize_schema;
 use dynamic_graphql::dynamic;
 use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::internal::Object;
 use dynamic_graphql::internal::OutputTypeName;
-use dynamic_graphql::internal::ParentType;
 use dynamic_graphql::internal::Register;
 use dynamic_graphql::internal::Registry;
 use dynamic_graphql::internal::ResolveOwned;
@@ -146,11 +144,7 @@ async fn define_custom_type() {
         }
     }
 
-    impl ParentType for Foo {
-        type Type = Foo;
-    }
     impl OutputTypeName for Foo {}
-    impl Object for Foo {}
     impl Register for Foo {
         fn register(registry: Registry) -> Registry {
             let object = dynamic::Object::new("Foo");
