@@ -29,7 +29,7 @@ Define a new GraphQL object type.
 - `u8`, `u16`, `u32`, `u64`, `u128`, `usize`
 - `f32`, `f64`
 - `Option<T>` where `T` is one of the valid output types
-- `Vec<T>`where `T` is one of the valid output types
+- `Vec<T>` where `T` is one of the valid output types
 - types defined by [`#[derive(SimpleObject)]`][SimpleObject]
 - types defined by [`#[derive(ResolvedObject)]`][ResolvedObject]
 - types defined by [`#[derive(Enum)]`][Enum]
@@ -83,7 +83,7 @@ schema {
 );
 ```
 
-### Rename Fields
+### Rename
 
 ```rust
 use dynamic_graphql::{SimpleObject, App};
@@ -93,6 +93,7 @@ use dynamic_graphql::{SimpleObject, App};
 # }
 
 #[derive(SimpleObject)]
+#[graphql(name = "RootQuery")]
 #[graphql(root, rename_fields = "snake_case")]
 struct Query {
     hello_world: String,
@@ -108,13 +109,13 @@ let schema = App::create_schema().finish().unwrap();
 assert_eq!(
     normalize_schema(&schema.sdl()),
     r#"
-type Query {
+type RootQuery {
   hello_world: String!
   MyField: String!
 }
 
 schema {
-  query: Query
+  query: RootQuery
 }
 "#
 );

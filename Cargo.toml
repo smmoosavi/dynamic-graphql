@@ -18,6 +18,7 @@ dynamic-graphql-derive = { path = "./derive", version = "0.7.1" }
 
 [dev-dependencies]
 graphql-parser = "0.4"
+tokio-test = "0.4"
 
 [workspace]
 members = [

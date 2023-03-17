@@ -68,7 +68,9 @@ pub use dynamic_graphql_derive::Interface;
 pub use dynamic_graphql_derive::Mutation;
 pub use dynamic_graphql_derive::MutationFields;
 pub use dynamic_graphql_derive::MutationRoot;
+#[doc = include_str!("./docs/resolved-object.md")]
 pub use dynamic_graphql_derive::ResolvedObject;
+#[doc = include_str!("./docs/resolved-object-fields.md")]
 pub use dynamic_graphql_derive::ResolvedObjectFields;
 pub use dynamic_graphql_derive::Scalar;
 #[doc = include_str!("./docs/simple-object.md")]

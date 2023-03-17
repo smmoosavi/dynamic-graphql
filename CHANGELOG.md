@@ -14,6 +14,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Doc
 
 - add docs for `SimpleObject` macro
+- add docs for `ResolvedObject` and `ResolvedObjectFields` macro
 
 ## [0.7.1] - 2023-03-04
 
