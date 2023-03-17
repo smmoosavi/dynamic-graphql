@@ -71,6 +71,7 @@ pub use dynamic_graphql_derive::MutationRoot;
 pub use dynamic_graphql_derive::ResolvedObject;
 pub use dynamic_graphql_derive::ResolvedObjectFields;
 pub use dynamic_graphql_derive::Scalar;
+#[doc = include_str!("./docs/simple-object.md")]
 pub use dynamic_graphql_derive::SimpleObject;
 pub use dynamic_graphql_derive::Union;
 pub use instance::Instance;
