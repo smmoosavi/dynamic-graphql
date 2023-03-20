@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.2] - 2023-03-20
+
 ### Added
 
 - add `Registry::set_subscription` method
@@ -362,7 +364,8 @@ struct AnotherType {}
 - change `FromValue` argument to `Result<dynamic::ValueAccessor>`
 - add `Output` associated type to `GetOutputTypeRef` and `GetInputTypeRef`
 
-[unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.7.1...main
+[unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.7.2...main
+[0.7.2]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.7.1...v0.7.1
 [0.7.1]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.6.0...v0.6.1
