@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+# Doc
+
+- add docs for `Interface` macro
+
 ## [0.7.2] - 2023-03-20
 
 ### Added

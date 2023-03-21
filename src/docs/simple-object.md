@@ -1,5 +1,9 @@
 Define a new GraphQL object type.
 
+To implement a graphql object, you need to define a rust struct and mark it with the `#[derive(SimpleObject)]`
+attribute. `Simpleobject`s are used to represent simple object types in GraphQL, which means it doesn't have any
+arguments or context, or resolve functions andsimply define object based on struct fields.
+
 ## Macro Attributes
 
 | Attribute       | Description                                                                                                                                                                          | Type     |
