@@ -13,6 +13,7 @@ concurrency:
 
 env:
   RUST_BACKTRACE: 1
+  NIGHTLY_VERSION: nightly-2023-03-19
 
 
 jobs:
@@ -36,12 +37,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@v1
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
+          toolchain: $NIGHTLY_VERSION
           components: rustfmt
 
-      - run: cargo +nightly fmt --all -- --check
+      - run: cargo +$NIGHTLY_VERSION fmt --all -- --check
 
   ###########
   # Testing #
@@ -68,10 +69,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@v1
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
+          toolchain: $NIGHTLY_VERSION
 
-      - run: cargo +nightly doc --workspace
+      - run: cargo +$NIGHTLY_VERSION doc --workspace --no-deps
         env:
           RUSTDOCFLAGS: --cfg docsrs
