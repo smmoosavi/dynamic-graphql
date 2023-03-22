@@ -9,20 +9,35 @@ mod type_ref_builder;
 mod types;
 mod upload;
 
+#[doc(no_inline)]
 pub use async_graphql::dynamic;
+#[doc(no_inline)]
 pub use async_graphql::dynamic::FieldValue;
+#[doc(no_inline)]
 pub use async_graphql::value;
+#[doc(no_inline)]
 pub use async_graphql::Context;
+#[doc(no_inline)]
 pub use async_graphql::Data;
+#[doc(no_inline)]
 pub use async_graphql::Error;
+#[doc(no_inline)]
 pub use async_graphql::Lookahead;
+#[doc(no_inline)]
 pub use async_graphql::MaybeUndefined;
+#[doc(no_inline)]
 pub use async_graphql::Name;
+#[doc(no_inline)]
 pub use async_graphql::Request;
+#[doc(no_inline)]
 pub use async_graphql::Result;
+#[doc(no_inline)]
 pub use async_graphql::UploadValue;
+#[doc(no_inline)]
 pub use async_graphql::Value;
+#[doc(no_inline)]
 pub use async_graphql::Variables;
+#[doc(no_inline)]
 pub use async_graphql::ID;
 
 pub mod internal {
