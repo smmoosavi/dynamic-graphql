@@ -76,7 +76,9 @@ pub mod experimental {
 
 pub use dynamic_graphql_derive::App;
 pub use dynamic_graphql_derive::Enum;
+#[doc = include_str!("./docs/expand-object.md")]
 pub use dynamic_graphql_derive::ExpandObject;
+#[doc = include_str!("./docs/expand-object-fields.md")]
 pub use dynamic_graphql_derive::ExpandObjectFields;
 pub use dynamic_graphql_derive::InputObject;
 #[doc = include_str!("./docs/interface.md")]
