@@ -15,6 +15,7 @@ use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::BaseStruct;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
+use crate::utils::path_attr::PathAttr;
 use crate::utils::register_attr::RegisterAttr;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
@@ -28,6 +29,9 @@ pub struct ScalarAttrs {
     #[darling(default)]
     #[darling(rename = "get_type_name")]
     pub type_name: bool,
+
+    #[darling(default)]
+    pub validator: Option<PathAttr>,
 
     #[darling(default)]
     specified_by_url: Option<String>,
@@ -147,12 +151,26 @@ pub fn get_specified_by_url_code(scalar: &Scalar) -> darling::Result<TokenStream
     })
 }
 
+fn get_validator_code(scalar: &Scalar) -> darling::Result<TokenStream> {
+    let validator = &scalar.attrs.validator;
+    Ok(match validator {
+        Some(validator) => {
+            let path = &validator.0;
+            quote! {
+                let object = object.validator(#path);
+            }
+        }
+        None => quote!(),
+    })
+}
+
 fn impl_register(scalar: &Scalar) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
 
     let ident = &scalar.get_ident();
     let description = common::object_description(scalar.get_doc()?.as_deref())?;
     let specified_by_url = get_specified_by_url_code(scalar)?;
+    let validator_code = get_validator_code(scalar)?;
 
     let (impl_generics, ty_generics, where_clause) = scalar.generics.split_for_impl();
     let register_attr = &scalar.attrs.registers;
@@ -161,6 +179,7 @@ fn impl_register(scalar: &Scalar) -> darling::Result<TokenStream> {
             fn register(registry: #crate_name::internal::Registry) -> #crate_name::internal::Registry {
                 #( #register_attr )*
                 let object = #crate_name::dynamic::Scalar::new(<Self as #crate_name::internal::Scalar>::get_scalar_type_name().as_ref());
+                #validator_code
                 #description
                 #specified_by_url
                 registry.register_type(object)

@@ -2,12 +2,16 @@ use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::InputObject;
+use dynamic_graphql::MaybeUndefined;
 use dynamic_graphql::ResolvedObject;
 use dynamic_graphql::ResolvedObjectFields;
+use dynamic_graphql::Scalar;
+use dynamic_graphql::ScalarValue;
+use dynamic_graphql::Value;
 use dynamic_graphql::Variables;
 
-use crate::scalar::common::MyString;
 use crate::scalar::common::IP;
+use crate::scalar::common::{MyString, StringValue};
 
 #[tokio::test]
 async fn test_query() {
@@ -83,6 +87,202 @@ async fn test_query_validation() {
     assert_eq!(
         res.errors[0].message,
         r#"Invalid value for argument "value": Failed to parse "IP": invalid IP address syntax"#,
+    );
+}
+
+#[tokio::test]
+async fn test_query_validator() {
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query;
+
+    fn validate_foo(value: &Value) -> bool {
+        match value {
+            Value::String(s) => s.len() <= 5,
+            _ => false,
+        }
+    }
+
+    #[derive(Scalar)]
+    #[graphql(validator(validate_foo))]
+    struct Foo(String);
+
+    #[derive(InputObject)]
+    struct FooInput {
+        value: Foo,
+    }
+
+    impl ScalarValue for Foo {
+        fn from_value(value: Value) -> dynamic_graphql::Result<Self>
+        where
+            Self: Sized,
+        {
+            StringValue::try_from(value).map(|v| Foo(v.0))
+        }
+
+        fn to_value(&self) -> Value {
+            Value::String(self.0.clone())
+        }
+    }
+
+    #[ResolvedObjectFields]
+    impl Query {
+        async fn value(value: Foo) -> String {
+            value.0
+        }
+        async fn with_result(value: dynamic_graphql::Result<Foo>) -> String {
+            match value {
+                Ok(v) => v.0,
+                Err(e) => format!("Err({})", e.message),
+            }
+        }
+        async fn with_maybe_undefined(value: MaybeUndefined<Foo>) -> String {
+            match value {
+                MaybeUndefined::Value(v) => v.0,
+                MaybeUndefined::Undefined => "undefined".to_string(),
+                MaybeUndefined::Null => "null".to_string(),
+            }
+        }
+        async fn with_input_object(input: FooInput) -> String {
+            input.value.0
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let schema = App::create_schema().finish().unwrap();
+    let query = r#"
+        query {
+            value(value: "12345")
+        }
+    "#;
+
+    let res = schema.execute(query).await;
+    let data = res.data.into_json().unwrap();
+    assert_eq!(data, serde_json::json!({ "value": "12345" }));
+
+    let query = r#"
+        query
+        {
+            value(value: "invalid")
+        }
+    "#;
+
+    let res = schema.execute(query).await;
+
+    assert_eq!(res.errors.len(), 1);
+    assert_eq!(
+        res.errors[0].message,
+        r#"Invalid value for argument "value", expected type "Foo""#,
+    );
+
+    let query = r#"
+        query
+        {
+            withResult(value: "invalid")
+        }
+    "#;
+
+    let res = schema.execute(query).await;
+
+    assert_eq!(res.errors.len(), 1);
+    assert_eq!(
+        res.errors[0].message,
+        r#"Invalid value for argument "value", expected type "Foo""#,
+    );
+
+    let query = r#"
+        query
+        {
+            withResult(value: "12345")
+        }
+    "#;
+
+    let res = schema.execute(query).await;
+
+    let data = res.data.into_json().unwrap();
+    assert_eq!(data, serde_json::json!({ "withResult": "12345" }));
+
+    let query = r#"
+        query
+        {
+            withMaybeUndefined(value: "12345")
+        }
+    "#;
+
+    let res = schema.execute(query).await;
+
+    let data = res.data.into_json().unwrap();
+    assert_eq!(data, serde_json::json!({ "withMaybeUndefined": "12345" }));
+
+    let query = r#"
+        query
+        {
+            withMaybeUndefined(value: null)
+        }
+    "#;
+
+    let res = schema.execute(query).await;
+
+    let data = res.data.into_json().unwrap();
+    assert_eq!(data, serde_json::json!({ "withMaybeUndefined": "null" }));
+
+    let query = r#"
+        query
+        {
+            withMaybeUndefined
+        }
+    "#;
+
+    let res = schema.execute(query).await;
+
+    let data = res.data.into_json().unwrap();
+    assert_eq!(
+        data,
+        serde_json::json!({ "withMaybeUndefined": "undefined" })
+    );
+
+    let query = r#"
+        query
+        {
+            withMaybeUndefined(value: "invalid")
+        }
+    "#;
+
+    let res = schema.execute(query).await;
+
+    assert_eq!(res.errors.len(), 1);
+    assert_eq!(
+        res.errors[0].message,
+        r#"Invalid value for argument "value", expected type "Foo""#,
+    );
+
+    let query = r#"
+        query
+        {
+            withInputObject(input: { value: "12345" })
+        }
+    "#;
+
+    let res = schema.execute(query).await;
+
+    let data = res.data.into_json().unwrap();
+    assert_eq!(data, serde_json::json!({ "withInputObject": "12345" }));
+
+    let query = r#"
+        query
+        {
+            withInputObject(input: { value: "invalid" })
+        }
+    "#;
+
+    let res = schema.execute(query).await;
+
+    assert_eq!(res.errors.len(), 1);
+    assert_eq!(
+        res.errors[0].message,
+        r#"Invalid value for argument "input.value", expected type "Foo""#,
     );
 }
 

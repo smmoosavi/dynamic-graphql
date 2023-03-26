@@ -7,7 +7,24 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-# Doc
+### Added
+
+- Add `#[graphql(validator(validate_fn))]` attribute to validate scalar value
+
+```rust
+#[derive(Scalar)]
+#[graphql(validator(validate_foo))]
+struct Foo(String);
+
+fn validate_foo(value: &Value) -> bool {
+    match value {
+        Value::String(s) => s.len() <= 5,
+        _ => false,
+    }
+}
+```
+
+### Doc
 
 - add docs for `Interface` macro
 
