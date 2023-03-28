@@ -79,6 +79,7 @@ pub use dynamic_graphql_derive::Enum;
 pub use dynamic_graphql_derive::ExpandObject;
 pub use dynamic_graphql_derive::ExpandObjectFields;
 pub use dynamic_graphql_derive::InputObject;
+#[doc = include_str!("./docs/interface.md")]
 pub use dynamic_graphql_derive::Interface;
 pub use dynamic_graphql_derive::Mutation;
 pub use dynamic_graphql_derive::MutationFields;
