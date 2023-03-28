@@ -7,7 +7,7 @@ use dynamic_graphql::ScalarValue;
 #[graphql(name = "IP")]
 pub struct IP(pub IpAddr);
 
-pub struct StringValue(String);
+pub struct StringValue(pub String);
 impl TryFrom<dynamic_graphql::Value> for StringValue {
     type Error = dynamic_graphql::Error;
 
