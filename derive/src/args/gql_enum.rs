@@ -19,8 +19,8 @@ use crate::utils::derive_types::BaseEnum;
 use crate::utils::derive_types::UnitVariant;
 use crate::utils::error::IntoTokenStream;
 use crate::utils::macros::*;
+use crate::utils::path_attr::PathAttr;
 use crate::utils::register_attr::RegisterAttr;
-use crate::utils::remove_attr::RemoteAttr;
 use crate::utils::rename_rule::RenameRule;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_context::MakeContext;
@@ -61,7 +61,7 @@ pub struct EnumAttributes {
     pub rename_items: Option<RenameRule>,
 
     #[darling(default)]
-    pub remote: Option<RemoteAttr>,
+    pub remote: Option<PathAttr>,
 
     #[darling(default, multiple)]
     #[darling(rename = "register")]

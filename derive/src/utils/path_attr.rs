@@ -5,24 +5,24 @@ use crate::utils::meta_match::MatchMetaPath;
 use crate::utils::meta_match::MatchNestedMetaList;
 
 #[derive(Debug, Clone)]
-pub struct RemoteAttr(pub syn::Path);
+pub struct PathAttr(pub syn::Path);
 
-impl MatchNestedMetaList for RemoteAttr {
+impl MatchNestedMetaList for PathAttr {
     fn match_nested_meta_list(list: &[NestedMeta]) -> Option<darling::Result<Self>>
     where
         Self: Sized,
     {
         let inner = <(MatchMetaPath,)>::match_nested_meta_list(list);
-        inner.map(|r| r.map(|(r1,)| RemoteAttr(r1.0)))
+        inner.map(|r| r.map(|(r1,)| PathAttr(r1.0)))
     }
 }
 
-impl FromMeta for RemoteAttr {
+impl FromMeta for PathAttr {
     fn from_list(items: &[NestedMeta]) -> darling::Result<Self> {
-        let remote = RemoteAttr::match_nested_meta_list(items);
-        if let Some(r) = remote {
-            return r;
+        let path = PathAttr::match_nested_meta_list(items);
+        if let Some(p) = path {
+            return p;
         }
-        Err(darling::Error::custom("Invalid remote attribute"))
+        Err(darling::Error::custom("Invalid path"))
     }
 }
