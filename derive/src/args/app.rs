@@ -1,6 +1,6 @@
-use darling::ToTokens;
 use proc_macro2::TokenStream;
 use quote::quote;
+use quote::ToTokens;
 use syn::Generics;
 
 use crate::utils::crate_name::get_crate_name;

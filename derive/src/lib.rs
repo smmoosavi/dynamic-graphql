@@ -2,8 +2,8 @@ extern crate core;
 extern crate proc_macro;
 
 use darling::FromDeriveInput;
-use darling::ToTokens;
 use quote::quote;
+use quote::ToTokens;
 use syn::parse_macro_input;
 use syn::DeriveInput;
 
