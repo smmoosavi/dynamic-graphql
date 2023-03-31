@@ -2,9 +2,9 @@ use std::ops::Deref;
 
 use darling::FromAttributes;
 use darling::FromMeta;
-use darling::ToTokens;
 use proc_macro2::Ident;
 use quote::quote;
+use quote::ToTokens;
 use syn::Generics;
 use syn::ItemTrait;
 use syn::Meta;
