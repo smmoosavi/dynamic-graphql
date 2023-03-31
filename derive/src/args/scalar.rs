@@ -155,7 +155,7 @@ fn get_validator_code(scalar: &Scalar) -> darling::Result<TokenStream> {
     let validator = &scalar.attrs.validator;
     Ok(match validator {
         Some(validator) => {
-            let path = &validator.0;
+            let path = validator.get_path();
             quote! {
                 let object = object.validator(#path);
             }

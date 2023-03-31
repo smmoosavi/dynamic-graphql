@@ -329,7 +329,7 @@ fn impl_remote(enm: &Enum) -> darling::Result<TokenStream> {
     let Some(remote) = &enm.attrs.remote else {
         return Ok(quote! {});
     };
-    let remote_path = &remote.0;
+    let remote_path = remote.as_ref();
 
     let impl_into_remote = impl_into_remote(enm, remote_path)?;
     let impl_from_remote = impl_from_remote(enm, remote_path)?;

@@ -1,11 +1,12 @@
 use darling::FromMeta;
+use derive_more::AsRef;
 use syn::NestedMeta;
 
 use crate::utils::meta_match::MatchMetaPath;
 use crate::utils::meta_match::MatchNestedMetaList;
 
-#[derive(Debug, Clone)]
-pub struct PathAttr(pub syn::Path);
+#[derive(Debug, Clone, AsRef)]
+pub struct PathAttr(syn::Path);
 
 impl MatchNestedMetaList for PathAttr {
     fn match_nested_meta_list(list: &[NestedMeta]) -> Option<darling::Result<Self>>
