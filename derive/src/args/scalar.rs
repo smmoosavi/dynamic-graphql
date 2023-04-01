@@ -151,17 +151,29 @@ pub fn get_specified_by_url_code(scalar: &Scalar) -> darling::Result<TokenStream
     })
 }
 
-fn get_validator_code(scalar: &Scalar) -> darling::Result<TokenStream> {
-    let validator = &scalar.attrs.validator;
-    Ok(match validator {
-        Some(validator) => {
-            let path = validator.get_path();
-            quote! {
-                let object = object.validator(#path);
-            }
+struct ScalarValidatorRegistrationCode {
+    path: syn::Path,
+}
+
+impl ScalarValidatorRegistrationCode {
+    fn new<T: AsRef<syn::Path>>(path: &T) -> Self {
+        Self {
+            path: path.as_ref().clone(),
         }
-        None => quote!(),
-    })
+    }
+
+    fn from_option<T: AsRef<syn::Path>>(path: Option<&T>) -> Option<Self> {
+        path.map(|path| Self::new(path))
+    }
+}
+
+impl ToTokens for ScalarValidatorRegistrationCode {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let path = &self.path;
+        tokens.extend(quote! {
+            let object = object.validator(#path);
+        });
+    }
 }
 
 fn impl_register(scalar: &Scalar) -> darling::Result<TokenStream> {
@@ -170,7 +182,8 @@ fn impl_register(scalar: &Scalar) -> darling::Result<TokenStream> {
     let ident = &scalar.get_ident();
     let description = common::object_description(scalar.get_doc()?.as_deref())?;
     let specified_by_url = get_specified_by_url_code(scalar)?;
-    let validator_code = get_validator_code(scalar)?;
+    let validator_code =
+        ScalarValidatorRegistrationCode::from_option(scalar.attrs.validator.as_ref());
 
     let (impl_generics, ty_generics, where_clause) = scalar.generics.split_for_impl();
     let register_attr = &scalar.attrs.registers;
