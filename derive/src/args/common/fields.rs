@@ -1,8 +1,8 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::args::common::ArgImplementor;
 use crate::args::common::FieldImplementor;
+use crate::args::common::{replace_type_generics_with_static, ArgImplementor};
 use crate::utils::common::CommonField;
 use crate::utils::common::GetArgs;
 use crate::utils::crate_name::get_crate_name;
@@ -85,7 +85,7 @@ where
     let crate_name = get_crate_name();
 
     let field_name = get_field_name(method)?;
-    let field_type = get_field_type(method)?;
+    let field_type = replace_type_generics_with_static(get_field_type(method)?);
     let graphql_args_definition = get_args_definition(method)?;
     let execute = method.get_execute_code()?;
     let resolve = method.get_resolve_code()?;

@@ -9,6 +9,18 @@ pub fn add_new_lifetime_to_generics(generics: &Generics) -> (Generics, GenericPa
     (generics, lifetime)
 }
 
+pub fn add_where_static_to_generic_lifetimes(generics: &Generics) -> Generics {
+    let mut generics = generics.clone();
+
+    for param in &mut generics.params {
+        if let GenericParam::Lifetime(lifetime) = param {
+            lifetime.bounds.push(parse_quote!('static));
+        }
+    }
+
+    generics
+}
+
 pub fn replace_type_generics_with_static(ty: &syn::Type) -> syn::Type {
     let mut ty = ty.clone();
 

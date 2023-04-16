@@ -118,8 +118,10 @@ pub fn impl_input_object(obj: &impl CommonObject) -> darling::Result<TokenStream
 pub fn impl_resolve_owned(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
-    let (_, ty_generics, where_clause) = obj.get_generics()?.split_for_impl();
-    let (generics_with_lifetime, lifetime) = add_new_lifetime_to_generics(obj.get_generics()?);
+    let generics = obj.get_generics()?;
+    // let generics = add_where_static_to_generic_lifetimes(obj.get_generics()?);
+    let (_, ty_generics, where_clause) = generics.split_for_impl();
+    let (generics_with_lifetime, lifetime) = add_new_lifetime_to_generics(&generics);
     let (impl_generics, _, _) = generics_with_lifetime.split_for_impl();
 
     Ok(quote! {
@@ -134,8 +136,10 @@ pub fn impl_resolve_owned(obj: &impl CommonObject) -> darling::Result<TokenStrea
 pub fn impl_resolve_ref(obj: &impl CommonObject) -> darling::Result<TokenStream> {
     let crate_name = get_crate_name();
     let object_ident = obj.get_ident();
-    let (_, ty_generics, where_clause) = obj.get_generics()?.split_for_impl();
-    let (generics_with_lifetime, lifetime) = add_new_lifetime_to_generics(obj.get_generics()?);
+    let generics = obj.get_generics()?;
+    // let generics = add_where_static_to_generic_lifetimes(obj.get_generics()?);
+    let (_, ty_generics, where_clause) = generics.split_for_impl();
+    let (generics_with_lifetime, lifetime) = add_new_lifetime_to_generics(&generics);
     let (impl_generics, _, _) = generics_with_lifetime.split_for_impl();
 
     Ok(quote! {
