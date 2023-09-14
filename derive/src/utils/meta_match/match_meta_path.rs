@@ -1,6 +1,5 @@
+use darling::ast::NestedMeta;
 use std::ops::Deref;
-
-use syn::spanned::Spanned;
 
 use crate::utils::meta_match::MatchNestedMeta;
 use crate::utils::meta_match::MatchPath;
@@ -15,16 +14,10 @@ impl<P: MatchPath> Deref for MatchMetaPath<P> {
     }
 }
 
-impl Spanned for MatchMetaPath {
-    fn span(&self) -> proc_macro2::Span {
-        self.0.span()
-    }
-}
-
 impl<P: MatchPath> MatchNestedMeta for MatchMetaPath<P> {
-    fn match_nested_meta(meta: &syn::NestedMeta) -> Option<darling::Result<Self>> {
+    fn match_nested_meta(meta: &NestedMeta) -> Option<darling::Result<Self>> {
         match meta {
-            syn::NestedMeta::Meta(syn::Meta::Path(path)) => {
+            NestedMeta::Meta(syn::Meta::Path(path)) => {
                 P::match_path(path).map(|p| Ok(MatchMetaPath(p?)))
             }
             _ => None,

@@ -9,9 +9,9 @@ macro_rules! from_trait_item_method {
         crate::utils::macros::set_index!($name);
 
         crate::utils::macros::impl_from_mut!(
-            crate::utils::impl_block::FromTraitItemMethod,
+            crate::utils::impl_block::FromTraitItemFn,
             from_trait_item_method,
-            syn::TraitItemMethod,
+            syn::TraitItemFn,
             $name,
         );
 
@@ -27,9 +27,9 @@ macro_rules! from_trait_item_method {
 
 
         crate::utils::macros::impl_from_mut!(
-            crate::utils::impl_block::FromTraitItemMethod,
+            crate::utils::impl_block::FromTraitItemFn,
             from_trait_item_method,
-            syn::TraitItemMethod,
+            syn::TraitItemFn,
             $name,
             ctx,
         );
@@ -46,9 +46,9 @@ macro_rules! from_trait_item_method {
 
 
         crate::utils::macros::impl_from_mut!(
-            crate::utils::impl_block::FromTraitItemMethod,
+            crate::utils::impl_block::FromTraitItemFn,
             from_trait_item_method,
-            syn::TraitItemMethod,
+            syn::TraitItemFn,
             $name,
             inner=$( $field_path ).+,
         );

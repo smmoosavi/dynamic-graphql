@@ -9,7 +9,7 @@ pub trait CleanAttributes {
 impl<T: Attributes> CleanAttributes for T {
     fn clean_attributes(attrs: &mut Vec<syn::Attribute>) {
         attrs.retain(|attr: &syn::Attribute| {
-            !T::ATTRIBUTES.iter().any(|name| attr.path.is_ident(name))
+            !T::ATTRIBUTES.iter().any(|name| attr.path().is_ident(name))
         });
     }
 }

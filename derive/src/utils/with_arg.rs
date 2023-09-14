@@ -7,10 +7,10 @@ use darling::FromVariant;
 use syn::DeriveInput;
 
 use crate::utils::impl_block::FromFnArg;
-use crate::utils::impl_block::FromImplItemMethod;
+use crate::utils::impl_block::FromImplItemFn;
 use crate::utils::impl_block::FromItemImpl;
 use crate::utils::impl_block::FromItemTrait;
-use crate::utils::impl_block::FromTraitItemMethod;
+use crate::utils::impl_block::FromTraitItemFn;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 
@@ -87,18 +87,10 @@ impl_for_with_arg!(FromField, from_field, syn::Field);
 impl_for_with_arg!(FromVariant, from_variant, syn::Variant);
 
 impl_mut_for_with_arg!(FromFnArg, from_fn_arg, syn::FnArg);
-impl_mut_for_with_arg!(
-    FromImplItemMethod,
-    from_impl_item_method,
-    syn::ImplItemMethod
-);
+impl_mut_for_with_arg!(FromImplItemFn, from_impl_item_method, syn::ImplItemFn);
 impl_mut_for_with_arg!(FromItemImpl, from_item_impl, syn::ItemImpl);
 impl_mut_for_with_arg!(FromItemTrait, from_item_trait, syn::ItemTrait);
-impl_mut_for_with_arg!(
-    FromTraitItemMethod,
-    from_trait_item_method,
-    syn::TraitItemMethod
-);
+impl_mut_for_with_arg!(FromTraitItemFn, from_trait_item_method, syn::TraitItemFn);
 
 impl<A, D: SetIndex> SetIndex for WithArg<A, D> {
     fn with_index(self, index: usize) -> Self {

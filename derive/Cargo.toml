@@ -11,11 +11,11 @@ repository = "https://github.com/smmoosavi/dynamic-graphql"
 
 [dependencies]
 Inflector = "0.11"
-darling = "0.14"
+darling = "0.20"
 proc-macro2 = "1"
 proc-macro-crate = "1"
 quote = "1"
-syn = { version = "1", features = ["full"] }
+syn = { version = "2", features = ["full"] }
 thiserror = "1"
 
 [dev-dependencies]

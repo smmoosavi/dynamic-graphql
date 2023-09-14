@@ -11,9 +11,9 @@ use crate::utils::attributes::Attributes;
 use crate::utils::attributes::CleanAttributes;
 use crate::utils::impl_block::BaseFnArg;
 use crate::utils::impl_block::FromFnArg;
-use crate::utils::impl_block::FromImplItemMethod;
+use crate::utils::impl_block::FromImplItemFn;
 use crate::utils::impl_block::FromItemTrait;
-use crate::utils::impl_block::FromTraitItemMethod;
+use crate::utils::impl_block::FromTraitItemFn;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
@@ -68,18 +68,10 @@ impl_for_with_attributes!(FromDeriveInput, from_derive_input, syn::DeriveInput);
 impl_for_with_attributes!(FromField, from_field, syn::Field);
 impl_for_with_attributes!(FromVariant, from_variant, syn::Variant);
 
-impl_mut_for_with_attributes!(
-    FromImplItemMethod,
-    from_impl_item_method,
-    syn::ImplItemMethod
-);
+impl_mut_for_with_attributes!(FromImplItemFn, from_impl_item_method, syn::ImplItemFn);
 impl_mut_for_with_attributes!(FromItemImpl, from_item_impl, syn::ItemImpl);
 impl_mut_for_with_attributes!(FromItemTrait, from_item_trait, syn::ItemTrait);
-impl_mut_for_with_attributes!(
-    FromTraitItemMethod,
-    from_trait_item_method,
-    syn::TraitItemMethod
-);
+impl_mut_for_with_attributes!(FromTraitItemFn, from_trait_item_method, syn::TraitItemFn);
 
 impl<A: FromAttributes + Attributes, D: FromFnArg> FromFnArg for WithAttributes<A, D> {
     fn from_fn_arg(arg: &mut FnArg) -> darling::Result<Self> {

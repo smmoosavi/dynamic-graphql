@@ -1,5 +1,5 @@
+use darling::ast::NestedMeta;
 use darling::FromMeta;
-use syn::NestedMeta;
 
 use crate::utils::meta_match::MatchMetaPath;
 use crate::utils::meta_match::MatchNestedMetaList;

@@ -1,22 +1,24 @@
 use std::ops::Deref;
 
 use darling::FromAttributes;
+use syn::{Expr, Lit, Meta};
 
 pub fn get_rustdoc(attrs: &[syn::Attribute]) -> Result<Option<String>, darling::Error> {
     let mut full_docs = String::new();
     for attr in attrs {
-        match attr.parse_meta()? {
-            syn::Meta::NameValue(nv) if nv.path.is_ident("doc") => {
-                if let syn::Lit::Str(doc) = nv.lit {
-                    let doc = doc.value();
-                    let doc = doc.trim();
-                    if !full_docs.is_empty() {
-                        full_docs += "\n";
+        if let Meta::NameValue(name_value) = &attr.meta {
+            if name_value.path.is_ident("doc") {
+                if let Expr::Lit(lit) = &name_value.value {
+                    if let Lit::Str(lit_str) = &lit.lit {
+                        let doc = lit_str.value();
+                        let doc = doc.trim();
+                        if !full_docs.is_empty() {
+                            full_docs += "\n";
+                        }
+                        full_docs += doc;
                     }
-                    full_docs += doc;
                 }
             }
-            _ => {}
         }
     }
 
