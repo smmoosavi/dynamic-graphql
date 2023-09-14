@@ -8,9 +8,9 @@ use darling::FromField;
 use darling::FromVariant;
 
 use crate::utils::impl_block::FromFnArg;
-use crate::utils::impl_block::FromImplItemMethod;
+use crate::utils::impl_block::FromImplItemFn;
 use crate::utils::impl_block::FromItemTrait;
-use crate::utils::impl_block::FromTraitItemMethod;
+use crate::utils::impl_block::FromTraitItemFn;
 use crate::utils::with_index::SetIndex;
 use crate::FromItemImpl;
 
@@ -171,15 +171,7 @@ impl_for_with_context!(FromField, from_field, syn::Field);
 impl_for_with_context!(FromVariant, from_variant, syn::Variant);
 
 impl_mut_for_with_context!(FromFnArg, from_fn_arg, syn::FnArg);
-impl_mut_for_with_context!(
-    FromImplItemMethod,
-    from_impl_item_method,
-    syn::ImplItemMethod
-);
+impl_mut_for_with_context!(FromImplItemFn, from_impl_item_method, syn::ImplItemFn);
 impl_mut_for_with_context!(FromItemImpl, from_item_impl, syn::ItemImpl);
 impl_mut_for_with_context!(FromItemTrait, from_item_trait, syn::ItemTrait);
-impl_mut_for_with_context!(
-    FromTraitItemMethod,
-    from_trait_item_method,
-    syn::TraitItemMethod
-);
+impl_mut_for_with_context!(FromTraitItemFn, from_trait_item_method, syn::TraitItemFn);

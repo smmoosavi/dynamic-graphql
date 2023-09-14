@@ -1,7 +1,7 @@
+use darling::ast::NestedMeta;
 use darling::FromMeta;
 use proc_macro2::Span;
 use syn::spanned::Spanned;
-use syn::NestedMeta;
 
 use crate::utils::meta_match::MatchMetaPath;
 use crate::utils::meta_match::MatchNestedMetaList;
@@ -12,22 +12,10 @@ pub struct InterfaceMarkAttr {
     pub span: Span,
 }
 
-impl Spanned for InterfaceMarkAttr {
-    fn span(&self) -> Span {
-        self.span
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct InterfaceImplAttr {
     pub path: syn::Path,
     pub span: Span,
-}
-
-impl Spanned for InterfaceImplAttr {
-    fn span(&self) -> Span {
-        self.span
-    }
 }
 
 struct MatchMarkWith(MatchMetaPath);

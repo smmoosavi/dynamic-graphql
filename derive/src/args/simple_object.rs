@@ -84,7 +84,7 @@ pub struct SimpleObjectAttrs {
     pub marks: Vec<InterfaceMarkAttr>,
 
     #[darling(default, multiple)]
-    #[darling(rename = "impl")]
+    #[darling(rename = "implements")]
     pub impls: Vec<InterfaceImplAttr>,
 }
 

@@ -137,7 +137,7 @@ fn test_schema_with_type_name() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(Node))]
+    #[graphql(implements(Node))]
     struct BarNode {
         #[graphql(skip)]
         the_id: String,
@@ -393,7 +393,7 @@ async fn test_auto_register() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(GetFoo))]
+    #[graphql(implements(GetFoo))]
     #[graphql(root)]
     struct Query;
 
@@ -473,7 +473,7 @@ async fn test_auto_register_instance() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(GetFoo))]
+    #[graphql(implements(GetFoo))]
     #[graphql(root)]
     struct Query;
 
@@ -548,7 +548,7 @@ mod in_mod {
         }
 
         #[derive(SimpleObject)]
-        #[graphql(impl(super::node::Node))]
+        #[graphql(implements(super::node::Node))]
         struct Foo {
             other: String,
         }

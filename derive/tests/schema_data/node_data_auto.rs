@@ -101,7 +101,7 @@ mod foo {
     use super::node::Node;
 
     #[derive(SimpleObject)]
-    #[graphql(impl(Node))]
+    #[graphql(implements(Node))]
     pub struct FooNode {
         #[graphql(skip)]
         id: String,

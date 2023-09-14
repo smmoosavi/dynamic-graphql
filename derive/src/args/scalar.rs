@@ -134,7 +134,7 @@ fn impl_from_value(scalar: &impl CommonObject) -> darling::Result<TokenStream> {
     Ok(quote!(
         impl #crate_name::internal::FromValue for #ident {
             fn from_value(value: #crate_name::Result<#crate_name::dynamic::ValueAccessor>) -> #crate_name::internal::InputValueResult<Self> {
-                let value = value?.deserialize()?;
+                let value = value?.as_value().clone();
                 Ok(#crate_name::ScalarValue::from_value(value)?)
             }
         }

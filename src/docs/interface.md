@@ -1,12 +1,12 @@
 Define a new GraphQL interface type.
 
 To define an interface, you need to define a rust trait and mark it with the `#[Interface]` attribute. then you
-can mark object types with `#[graphql(mark(TraitName))]` or `#[graphql(impl(TraitName))]` attribute to implement the
+can mark object types with `#[graphql(mark(TraitName))]` or `#[graphql(implements(TraitName))]` attribute to implement the
 interface in the GraphQL schema.
 
 If you mark the object type with `#[graphql(mark(TraitName))]`, you need to implement fields yourself.
 
-If you mark the object type with `#[graphql(impl(TraitName))]`, you should implement the trait for the object type and
+If you mark the object type with `#[graphql(implements(TraitName))]`, you should implement the trait for the object type and
 fields will be resolved automatically.
 
 you can use [`Instance<dyn TraitName>`][Instance] as the return type of the field to set the interface as the output type in the GraphQL
@@ -84,10 +84,10 @@ struct Human {
 }
 
 // Character trait is implemented for Droid, so it can be marked with
-// `#[graphql(impl(Character))]` and interface fields will be resolved automatically.
+// `#[graphql(implements(Character))]` and interface fields will be resolved automatically.
 
 #[derive(ResolvedObject)]
-#[graphql(impl(Character))]
+#[graphql(implements(Character))]
 struct Droid {
     id: String,
     name: String,

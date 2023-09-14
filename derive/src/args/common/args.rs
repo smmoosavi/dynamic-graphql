@@ -1,6 +1,5 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::spanned::Spanned;
 
 use crate::utils::common::CommonArg;
 use crate::utils::crate_name::get_crate_name;

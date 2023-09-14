@@ -1,6 +1,5 @@
+use darling::ast::NestedMeta;
 use std::ops::Deref;
-
-use syn::spanned::Spanned;
 
 use crate::utils::meta_match::MatchNestedMeta;
 use crate::utils::meta_match::MatchString;
@@ -15,16 +14,10 @@ impl<S: MatchString> Deref for MatchLitStr<S> {
     }
 }
 
-impl Spanned for MatchLitStr {
-    fn span(&self) -> proc_macro2::Span {
-        self.1
-    }
-}
-
 impl<S: MatchString> MatchNestedMeta for MatchLitStr<S> {
-    fn match_nested_meta(meta: &syn::NestedMeta) -> Option<darling::Result<Self>> {
+    fn match_nested_meta(meta: &NestedMeta) -> Option<darling::Result<Self>> {
         match meta {
-            syn::NestedMeta::Lit(syn::Lit::Str(string)) => {
+            NestedMeta::Lit(syn::Lit::Str(string)) => {
                 S::match_string(string.value().as_str()).map(|s| Ok(MatchLitStr(s?, string.span())))
             }
             _ => None,

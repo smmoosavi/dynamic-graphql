@@ -1,7 +1,7 @@
 use darling::FromGenerics;
 
 use crate::utils::impl_block::BaseMethod;
-use crate::utils::impl_block::FromImplItemMethod;
+use crate::utils::impl_block::FromImplItemFn;
 use crate::utils::impl_block::Methods;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
@@ -18,7 +18,7 @@ pub struct BaseItemImpl<Method = BaseMethod, Generics = ()> {
 
 impl<Method, Generics> FromItemImpl for BaseItemImpl<Method, Generics>
 where
-    Method: FromImplItemMethod + SetIndex,
+    Method: FromImplItemFn + SetIndex,
     Generics: FromGenerics,
 {
     fn from_item_impl(item_impl: &mut syn::ItemImpl) -> darling::Result<Self> {
@@ -33,7 +33,7 @@ where
 
 impl<Method, Generics> SetContext for BaseItemImpl<Method, Generics>
 where
-    Method: FromImplItemMethod + SetContext,
+    Method: FromImplItemFn + SetContext,
 {
     type Context = Method::Context;
 

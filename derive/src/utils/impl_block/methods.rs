@@ -1,7 +1,7 @@
 use std::ops::Deref;
 
-use crate::utils::impl_block::FromImplItemMethod;
-use crate::utils::impl_block::FromTraitItemMethod;
+use crate::utils::impl_block::FromImplItemFn;
+use crate::utils::impl_block::FromTraitItemFn;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 
@@ -26,7 +26,7 @@ impl<Method: SetContext> SetContext for Methods<Method> {
     }
 }
 
-impl<Method: FromImplItemMethod + SetIndex> Methods<Method> {
+impl<Method: FromImplItemFn + SetIndex> Methods<Method> {
     pub fn from_impl_item_methods<'a>(
         items: &mut impl Iterator<Item = &'a mut syn::ImplItem>,
     ) -> darling::Result<Self> {
@@ -34,7 +34,7 @@ impl<Method: FromImplItemMethod + SetIndex> Methods<Method> {
             methods: items
                 .enumerate()
                 .filter_map(|(index, item)| match item {
-                    syn::ImplItem::Method(method) => {
+                    syn::ImplItem::Fn(method) => {
                         Some(Method::from_impl_item_method(method).with_index(index))
                     }
                     _ => None,
@@ -44,7 +44,7 @@ impl<Method: FromImplItemMethod + SetIndex> Methods<Method> {
     }
 }
 
-impl<Method: FromTraitItemMethod + SetIndex> Methods<Method> {
+impl<Method: FromTraitItemFn + SetIndex> Methods<Method> {
     pub fn from_trait_item_methods<'a>(
         items: &mut impl Iterator<Item = &'a mut syn::TraitItem>,
     ) -> darling::Result<Self> {
@@ -52,7 +52,7 @@ impl<Method: FromTraitItemMethod + SetIndex> Methods<Method> {
             methods: items
                 .enumerate()
                 .filter_map(|(index, item)| match item {
-                    syn::TraitItem::Method(method) => {
+                    syn::TraitItem::Fn(method) => {
                         Some(Method::from_trait_item_method(method).with_index(index))
                     }
                     _ => None,

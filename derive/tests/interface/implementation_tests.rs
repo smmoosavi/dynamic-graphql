@@ -65,7 +65,7 @@ fn test_schema_simple_object_with_implement() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(Node))]
+    #[graphql(implements(Node))]
     struct FooNode {
         some_field: String,
         #[graphql(skip)]
@@ -213,7 +213,7 @@ fn test_schema_resolved_object_with_implement() {
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(impl(Node))]
+    #[graphql(implements(Node))]
     struct FooNode;
 
     #[ResolvedObjectFields]

@@ -7,6 +7,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- upgrade dependencies:
+  - upgrade `async-graphql` to `6`, `syn` to `2`
+
+### Breaking Changes
+
+- change `#[graphql(impl(Node))]` to `#[graphql(implements(Node))]`
+
+
 ## [0.7.3] - 2023-03-28
 
 ### Added

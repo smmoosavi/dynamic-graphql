@@ -2,12 +2,12 @@ use std::ops::Deref;
 use std::ops::DerefMut;
 
 use syn::FnArg;
-use syn::ImplItemMethod;
-use syn::TraitItemMethod;
+use syn::ImplItemFn;
+use syn::TraitItemFn;
 
 use crate::utils::impl_block::FromFnArg;
-use crate::utils::impl_block::FromImplItemMethod;
-use crate::utils::impl_block::FromTraitItemMethod;
+use crate::utils::impl_block::FromImplItemFn;
+use crate::utils::impl_block::FromTraitItemFn;
 use crate::utils::with_context::SetContext;
 
 pub trait SetIndex: Sized {
@@ -65,8 +65,8 @@ impl<A: FromFnArg> FromFnArg for WithIndex<A> {
     }
 }
 
-impl<A: FromImplItemMethod> FromImplItemMethod for WithIndex<A> {
-    fn from_impl_item_method(method: &mut ImplItemMethod) -> darling::Result<Self> {
+impl<A: FromImplItemFn> FromImplItemFn for WithIndex<A> {
+    fn from_impl_item_method(method: &mut ImplItemFn) -> darling::Result<Self> {
         let inner = A::from_impl_item_method(method)?;
         Ok(WithIndex {
             index: usize::MAX,
@@ -75,8 +75,8 @@ impl<A: FromImplItemMethod> FromImplItemMethod for WithIndex<A> {
     }
 }
 
-impl<A: FromTraitItemMethod> FromTraitItemMethod for WithIndex<A> {
-    fn from_trait_item_method(method: &mut TraitItemMethod) -> darling::Result<Self>
+impl<A: FromTraitItemFn> FromTraitItemFn for WithIndex<A> {
+    fn from_trait_item_method(method: &mut TraitItemFn) -> darling::Result<Self>
     where
         Self: Sized,
     {

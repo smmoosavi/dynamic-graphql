@@ -32,7 +32,7 @@ fn validate_self(mutation: &MutationFields) -> darling::Result<TokenStream> {
                 Some(self_arg) => {
                     let err =
                         darling::Error::custom("Mutation methods must not have a self argument")
-                            .with_span(self_arg.get_arg())
+                            .with_span(&self_arg.get_arg().span())
                             .write_errors();
                     Some(quote! {
                         #err

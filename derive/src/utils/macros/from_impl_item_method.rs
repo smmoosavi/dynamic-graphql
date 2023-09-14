@@ -9,9 +9,9 @@ macro_rules! from_impl_item_method {
         crate::utils::macros::set_index!($name);
 
         crate::utils::macros::impl_from_mut!(
-            crate::utils::impl_block::FromImplItemMethod,
+            crate::utils::impl_block::FromImplItemFn,
             from_impl_item_method,
-            syn::ImplItemMethod,
+            syn::ImplItemFn,
             $name,
         );
 
@@ -27,9 +27,9 @@ macro_rules! from_impl_item_method {
 
 
         crate::utils::macros::impl_from_mut!(
-            crate::utils::impl_block::FromImplItemMethod,
+            crate::utils::impl_block::FromImplItemFn,
             from_impl_item_method,
-            syn::ImplItemMethod,
+            syn::ImplItemFn,
             $name,
             ctx,
         );
@@ -46,9 +46,9 @@ macro_rules! from_impl_item_method {
 
 
         crate::utils::macros::impl_from_mut!(
-            crate::utils::impl_block::FromImplItemMethod,
+            crate::utils::impl_block::FromImplItemFn,
             from_impl_item_method,
-            syn::ImplItemMethod,
+            syn::ImplItemFn,
             $name,
             inner=$( $field_path ).+,
         );

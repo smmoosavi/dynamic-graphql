@@ -6,11 +6,11 @@ pub use base_method::BaseMethod;
 pub use from_fn_arg::FromFnArg;
 pub use from_fn_arg::SelfArg;
 pub use from_fn_arg::TypedArg;
-pub use from_impl_item_method::FromImplItemMethod;
+pub use from_impl_item_method::FromImplItemFn;
 pub use from_item_impl::FromItemImpl;
 pub use from_item_trait::FromItemTrait;
 pub use from_signature::FromSignature;
-pub use from_trait_item_method::FromTraitItemMethod;
+pub use from_trait_item_method::FromTraitItemFn;
 pub use methods::Methods;
 
 mod base_item_impl;

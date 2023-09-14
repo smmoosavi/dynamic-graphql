@@ -29,8 +29,8 @@ impl BaseFnArg {
     }
 }
 
-impl Spanned for BaseFnArg {
-    fn span(&self) -> proc_macro2::Span {
+impl BaseFnArg {
+    pub fn span(&self) -> proc_macro2::Span {
         match self {
             Self::Receiver(r) => r.span,
             Self::Typed(t) => t.ident.span(),

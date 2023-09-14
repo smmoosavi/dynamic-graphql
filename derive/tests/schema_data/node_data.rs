@@ -85,7 +85,7 @@ mod foo {
     use super::node::NodeData;
 
     #[derive(SimpleObject)]
-    #[graphql(impl(Node))]
+    #[graphql(implements(Node))]
     #[graphql(register(RegisterFooNode))]
     pub struct FooNode {
         #[graphql(skip)]
