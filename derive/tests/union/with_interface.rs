@@ -8,7 +8,6 @@ use dynamic_graphql::Union;
 use crate::schema_utils::normalize_schema;
 
 #[tokio::test]
-#[ignore]
 async fn test_query() {
     #[Interface]
     trait Named {
