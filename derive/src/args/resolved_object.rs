@@ -43,7 +43,7 @@ pub struct ResolvedObjectAttrs {
     pub marks: Vec<InterfaceMarkAttr>,
 
     #[darling(default, multiple)]
-    #[darling(rename = "impl")]
+    #[darling(rename = "implements")]
     pub impls: Vec<InterfaceImplAttr>,
 }
 

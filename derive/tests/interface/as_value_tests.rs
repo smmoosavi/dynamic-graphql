@@ -17,7 +17,7 @@ async fn interface_as_output_value_for_simple_object_with_implement() {
     }
 
     #[derive(SimpleObject)]
-    #[graphql(impl(Node))]
+    #[graphql(implements(Node))]
     struct FooNode {
         other_field: String,
     }
@@ -193,7 +193,7 @@ async fn interface_as_output_value_for_resolved_object_with_implement() {
     }
 
     #[derive(ResolvedObject)]
-    #[graphql(impl(Node))]
+    #[graphql(implements(Node))]
     struct FooNode;
 
     #[ResolvedObjectFields]
