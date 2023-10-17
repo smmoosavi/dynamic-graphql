@@ -1,6 +1,6 @@
 [package]
 name = "dynamic-graphql"
-version = "0.7.3"
+version = "0.8.0"
 edition = "2021"
 license = "MIT"
 description = "Dynamic GraphQL schema"
@@ -14,7 +14,7 @@ categories = ["network-programming"]
 [dependencies]
 fnv = "1"
 async-graphql = { version= "6", features = ["dynamic-schema"] }
-dynamic-graphql-derive = { path = "./derive", version = "0.7.3" }
+dynamic-graphql-derive = { path = "./derive", version = "0.8.0" }
 
 [dev-dependencies]
 graphql-parser = "0.4"
