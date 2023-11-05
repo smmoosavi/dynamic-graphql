@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- remove `dynamic_graphql::Upload` struct and use `async_graphql::Upload` instead
+
 ## [0.8.0] - 2023-10-17
 
 ### Changed
