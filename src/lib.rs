@@ -32,6 +32,8 @@ pub use async_graphql::Request;
 #[doc(no_inline)]
 pub use async_graphql::Result;
 #[doc(no_inline)]
+pub use async_graphql::Upload;
+#[doc(no_inline)]
 pub use async_graphql::UploadValue;
 #[doc(no_inline)]
 pub use async_graphql::Value;
@@ -94,4 +96,3 @@ pub use dynamic_graphql_derive::SimpleObject;
 pub use dynamic_graphql_derive::Union;
 pub use instance::Instance;
 pub use types::ScalarValue;
-pub use upload::Upload;
