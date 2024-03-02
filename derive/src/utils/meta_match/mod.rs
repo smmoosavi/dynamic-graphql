@@ -1,4 +1,3 @@
-pub use match_lit_str::MatchLitStr;
 pub use match_meta_path::MatchMetaPath;
 pub use match_nested_meta::MatchNestedMeta;
 pub use match_nested_meta_list::MatchNestedMetaList;

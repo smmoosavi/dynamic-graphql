@@ -4,7 +4,6 @@ pub use expand_object_fields::ExpandObjectFields;
 pub use gql_enum::Enum;
 pub use input_object::InputObject;
 pub use interface::Interface;
-pub use interface::InterfaceArg;
 pub use mutation::Mutation;
 pub use mutation_fields::MutationFields;
 pub use mutation_root::MutationRoot;
