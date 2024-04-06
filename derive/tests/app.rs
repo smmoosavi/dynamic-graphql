@@ -26,7 +26,20 @@ fn test_app() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Foo {
+      value: String!
+    }
+
+    type Query {
+      other: Foo!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -67,7 +80,20 @@ fn test_app_with_generic() {
     let schema = App::<()>::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Foo {
+      value: String!
+    }
+
+    type Query {
+      other: Foo!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -97,7 +123,20 @@ fn test_app_with_lifetime() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Foo {
+      value: String!
+    }
+
+    type Query {
+      other: Foo!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -142,7 +181,20 @@ fn test_app_with_generic_and_lifetime() {
     let schema = App::<()>::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Foo {
+      value: String!
+    }
+
+    type Query {
+      other: Foo!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 #[test]
 fn test_nested_app() {
@@ -172,7 +224,25 @@ fn test_nested_app() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Bar {
+      value: String!
+    }
+
+    type Foo {
+      value: String!
+    }
+
+    type Query {
+      foo: Foo!
+      bar: Bar!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 mod test_in_mod {

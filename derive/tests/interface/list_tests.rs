@@ -48,7 +48,25 @@ async fn test_interface_as_optional_value() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type FooNode implements Node {
+      otherField: String!
+      theId: String!
+    }
+
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      node: Node
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 
@@ -133,7 +151,30 @@ async fn test_interface_as_list_value() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type BarNode implements Node {
+      anotherField: String!
+      theId: String!
+    }
+
+    type FooNode implements Node {
+      otherField: String!
+      theId: String!
+    }
+
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      nodes: [Node!]!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 

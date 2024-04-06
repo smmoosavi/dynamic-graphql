@@ -77,7 +77,22 @@ async fn test_schema() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    enum Example {
+      FOO
+      BAR
+    }
+
+    type Query {
+      example: Example!
+      byExample(example: Example!): Example!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -153,7 +168,22 @@ async fn test_rename() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    enum Other {
+      foo
+      Other
+    }
+
+    type Query {
+      example: Other!
+      byExample(example: Other!): Other!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -233,7 +263,22 @@ async fn test_type_name() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    enum Other {
+      FOO
+      BAR
+    }
+
+    type Query {
+      example: Other!
+      byExample(example: Other!): Other!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -308,7 +353,22 @@ async fn test_deprecation() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    enum Example {
+      FOO @deprecated
+      BAR @deprecated(reason: "This is old")
+    }
+
+    type Query {
+      example: Example!
+      byExample(example: Example!): Example!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[tokio::test]
@@ -344,7 +404,27 @@ async fn test_doc() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    """
+      the example enum
+    """
+    enum Example {
+      """
+        the foo item
+      """ FOO
+      BAR
+    }
+
+    type Query {
+      example: Example!
+      byExample(example: Example!): Example!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 mod in_mod {

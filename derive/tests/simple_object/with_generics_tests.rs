@@ -36,7 +36,20 @@ async fn test_query_simple_generic() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Foo {
+      value: String!
+    }
+
+    type Query {
+      field: Foo!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -104,7 +117,33 @@ async fn test_query_generic_with_type_name() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Bar {
+      bar: String!
+    }
+
+    type BoxBar {
+      inner: Bar!
+    }
+
+    type BoxFoo {
+      inner: Foo!
+    }
+
+    type Foo {
+      foo: String!
+    }
+
+    type Query {
+      foo: BoxFoo!
+      bar: BoxBar!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {

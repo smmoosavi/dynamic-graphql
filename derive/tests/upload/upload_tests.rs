@@ -65,7 +65,23 @@ async fn test_arg() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type MutationRoot {
+      test(file: Upload!): String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    scalar Upload
+
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 
     let query = r##"
         mutation($file: Upload!) {
@@ -128,7 +144,27 @@ async fn test_input_object() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type MutationRoot {
+      test(input: UploadInput!): String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    scalar Upload
+
+    input UploadInput {
+      file: Upload!
+    }
+
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 
     let query = r##"
         mutation($input: UploadInput!) {
@@ -189,7 +225,23 @@ async fn test_arg_optional() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type MutationRoot {
+      test(file: Upload): String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    scalar Upload
+
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 
     let query = r##"
         mutation($file: Upload!) {
@@ -264,7 +316,27 @@ async fn test_input_object_optional() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type MutationRoot {
+      test(input: UploadInput!): String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    scalar Upload
+
+    input UploadInput {
+      file: Upload
+    }
+
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 
     let query = r##"
         mutation($input: UploadInput!) {

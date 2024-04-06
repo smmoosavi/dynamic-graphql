@@ -42,7 +42,16 @@ async fn test_query_static_generic() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Query {
+      greet(name: String!): String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -90,7 +99,16 @@ async fn test_query_generic_with_self() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Query {
+      greet(name: String!): String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -141,7 +159,20 @@ async fn test_query_graphql_generic() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Foo {
+      value: String!
+    }
+
+    type Query {
+      theG: Foo!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {

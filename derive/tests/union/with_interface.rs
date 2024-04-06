@@ -54,7 +54,36 @@ async fn test_query() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    union Animal = Dog | Cat | Snake
+
+    type Cat implements Named {
+      name: String!
+      life: Int!
+    }
+
+    type Dog implements Named {
+      name: String!
+      power: Int!
+    }
+
+    interface Named {
+      name: String!
+    }
+
+    type Query {
+      pet: Animal!
+    }
+
+    type Snake {
+      length: Int!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {

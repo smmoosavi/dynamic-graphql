@@ -86,7 +86,24 @@ async fn test_base_list() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Foo {
+      value: String!
+    }
+
+    type FooList {
+      items(page: Int): [Foo!]!
+    }
+
+    type Query {
+      fooList: FooList!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {

@@ -47,7 +47,25 @@ async fn interface_as_output_value_for_simple_object_with_implement() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type FooNode implements Node {
+      otherField: String!
+      theId: String!
+    }
+
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      node: Node!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 
@@ -110,7 +128,25 @@ async fn interface_as_output_value_for_simple_object_with_mark_with() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type FooNode implements Node {
+      theId: String!
+      otherField: String!
+    }
+
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      node: Node!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 
@@ -180,7 +216,25 @@ async fn interface_as_output_value_for_resolved_object_with_implement() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type FooNode implements Node {
+      otherField: String!
+      theId: String!
+    }
+
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      node: Node!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 
@@ -247,7 +301,25 @@ async fn interface_as_output_value_for_resolved_object_with_mark_with() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type FooNode implements Node {
+      theId: String!
+      otherField: String!
+    }
+
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      node: Node!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 

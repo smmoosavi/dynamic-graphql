@@ -82,7 +82,18 @@ fn test_schema() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    scalar MyString
+
+    type Query {
+      value: MyString!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -120,7 +131,18 @@ fn test_schema_scalar_as_input() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    scalar MyString
+
+    type Query {
+      value(value: MyString!): String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -154,7 +176,18 @@ fn test_schema_with_rename() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    scalar OtherString
+
+    type Query {
+      value: OtherString!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -194,7 +227,18 @@ fn test_schema_with_type_name() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    scalar OtherString
+
+    type Query {
+      value: OtherString!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -228,7 +272,21 @@ fn test_schema_with_doc() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    """
+      this is my special string
+    """
+    scalar MyString
+
+    type Query {
+      value: MyString!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]

@@ -95,7 +95,28 @@ fn test_schema() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    union Animal = Dog | Cat
+
+    type Cat {
+      name: String!
+      life: Int!
+    }
+
+    type Dog {
+      name: String!
+      power: Int!
+    }
+
+    type Query {
+      pet: Animal!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -133,7 +154,28 @@ fn test_schema_with_rename() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Cat {
+      name: String!
+      life: Int!
+    }
+
+    type Dog {
+      name: String!
+      power: Int!
+    }
+
+    union Other = Dog | Cat
+
+    type Query {
+      pet: Other!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -177,7 +219,28 @@ fn test_schema_with_type_name() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Cat {
+      name: String!
+      life: Int!
+    }
+
+    type Dog {
+      name: String!
+      power: Int!
+    }
+
+    union Other = Dog | Cat
+
+    type Query {
+      pet: Other!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -216,7 +279,31 @@ fn test_schema_with_doc() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Cat {
+      name: String!
+      life: Int!
+    }
+
+    type Dog {
+      name: String!
+      power: Int!
+    }
+
+    """
+      Some animal
+    """
+    union Other = Dog | Cat
+
+    type Query {
+      pet: Other!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[tokio::test]
@@ -392,7 +479,33 @@ async fn test_auto_register() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    union Animal = Dog | Cat
+
+    type Bird {
+      name: String!
+      fly: Boolean!
+    }
+
+    type Cat {
+      name: String!
+      life: Int!
+    }
+
+    type Dog {
+      name: String!
+      power: Int!
+    }
+
+    type Query {
+      pet: Animal!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 mod in_mod {

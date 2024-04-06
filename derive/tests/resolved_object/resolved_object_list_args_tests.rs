@@ -29,7 +29,17 @@ async fn test_schema() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Query {
+      hello(names: [String!]!): String!
+      helloWithRef(names: [String!]!): String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -85,7 +95,17 @@ async fn test_schema_optional_arg() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Query {
+      helloWithOptionalArg(names: [String!]): String!
+      helloWithOptionalArgRef(names: [String!]): String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
     let query = r#"
         query($names: [String!]) {
             helloWithOptionalArg(names: $names)
@@ -158,7 +178,17 @@ async fn test_schema_optional_item() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Query {
+      helloWithOptionalItem(names: [String]!): String!
+      helloWithOptionalItemRef(names: [String]!): String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
     let query = r#"
         query {
             helloWithOptionalItem(names: ["world", null, "rust"])
@@ -221,7 +251,17 @@ async fn test_schema_optional_item_and_arg() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Query {
+      helloWithOptionalItemAndArg(names: [String]): String!
+      helloWithOptionalItemAndArgRef(names: [String]): String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
     let query = r#"
         query($names: [String]) {
             helloWithOptionalItemAndArg(names: $names)

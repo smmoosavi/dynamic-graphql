@@ -21,7 +21,16 @@ async fn test_list() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Query {
+      strings: [String!]!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -61,7 +70,16 @@ async fn test_optional_list() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Query {
+      maybeListOfStrings: [String!]
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -106,7 +124,16 @@ async fn test_list_of_optional() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Query {
+      listOfMaybeStrings: [String]!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -142,7 +169,16 @@ async fn test_optional_list_of_optional() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Query {
+      maybeListOfMaybeStrings: [String]
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {

@@ -81,7 +81,21 @@ fn test_schema() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type MutationRoot {
+      theExample: String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 }
 
 #[test]
@@ -113,7 +127,21 @@ fn test_schema_with_rename() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Mutation {
+      theExample: String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+      mutation: Mutation
+    }
+    "###);
 }
 
 #[test]
@@ -151,7 +179,21 @@ fn test_schema_with_type_name() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Mutation {
+      theExample: String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+      mutation: Mutation
+    }
+    "###);
 }
 
 #[test]
@@ -183,7 +225,24 @@ fn test_schema_with_doc() {
 
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    """
+      The Root of all Mutations
+    """
+    type MutationRoot {
+      theExample: String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 }
 
 #[tokio::test]
@@ -285,7 +344,37 @@ async fn test_auto_register() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    type Bar {
+      bar: String!
+    }
+
+    input ExampleInput {
+      foo: String!
+    }
+
+    type ExamplePayload {
+      bar: String!
+    }
+
+    type Foo {
+      foo: String!
+    }
+
+    type MutationRoot {
+      theExample(input: ExampleInput!): ExamplePayload!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 
     let query = r#"
         mutation {

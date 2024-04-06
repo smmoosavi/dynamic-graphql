@@ -51,7 +51,26 @@ async fn test_async_trait() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
     insta::assert_snapshot!(
-        normalize_schema(&sdl),@r"");
+        normalize_schema(&sdl),@r###"
+
+    interface Foo {
+      syncValue: String!
+      asyncValue: String!
+    }
+
+    type FooValue implements Foo {
+      syncValue: String!
+      asyncValue: String!
+    }
+
+    type Query {
+      foo: Foo!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 
