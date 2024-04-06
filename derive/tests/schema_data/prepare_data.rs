@@ -63,7 +63,6 @@ mod example {
     impl Example {
         fn prepare(&mut self, ctx: &Context) {
             if ctx.look_ahead().field("value").exists() {
-                // expensive calculation
                 self.value = Some(42);
             }
             if let Some(prepares) = ctx.get_schema_data().get::<ExamplePrepares>() {
@@ -119,7 +118,6 @@ mod expand_example {
             let example_prepare: &mut ExamplePrepares = registry.data.get_mut_or_default();
             example_prepare.0.push(|example, ctx| {
                 if ctx.look_ahead().field("anotherValue").exists() {
-                    // expensive calculation
                     example.data.insert(AnotherValue(43));
                 }
             });
@@ -135,25 +133,8 @@ mod expand_example {
 async fn test() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Example {
-              value: Int!
-              anotherValue: Int!
-            }
-
-            type Query {
-              example: Example!
-            }
-
-            schema {
-              query: Query
-            }
-        "#
-        )
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let query = r#"
         query {

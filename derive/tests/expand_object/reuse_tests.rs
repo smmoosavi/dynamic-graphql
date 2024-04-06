@@ -42,7 +42,6 @@ async fn test_base_list() {
         }
     }
 
-    // foo app
     #[derive(SimpleObject)]
     struct Foo {
         value: String,
@@ -76,8 +75,6 @@ async fn test_base_list() {
     #[derive(App)]
     struct FooApp(FooQuery<'static>, FooList, BaseList<'static, FooList>, Foo);
 
-    // main app
-
     #[derive(SimpleObject)]
     #[graphql(root)]
     struct Query;
@@ -88,30 +85,8 @@ async fn test_base_list() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-                type Foo {
-                  value: String!
-                }
-
-                type FooList {
-                  items(page: Int): [Foo!]!
-                }
-
-                type Query {
-                  fooList: FooList!
-                }
-
-                schema {
-                  query: Query
-                }
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let query = r#"
         query {

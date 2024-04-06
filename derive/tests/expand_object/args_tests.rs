@@ -46,26 +46,8 @@ fn test_schema() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              foo: String!
-              withoutSelf: String!
-              withSelf: String!
-              withArg(name: String!): String!
-              withoutSelfWithArgs(name: String!): String!
-              unusedArg(name: String!): String!
-            }
-
-            schema {
-              query: Query
-            }
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -110,27 +92,8 @@ fn test_schema_with_ctx() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              foo: String!
-              withoutUnderline: String!
-              withoutSelf: String!
-              withSelf: String!
-              renamed: String!
-              withArg(name: String!): String!
-              withCtxArg(ctx: String!): String!
-            }
-
-            schema {
-              query: Query
-            }
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -164,23 +127,8 @@ fn test_schema_rename_args() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              foo: String!
-              withArg(THE_NAME: String!, foo: String!): String!
-              withFieldRename(the_name: String!, foo: String!): String!
-            }
-
-            schema {
-              query: Query
-            }
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -212,23 +160,8 @@ fn test_schema_with_arg_ref() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              foo: String!
-              withoutStringRef(name: String!): String!
-              withStr(name: String!): String!
-            }
-
-            schema {
-              query: Query
-            }
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -263,24 +196,8 @@ fn test_schema_with_arg_option() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              foo: String!
-                withoutOption(name: String!): String!
-                withOption(name: String): String!
-                withOptionRef(name: String): String!
-            }
-
-            schema {
-              query: Query
-            }
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[tokio::test]

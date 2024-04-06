@@ -49,24 +49,8 @@ async fn test_app() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Foo {
-              value: String!
-            }
-
-            type Query {
-              foo: Foo
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let result = schema
         .execute("{ foo { value } }")
@@ -104,24 +88,8 @@ async fn test_apply() {
 
     let schema = schema.finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Foo {
-              value: String!
-            }
-
-            type Query {
-              foo: Foo
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let result = schema
         .execute("{ foo { value } }")
@@ -133,7 +101,6 @@ async fn test_apply() {
 
 #[tokio::test]
 async fn define_custom_type() {
-    // define Foo type
     struct Foo {
         value: String,
     }
@@ -179,8 +146,6 @@ async fn define_custom_type() {
         }
     }
 
-    // use Foo type
-
     #[derive(SimpleObject)]
     #[graphql(root)]
     struct Query {
@@ -192,26 +157,9 @@ async fn define_custom_type() {
 
     let schema = App::create_schema().finish().unwrap();
 
-    // use schema
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Foo {
-              value: String!
-            }
-
-            type Query {
-              foo: Foo!
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let root = Query {
         foo: Foo {

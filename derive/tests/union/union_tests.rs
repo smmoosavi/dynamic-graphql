@@ -94,32 +94,8 @@ fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-                union Animal = Dog | Cat
-
-                type Cat {
-                  name: String!
-                  life: Int!
-                }
-
-                type Dog {
-                  name: String!
-                  power: Int!
-                }
-
-                type Query {
-                  pet: Animal!
-                }
-
-                schema {
-                  query: Query
-                }
-            "#
-        )
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -156,32 +132,8 @@ fn test_schema_with_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-                type Cat {
-                  name: String!
-                  life: Int!
-                }
-
-                type Dog {
-                  name: String!
-                  power: Int!
-                }
-
-                union Other = Dog | Cat
-
-                type Query {
-                  pet: Other!
-                }
-
-                schema {
-                  query: Query
-                }
-            "#
-        )
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -224,32 +176,8 @@ fn test_schema_with_type_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-                type Cat {
-                  name: String!
-                  life: Int!
-                }
-
-                type Dog {
-                  name: String!
-                  power: Int!
-                }
-
-                union Other = Dog | Cat
-
-                type Query {
-                  pet: Other!
-                }
-
-                schema {
-                  query: Query
-                }
-            "#
-        )
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -266,7 +194,7 @@ fn test_schema_with_doc() {
         power: i32,
     }
 
-    /// Some animal
+    #[doc = " Some animal"]
     #[allow(dead_code)]
     #[derive(Union)]
     #[graphql(name = "Other")]
@@ -287,35 +215,8 @@ fn test_schema_with_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-                type Cat {
-                  name: String!
-                  life: Int!
-                }
-
-                type Dog {
-                  name: String!
-                  power: Int!
-                }
-
-                """
-                  Some animal
-                """
-                union Other = Dog | Cat
-
-                type Query {
-                  pet: Other!
-                }
-
-                schema {
-                  query: Query
-                }
-            "#
-        )
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[tokio::test]
@@ -490,40 +391,8 @@ async fn test_auto_register() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-            union Animal = Dog | Cat
-
-            type Bird {
-              name: String!
-              fly: Boolean!
-            }
-
-            type Cat {
-              name: String!
-              life: Int!
-            }
-
-            type Dog {
-              name: String!
-              power: Int!
-            }
-
-            type Query {
-              pet: Animal!
-            }
-
-            schema {
-              query: Query
-            }
-
-            "#
-        )
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 mod in_mod {

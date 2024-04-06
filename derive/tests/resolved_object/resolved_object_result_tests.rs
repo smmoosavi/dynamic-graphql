@@ -35,20 +35,8 @@ fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-                string: String!
-                maybeString: String
-            }
-            schema {
-                query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[tokio::test]

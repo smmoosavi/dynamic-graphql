@@ -20,23 +20,8 @@ async fn json_input_output() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-    scalar JsonValue
-
-    type Query {
-      value(value: JsonValue!): JsonValue!
-    }
-
-    schema {
-      query: Query
-    }
-"#
-        )
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let query = r#"
         query {
@@ -85,23 +70,8 @@ async fn json_object_test() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-    scalar JsonObject
-
-    type Query {
-      value(value: JsonObject!): JsonObject!
-    }
-
-    schema {
-      query: Query
-    }
-"#
-        )
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let query = r#"
         query {
@@ -157,23 +127,8 @@ async fn json_key_value() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-    scalar KeyValue
-
-    type Query {
-      value(value: KeyValue!): KeyValue!
-    }
-
-    schema {
-      query: Query
-    }
-"#
-        )
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let query = r#"
         query {

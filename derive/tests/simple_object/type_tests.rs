@@ -35,34 +35,8 @@ async fn test_types() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              string: String!
-              str: String!
-              id: ID!
-              i8: Int!
-              i16: Int!
-              i32: Int!
-              i64: Int!
-              isize: Int!
-              u8: Int!
-              u16: Int!
-              u32: Int!
-              u64: Int!
-              usize: Int!
-              f32: Float!
-              f64: Float!
-              bool: Boolean!
-            }
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let query = r#"
         query {
@@ -143,34 +117,8 @@ async fn test_optional_types() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              string: String
-              str: String
-              id: ID
-              i8: Int
-              i16: Int
-              i32: Int
-              i64: Int
-              isize: Int
-              u8: Int
-              u16: Int
-              u32: Int
-              u64: Int
-              usize: Int
-              f32: Float
-              f64: Float
-              bool: Boolean
-            }
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let query = r#"
         query {
@@ -284,24 +232,8 @@ async fn test_object_output() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Foo {
-              value: String!
-            }
-
-            type Query {
-              foo: Foo!
-            }
-
-            schema {
-              query: Query
-            }
-        "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let query = r#"
         query {

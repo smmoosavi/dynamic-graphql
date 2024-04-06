@@ -72,26 +72,8 @@ fn test_schema() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-            type Example {
-              field: String!
-            }
-
-            type Query {
-              foo: String!
-              theExample: Example!
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -134,27 +116,8 @@ fn test_schema_with_rename() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-            type Example {
-              field: String!
-            }
-
-            type Query {
-              foo: String!
-              the_example: Example!
-              other: Example!
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -197,26 +160,8 @@ fn test_schema_with_skip() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-            type Example {
-              field: String!
-            }
-
-            type Query {
-              foo: String!
-              theExample: Example!
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -259,27 +204,8 @@ fn test_schema_with_deprecation() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-            type Example {
-              field: String!
-            }
-
-            type Query {
-              foo: String!
-              example: Example! @deprecated
-              old: Example! @deprecated(reason: "this is the old one")
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[test]
@@ -294,7 +220,7 @@ fn test_schema_with_description() {
 
     #[ExpandObjectFields]
     impl ExampleQuery<'_> {
-        /// this is the example
+        #[doc = " this is the example"]
         fn the_example(&self) -> Example {
             Example {
                 field: "field".to_string(),
@@ -316,29 +242,8 @@ fn test_schema_with_description() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-            type Example {
-              field: String!
-            }
-
-            type Query {
-              foo: String!
-              """
-                this is the example
-              """
-              theExample: Example!
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 }
 
 #[tokio::test]
@@ -511,33 +416,8 @@ async fn test_auto_register() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-                type Example {
-                  field: String!
-                }
-
-                input ExampleInput {
-                  field: String!
-                }
-
-                type Foo {
-                  field: String!
-                }
-
-                type Query {
-                  foo: String!
-                  example(input: ExampleInput): Example!
-                }
-
-                schema {
-                  query: Query
-                }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(
+        normalize_schema(&sdl),@r"");
 
     let query = r#"
         query {
