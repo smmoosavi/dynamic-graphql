@@ -23,4 +23,5 @@ tokio-test = "0.4"
 [workspace]
 members = [
     "derive",
+    "codeshift",
 ]
