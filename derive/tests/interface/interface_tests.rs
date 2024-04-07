@@ -51,7 +51,19 @@ fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -75,7 +87,19 @@ fn test_schema_with_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    interface Other {
+      id: String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -123,7 +147,27 @@ fn test_schema_with_type_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type BarNode implements Other {
+      theId: String!
+    }
+
+    type FooNode implements Other {
+      theId: String!
+    }
+
+    interface Other {
+      theId: String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -149,7 +193,20 @@ fn test_schema_with_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    interface Node {
+      id: String!
+      the_id: String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -173,7 +230,25 @@ fn test_schema_description() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    """
+      the interface
+    """
+    interface Node {
+      """
+        the id
+      """
+      theId: String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -199,7 +274,20 @@ fn test_schema_with_deprecation() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    interface Node {
+      theId: String! @deprecated
+      old: String! @deprecated(reason: "deprecated")
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -223,7 +311,19 @@ fn test_schema_with_skip() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      foo: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[tokio::test]
@@ -261,7 +361,27 @@ async fn test_auto_register() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Bar {
+      id: String!
+    }
+
+    type Foo {
+      id: String!
+    }
+
+    interface GetFoo {
+      getFoo: Foo!
+    }
+
+    type Query implements GetFoo {
+      getFoo: Foo!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[tokio::test]
@@ -318,7 +438,24 @@ async fn test_auto_register_instance() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Foo {
+      id: String!
+    }
+
+    interface GetFoo {
+      getFoo: Foo!
+    }
+
+    type Query implements GetFoo {
+      name: String!
+      getFoo: Foo!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 mod in_mod {
@@ -387,7 +524,30 @@ mod in_mod {
             let schema = App::create_schema().finish().unwrap();
 
             let sdl = schema.sdl();
-            insta::assert_snapshot!(normalize_schema(&sdl), @"");
+            insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+            type Bar implements Node {
+              id: String!
+              other: String!
+            }
+
+            type Foo implements Node {
+              other: String!
+              id: String!
+            }
+
+            interface Node {
+              id: String!
+            }
+
+            type Query {
+              foo: Node!
+              bar: Node!
+            }
+
+            schema {
+              query: Query
+            }
+            "###);
 
             let query = r#"
                 query {

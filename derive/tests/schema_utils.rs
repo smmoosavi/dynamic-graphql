@@ -1,6 +1,6 @@
 pub fn normalize_schema(sdl: &str) -> String {
     format!(
-        "\n{}",
+        "{}",
         graphql_parser::schema::parse_schema::<String>(sdl)
             .unwrap()
             .to_owned()
@@ -24,19 +24,16 @@ mod tests {
 
             schema { query: Query }
         ";
-        assert_eq!(
-            normalize_schema(sdl),
-            "
-type Query {
-  hello: String!
-  nice: String!
-  bye: String!
-}
+        insta::assert_snapshot!(normalize_schema(sdl), @r###"
+        type Query {
+          hello: String!
+          nice: String!
+          bye: String!
+        }
 
-schema {
-  query: Query
-}
-"
-        );
+        schema {
+          query: Query
+        }
+        "###);
     }
 }

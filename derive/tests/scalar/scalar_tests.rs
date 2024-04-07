@@ -81,7 +81,17 @@ fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    scalar MyString
+
+    type Query {
+      value: MyString!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -118,7 +128,17 @@ fn test_schema_scalar_as_input() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    scalar MyString
+
+    type Query {
+      value(value: MyString!): String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -151,7 +171,17 @@ fn test_schema_with_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    scalar OtherString
+
+    type Query {
+      value: OtherString!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -190,7 +220,17 @@ fn test_schema_with_type_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    scalar OtherString
+
+    type Query {
+      value: OtherString!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -223,7 +263,20 @@ fn test_schema_with_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    """
+      this is my special string
+    """
+    scalar MyString
+
+    type Query {
+      value: MyString!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -257,5 +310,15 @@ fn test_schema_with_specified_by_url() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    scalar MyString @specifiedBy(url: "https://example.com")
+
+    type Query {
+      value: MyString!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
