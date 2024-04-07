@@ -64,28 +64,22 @@ async fn test_arg() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type MutationRoot {
+      test(file: Upload!): String!
+    }
 
-                type MutationRoot {
-                  test(file: Upload!): String!
-                }
+    type Query {
+      foo: String!
+    }
 
-                type Query {
-                  foo: String!
-                }
+    scalar Upload
 
-                scalar Upload
-
-                schema {
-                  query: Query
-                  mutation: MutationRoot
-                }
-            "#
-        )
-    );
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 
     let query = r##"
         mutation($file: Upload!) {
@@ -147,33 +141,26 @@ async fn test_input_object() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type MutationRoot {
+      test(input: UploadInput!): String!
+    }
 
-                type MutationRoot {
-                  test(input: UploadInput!): String!
-                }
+    type Query {
+      foo: String!
+    }
 
-                type Query {
-                  foo: String!
-                }
+    scalar Upload
 
-                scalar Upload
+    input UploadInput {
+      file: Upload!
+    }
 
-                input UploadInput {
-                  file: Upload!
-                }
-
-                schema {
-                  query: Query
-                  mutation: MutationRoot
-                }
-
-            "#
-        )
-    );
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 
     let query = r##"
         mutation($input: UploadInput!) {
@@ -233,28 +220,22 @@ async fn test_arg_optional() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type MutationRoot {
+      test(file: Upload): String!
+    }
 
-                type MutationRoot {
-                  test(file: Upload): String!
-                }
+    type Query {
+      foo: String!
+    }
 
-                type Query {
-                  foo: String!
-                }
+    scalar Upload
 
-                scalar Upload
-
-                schema {
-                  query: Query
-                  mutation: MutationRoot
-                }
-            "#
-        )
-    );
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 
     let query = r##"
         mutation($file: Upload!) {
@@ -328,33 +309,26 @@ async fn test_input_object_optional() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type MutationRoot {
+      test(input: UploadInput!): String!
+    }
 
-                type MutationRoot {
-                  test(input: UploadInput!): String!
-                }
+    type Query {
+      foo: String!
+    }
 
-                type Query {
-                  foo: String!
-                }
+    scalar Upload
 
-                scalar Upload
+    input UploadInput {
+      file: Upload
+    }
 
-                input UploadInput {
-                  file: Upload
-                }
-
-                schema {
-                  query: Query
-                  mutation: MutationRoot
-                }
-
-            "#
-        )
-    );
+    schema {
+      query: Query
+      mutation: MutationRoot
+    }
+    "###);
 
     let query = r##"
         mutation($input: UploadInput!) {

@@ -27,6 +27,7 @@ async-trait = "0.1"
 tempfile = "3"
 async-stream = "0.3"
 futures-util = "0.3"
+insta={version="1",features=["json"]}
 
 [lib]
 proc-macro = true

@@ -62,37 +62,30 @@ async fn interface_string_ref_types() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type FooNode implements Node {
+      otherField: String!
+      idRef: String!
+      idOwned: String!
+      idCowBorrowed: String!
+      idCowOwned: String!
+    }
 
-                type FooNode implements Node {
-                    otherField: String!
-                    idRef: String!
-                    idOwned: String!
-                    idCowBorrowed: String!
-                    idCowOwned: String!
-                }
+    interface Node {
+      idRef: String!
+      idOwned: String!
+      idCowBorrowed: String!
+      idCowOwned: String!
+    }
 
-                interface Node {
-                    idRef: String!
-                    idOwned: String!
-                    idCowBorrowed: String!
-                    idCowOwned: String!
-                }
+    type Query {
+      node: Node!
+    }
 
-                type Query {
-                    node: Node!
-                }
-
-                schema {
-                    query: Query
-                }
-
-            "#
-        ),
-    );
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 
@@ -187,40 +180,34 @@ async fn interface_object_ref_types() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-                type Bar {
-                  value: String!
-                }
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Bar {
+      value: String!
+    }
 
-                interface Baz {
-                  barRef: Bar!
-                  barOwned: Bar!
-                  barCowBorrowed: Bar!
-                  barCowOwned: Bar!
-                }
+    interface Baz {
+      barRef: Bar!
+      barOwned: Bar!
+      barCowBorrowed: Bar!
+      barCowOwned: Bar!
+    }
 
-                type FooNode implements Baz {
-                  otherField: String!
-                  barRef: Bar!
-                  barOwned: Bar!
-                  barCowBorrowed: Bar!
-                  barCowOwned: Bar!
-                }
+    type FooNode implements Baz {
+      otherField: String!
+      barRef: Bar!
+      barOwned: Bar!
+      barCowBorrowed: Bar!
+      barCowOwned: Bar!
+    }
 
-                type Query {
-                  baz: Baz!
-                }
+    type Query {
+      baz: Baz!
+    }
 
-                schema {
-                  query: Query
-                }
-
-            "#
-        ),
-    );
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 

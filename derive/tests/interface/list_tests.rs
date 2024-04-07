@@ -47,31 +47,24 @@ async fn test_interface_as_optional_value() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type FooNode implements Node {
+      otherField: String!
+      theId: String!
+    }
 
-                type FooNode implements Node {
-                    otherField: String!
-                    theId: String!
-                }
+    interface Node {
+      theId: String!
+    }
 
-                interface Node {
-                    theId: String!
-                }
+    type Query {
+      node: Node
+    }
 
-                type Query {
-                    node: Node
-                }
-
-                schema {
-                    query: Query
-                }
-
-            "#
-        ),
-    );
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 
@@ -155,36 +148,29 @@ async fn test_interface_as_list_value() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type BarNode implements Node {
+      anotherField: String!
+      theId: String!
+    }
 
-                type BarNode implements Node {
-                  anotherField: String!
-                  theId: String!
-                }
+    type FooNode implements Node {
+      otherField: String!
+      theId: String!
+    }
 
-                type FooNode implements Node {
-                  otherField: String!
-                  theId: String!
-                }
+    interface Node {
+      theId: String!
+    }
 
-                interface Node {
-                  theId: String!
-                }
+    type Query {
+      nodes: [Node!]!
+    }
 
-                type Query {
-                  nodes: [Node!]!
-                }
-
-                schema {
-                  query: Query
-                }
-
-            "#
-        ),
-    );
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
 

@@ -139,31 +139,24 @@ struct App(Query, NodeQuery<'static>, foo::FooNode);
 async fn test() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type FooNode implements Node {
+      name: String!
+      id: String!
+    }
 
-            type FooNode implements Node {
-              name: String!
-              id: String!
-            }
+    interface Node {
+      id: String!
+    }
 
-            interface Node {
-              id: String!
-            }
+    type Query {
+      node(id: String!): Node
+    }
 
-            type Query {
-              node(id: String!): Node
-            }
-
-            schema {
-              query: Query
-            }
-
-        "#
-        )
-    );
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {

@@ -41,19 +41,15 @@ async fn test_query_static_generic() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-                greet(name: String!): String!
-            }
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Query {
+      greet(name: String!): String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -100,19 +96,15 @@ async fn test_query_generic_with_self() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-               greet(name: String!): String!
-            }
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Query {
+      greet(name: String!): String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -162,26 +154,19 @@ async fn test_query_graphql_generic() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Foo {
+      value: String!
+    }
 
-                type Foo {
-                  value: String!
-                }
+    type Query {
+      theG: Foo!
+    }
 
-                type Query {
-                  theG: Foo!
-                }
-
-                schema {
-                  query: Query
-                }
-
-            "#
-        ),
-    );
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {

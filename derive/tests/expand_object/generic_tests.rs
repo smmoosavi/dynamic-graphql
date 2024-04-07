@@ -143,30 +143,24 @@ fn test_schema_with_generic() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Bar {
-              field: String!
-            }
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Bar {
+      field: String!
+    }
 
-            type Foo {
-              field: String!
-            }
+    type Foo {
+      field: String!
+    }
 
-            type Query {
-              foo: Foo!
-              bar: Bar!
-            }
+    type Query {
+      foo: Foo!
+      bar: Bar!
+    }
 
-            schema {
-              query: Query
-            }
-
-            "#
-        ),
-    );
+    schema {
+      query: Query
+    }
+    "###);
 
     #[derive(App)]
     struct AppWithName(Query, Bar, Foo, WithName<'static, Foo>);
@@ -174,31 +168,25 @@ fn test_schema_with_generic() {
     let schema = AppWithName::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Bar {
-              field: String!
-            }
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Bar {
+      field: String!
+    }
 
-            type Foo {
-              field: String!
-              name: String!
-            }
+    type Foo {
+      field: String!
+      name: String!
+    }
 
-            type Query {
-              foo: Foo!
-              bar: Bar!
-            }
+    type Query {
+      foo: Foo!
+      bar: Bar!
+    }
 
-            schema {
-              query: Query
-            }
-
-            "#
-        ),
-    );
+    schema {
+      query: Query
+    }
+    "###);
 
     #[derive(App)]
     struct AppBothWithName(
@@ -212,32 +200,26 @@ fn test_schema_with_generic() {
     let schema = AppBothWithName::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Bar {
-              field: String!
-              name: String!
-            }
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Bar {
+      field: String!
+      name: String!
+    }
 
-            type Foo {
-              field: String!
-              name: String!
-            }
+    type Foo {
+      field: String!
+      name: String!
+    }
 
-            type Query {
-              foo: Foo!
-              bar: Bar!
-            }
+    type Query {
+      foo: Foo!
+      bar: Bar!
+    }
 
-            schema {
-              query: Query
-            }
-
-            "#
-        ),
-    );
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[tokio::test]
