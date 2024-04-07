@@ -49,7 +49,19 @@ async fn test_app() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Foo {
+      value: String!
+    }
+
+    type Query {
+      foo: Foo
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let result = schema
         .execute("{ foo { value } }")
@@ -87,7 +99,19 @@ async fn test_apply() {
 
     let schema = schema.finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Foo {
+      value: String!
+    }
+
+    type Query {
+      foo: Foo
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let result = schema
         .execute("{ foo { value } }")
@@ -160,7 +184,19 @@ async fn define_custom_type() {
 
     // use schema
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Foo {
+      value: String!
+    }
+
+    type Query {
+      foo: Foo!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let root = Query {
         foo: Foo {

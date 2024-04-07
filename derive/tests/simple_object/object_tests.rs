@@ -57,7 +57,15 @@ fn test_schema() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Query {
+      string: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -74,7 +82,15 @@ fn test_schema_with_rename() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Other {
+      string: String!
+    }
+
+    schema {
+      query: Other
+    }
+    "###);
 }
 
 #[test]
@@ -98,7 +114,15 @@ fn test_schema_with_type_name() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Other {
+      string: String!
+    }
+
+    schema {
+      query: Other
+    }
+    "###);
 }
 
 #[test]
@@ -117,7 +141,15 @@ fn test_schema_with_skip() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Query {
+      string: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -135,7 +167,15 @@ fn test_schema_with_rename_field() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Query {
+      other: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[tokio::test]
@@ -179,7 +219,15 @@ async fn test_optional() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Query {
+      maybeString: String
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
@@ -219,7 +267,21 @@ fn test_schema_with_doc() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    """
+      this is the query object
+    """
+    type Query {
+      """
+        this is the string field
+      """
+      string: String!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -239,7 +301,16 @@ fn test_schema_with_deprecation() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Query {
+      deprecated: String! @deprecated
+      withReason: String! @deprecated(reason: "this is the old one")
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -257,7 +328,15 @@ fn test_rename_fields() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type TheQuery {
+      the_string: String!
+    }
+
+    schema {
+      query: TheQuery
+    }
+    "###);
 }
 
 #[tokio::test]
@@ -290,7 +369,27 @@ async fn test_auto_register() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Bar {
+      foo: Foo!
+    }
+
+    type Example {
+      string: String!
+    }
+
+    type Foo {
+      string: String!
+    }
+
+    type Query {
+      example: Example!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 mod in_mod {

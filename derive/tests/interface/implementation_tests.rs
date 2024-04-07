@@ -31,7 +31,23 @@ fn test_schema_simple_object_mark_with() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type FooNode implements Node {
+      theId: String!
+    }
+
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      foo: FooNode!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -67,7 +83,24 @@ fn test_schema_simple_object_with_implement() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type FooNode implements Node {
+      someField: String!
+      theId: String!
+    }
+
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      foo: FooNode!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -130,7 +163,23 @@ fn test_schema_resolved_object_mark_with() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type FooNode implements Node {
+      theId: String!
+    }
+
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      foo: FooNode!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]
@@ -169,7 +218,24 @@ fn test_schema_resolved_object_with_implement() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type FooNode implements Node {
+      otherFields: String!
+      theId: String!
+    }
+
+    interface Node {
+      theId: String!
+    }
+
+    type Query {
+      foo: FooNode!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 }
 
 #[test]

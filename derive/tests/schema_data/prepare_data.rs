@@ -135,7 +135,20 @@ mod expand_example {
 async fn test() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @"");
+    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    type Example {
+      value: Int!
+      anotherValue: Int!
+    }
+
+    type Query {
+      example: Example!
+    }
+
+    schema {
+      query: Query
+    }
+    "###);
 
     let query = r#"
         query {
