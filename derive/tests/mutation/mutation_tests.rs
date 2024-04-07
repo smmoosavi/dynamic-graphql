@@ -80,27 +80,7 @@ fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-                type MutationRoot {
-                  theExample: String!
-                }
-
-                type Query {
-                  foo: String!
-                }
-
-                schema {
-                  query: Query
-                  mutation: MutationRoot
-                }
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 
 #[test]
@@ -131,27 +111,7 @@ fn test_schema_with_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-                type Mutation {
-                  theExample: String!
-                }
-
-                type Query {
-                  foo: String!
-                }
-
-                schema {
-                  query: Query
-                  mutation: Mutation
-                }
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 
 #[test]
@@ -188,27 +148,7 @@ fn test_schema_with_type_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-                type Mutation {
-                  theExample: String!
-                }
-
-                type Query {
-                  foo: String!
-                }
-
-                schema {
-                  query: Query
-                  mutation: Mutation
-                }
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 
 #[test]
@@ -239,28 +179,7 @@ fn test_schema_with_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-                """The Root of all Mutations"""
-                type MutationRoot {
-                  theExample: String!
-                }
-
-                type Query {
-                  foo: String!
-                }
-
-                schema {
-                  query: Query
-                  mutation: MutationRoot
-                }
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 
 #[tokio::test]
@@ -361,43 +280,7 @@ async fn test_auto_register() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-                type Bar {
-                  bar: String!
-                }
-
-                input ExampleInput {
-                  foo: String!
-                }
-
-                type ExamplePayload {
-                  bar: String!
-                }
-
-                type Foo {
-                  foo: String!
-                }
-
-                type MutationRoot {
-                  theExample(input: ExampleInput!): ExamplePayload!
-                }
-
-                type Query {
-                  foo: String!
-                }
-
-                schema {
-                  query: Query
-                  mutation: MutationRoot
-                }
-
-
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
     let query = r#"
         mutation {

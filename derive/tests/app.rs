@@ -25,24 +25,7 @@ fn test_app() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Foo {
-              value: String!
-            }
-
-            type Query {
-              other: Foo!
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 
 #[test]
@@ -82,24 +65,7 @@ fn test_app_with_generic() {
 
     let schema = App::<()>::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Foo {
-              value: String!
-            }
-
-            type Query {
-              other: Foo!
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 
 #[test]
@@ -128,24 +94,7 @@ fn test_app_with_lifetime() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Foo {
-              value: String!
-            }
-
-            type Query {
-              other: Foo!
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 
 #[test]
@@ -189,24 +138,7 @@ fn test_app_with_generic_and_lifetime() {
 
     let schema = App::<()>::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Foo {
-              value: String!
-            }
-
-            type Query {
-              other: Foo!
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 #[test]
 fn test_nested_app() {
@@ -235,29 +167,7 @@ fn test_nested_app() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Bar {
-              value: String!
-            }
-
-            type Foo {
-              value: String!
-            }
-
-            type Query {
-              foo: Foo!
-              bar: Bar!
-            }
-
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 
 mod test_in_mod {
@@ -288,23 +198,6 @@ mod test_in_mod {
     async fn test() {
         let schema = App::create_schema().finish().unwrap();
         let sdl = schema.sdl();
-        assert_eq!(
-            normalize_schema(&sdl),
-            normalize_schema(
-                r#"
-                type Foo {
-                  value: String!
-                }
-
-                type Query {
-                  foo: Foo!
-                }
-
-                schema {
-                  query: Query
-                }
-                "#
-            ),
-        );
+        insta::assert_snapshot!(normalize_schema(&sdl), @"");
     }
 }

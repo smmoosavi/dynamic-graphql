@@ -20,19 +20,7 @@ async fn test_list() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              strings: [String!]!
-            }
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
     let query = r#"
         query {
@@ -71,19 +59,7 @@ async fn test_optional_list() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              maybeListOfStrings: [String!]
-            }
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
     let query = r#"
         query {
@@ -127,19 +103,7 @@ async fn test_list_of_optional() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              listOfMaybeStrings: [String]!
-            }
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
     let query = r#"
         query {
@@ -174,19 +138,7 @@ async fn test_optional_list_of_optional() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            type Query {
-              maybeListOfMaybeStrings: [String]
-            }
-            schema {
-              query: Query
-            }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
     let query = r#"
         query {

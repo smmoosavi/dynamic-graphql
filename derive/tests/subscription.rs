@@ -44,27 +44,7 @@ async fn test_schema() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-
-            type Query {
-              foo: String!
-            }
-
-            type Subscription {
-              foo: String!
-            }
-
-            schema {
-              query: Query
-              subscription: Subscription
-            }
-
-        "#
-        )
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
     let mut stream = schema.execute_stream("subscription { foo }");
     for i in 0..10 {
