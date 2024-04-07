@@ -3,6 +3,7 @@ mod delete;
 mod end;
 mod len;
 mod lookaheads;
+mod paren;
 mod peek;
 mod seek;
 mod str;
@@ -11,8 +12,10 @@ mod until;
 mod ws;
 
 pub use after::after;
+pub use end::end;
 pub use len::len;
 pub use lookaheads::Lookaheads;
+pub use paren::paren;
 pub use peek::Peek;
 pub use seek::Seek;
 pub use str::str;

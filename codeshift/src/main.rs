@@ -1,28 +1,49 @@
 mod content;
 
-use crate::content::{after, str, until, ws, Content};
+use crate::content::after;
+use crate::content::end;
+use crate::content::paren;
+use crate::content::str;
+use crate::content::until;
+use crate::content::Content;
 use std::fs;
 use std::path::Path;
 
-fn is_normalize_schema(lookaheads: &mut content::Lookaheads) -> bool {
-    let res = lookaheads
-        .seek(&after("("))
-        .unwrap()
-        .seek(&ws())
-        .unwrap()
-        .seek(&str("normalize_schema"));
-    res.is_ok()
+fn transfer_assert_eq_args(content: &str) -> Option<String> {
+    let mut content = Content::new(content.to_string());
+    content.seek(&after("normalize_schema")).unwrap();
+    if content.is_done() {
+        return None;
+    }
+    // find second argument
+    content.seek(&until("normalize_schema")).unwrap();
+    if content.is_done() {
+        return None;
+    }
+
+    content.delete(&str("normalize_schema")).unwrap();
+    content.delete(&paren()).unwrap();
+    content.insert(r#"@"""#);
+    content.seek(&until(",")).unwrap();
+    content.delete(&str(",")).ok();
+    content.seek(&end()).unwrap();
+    let output = content.finish().unwrap();
+    Some(output)
 }
 fn transform_assert_eq(content: &mut Content) -> Result<(), String> {
-    println!("Transforming assert_eq");
     let mut lookaheads = content.lookaheads();
-    if !is_normalize_schema(&mut lookaheads) {
-        content.seek(&after("assert_eq!"))?;
+    let args = lookaheads.seek(&until("("))?.take(&paren())?;
+    let args = transfer_assert_eq_args(args);
+
+    if let Some(args) = args {
+        content.delete(&str("assert_eq!"))?;
+        content.insert("insta::assert_snapshot!");
+        content.seek(&until("("))?;
+        content.delete(&paren())?;
+        content.insert(&args);
         return Ok(());
     }
 
-    // content.delete(&str("assert_eq!"))?;
-    // content.insert("insta::assert_snapshot!");
     content.seek(&after("assert_eq!"))?;
     Ok(())
 }

@@ -14,4 +14,10 @@ impl Lookaheads<'_> {
         self.rest = rest;
         Ok(self)
     }
+
+    pub fn take(&mut self, peeker: &dyn Peek) -> Result<&str, String> {
+        let (found, rest) = peeker.peek(self.rest)?;
+        self.rest = rest;
+        Ok(found)
+    }
 }
