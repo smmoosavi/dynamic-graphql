@@ -1,17 +1,24 @@
 mod content;
 
-use crate::content::after;
 use crate::content::end;
 use crate::content::paren;
 use crate::content::str;
 use crate::content::until;
 use crate::content::Content;
+use crate::content::{after, ws};
 use std::fs;
 use std::path::Path;
 
 fn transfer_assert_eq_args(content: &str) -> Option<String> {
     let mut content = Content::new(content.to_string());
+    // remove whitespaces
+    content.seek(&after("(")).unwrap();
+    content.delete(&ws()).unwrap();
+    // find first argument
     content.seek(&after("normalize_schema")).unwrap();
+    content.seek(&paren()).unwrap();
+    content.seek(&after(",")).unwrap();
+    content.delete(&ws()).unwrap();
     if content.is_done() {
         return None;
     }
@@ -23,9 +30,11 @@ fn transfer_assert_eq_args(content: &str) -> Option<String> {
 
     content.delete(&str("normalize_schema")).unwrap();
     content.delete(&paren()).unwrap();
-    content.insert(r#"@"""#);
+    content.insert(r#" @"""#);
+    content.delete(&ws()).unwrap();
     content.seek(&until(",")).unwrap();
     content.delete(&str(",")).ok();
+    content.delete(&ws()).unwrap();
     content.seek(&end()).unwrap();
     let output = content.finish().unwrap();
     Some(output)
