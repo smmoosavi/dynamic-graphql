@@ -92,38 +92,7 @@ async fn test_query_simple_generic() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-                type Bar {
-                  bar: String!
-                }
-
-                type BoxBar {
-                  inner: Bar!
-                }
-
-                type BoxFoo {
-                  inner: Foo!
-                }
-
-                type Foo {
-                  foo: String!
-                }
-
-                union FooBar = Foo | Bar | BoxFoo | BoxBar
-
-                type Query {
-                  box: FooBar!
-                }
-
-                schema {
-                  query: Query
-                }
-            "#
-        ),
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
     let query = r#"
         query {

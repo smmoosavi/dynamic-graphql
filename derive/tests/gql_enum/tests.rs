@@ -76,24 +76,7 @@ async fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            enum Example {
-              FOO
-              BAR
-            }
-            type Query {
-              example: Example!
-              byExample(example: Example!): Example!
-            }
-            schema {
-              query: Query
-            }
-            "#
-        )
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
     let query = r#"
         query {
@@ -168,24 +151,7 @@ async fn test_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            enum Other {
-                foo
-                Other
-            }
-            type Query {
-              example: Other!
-              byExample(example: Other!): Other!
-            }
-            schema {
-              query: Query
-            }
-            "#
-        )
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
     let query = r#"
         query {
@@ -264,24 +230,7 @@ async fn test_type_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            enum Other {
-                FOO
-                BAR
-            }
-            type Query {
-              example: Other!
-              byExample(example: Other!): Other!
-            }
-            schema {
-              query: Query
-            }
-            "#
-        )
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
     let query = r#"
         query {
@@ -355,24 +304,7 @@ async fn test_deprecation() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            enum Example {
-              FOO @deprecated
-              BAR @deprecated(reason: "This is old")
-            }
-            type Query {
-              example: Example!
-              byExample(example: Example!): Example!
-            }
-            schema {
-              query: Query
-            }
-            "#
-        )
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 
 #[tokio::test]
@@ -407,29 +339,7 @@ async fn test_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    assert_eq!(
-        normalize_schema(&sdl),
-        normalize_schema(
-            r#"
-            """
-              the example enum
-            """
-            enum Example {
-                """
-                  the foo item
-                """ FOO
-                BAR
-            }
-            type Query {
-              example: Example!
-              byExample(example: Example!): Example!
-            }
-            schema {
-              query: Query
-            }
-            "#
-        )
-    );
+    insta::assert_snapshot!(normalize_schema(&sdl), @"");
 }
 
 mod in_mod {
@@ -487,24 +397,7 @@ mod in_mod {
         let schema = App::create_schema().finish().unwrap();
 
         let sdl = schema.sdl();
-        assert_eq!(
-            normalize_schema(&sdl),
-            normalize_schema(
-                r#"
-            enum Example {
-              FOO
-              BAR
-            }
-            type Query {
-              example: Example!
-              byExample(example: Example!): Example!
-            }
-            schema {
-              query: Query
-            }
-            "#
-            )
-        );
+        insta::assert_snapshot!(normalize_schema(&sdl), @"");
 
         let query = r#"
         query {
