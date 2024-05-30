@@ -54,6 +54,7 @@ fn test_app_with_generic() {
     }
 
     trait GetFoo {
+        #[allow(dead_code)]
         fn get_foo(&self) -> Foo;
     }
 
@@ -105,6 +106,7 @@ fn test_app_with_lifetime() {
         pub string: Foo,
     }
 
+    #[allow(dead_code)]
     struct Other<'a>(&'a Foo);
     impl<'a> Register for Other<'a> {
         fn register(registry: Registry) -> Registry {
@@ -147,6 +149,7 @@ fn test_app_with_generic_and_lifetime() {
     }
 
     trait GetFoo {
+        #[allow(dead_code)]
         fn get_foo(&self) -> Foo;
     }
 
@@ -158,6 +161,7 @@ fn test_app_with_generic_and_lifetime() {
         }
     }
 
+    #[allow(dead_code)]
     struct Other<'a, T>(&'a T)
     where
         T: GetFoo;
