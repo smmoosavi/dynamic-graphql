@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 pub use args::*;
+pub use clippy_error::impl_suppress_tupple_clippy_error;
 pub use fields::*;
 pub use generics::*;
 pub use interfaces::*;
@@ -22,6 +23,7 @@ use crate::utils::rename_rule::calc_type_name;
 use crate::utils::type_utils::get_owned_type;
 
 mod args;
+mod clippy_error;
 mod fields;
 mod generics;
 mod interfaces;
