@@ -12,12 +12,6 @@ pub trait CommonObject {
     fn get_type(&self) -> darling::Result<syn::Path>;
     fn get_generics(&self) -> darling::Result<&syn::Generics>;
     fn get_doc(&self) -> darling::Result<Option<String>>;
-    fn get_fields_rename_rule(&self) -> Option<&RenameRule> {
-        None
-    }
-    fn get_args_rename_rule(&self) -> Option<&RenameRule> {
-        None
-    }
 }
 
 pub trait CommonField {
