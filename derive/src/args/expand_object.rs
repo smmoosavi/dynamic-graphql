@@ -14,6 +14,8 @@ use crate::utils::register_attr::RegisterAttr;
 use crate::utils::type_utils::get_owned_type;
 use crate::utils::with_attributes::WithAttributes;
 
+use super::common::impl_suppress_tupple_clippy_error;
+
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
 pub struct ExpandObjectAttrs {
@@ -120,6 +122,10 @@ fn impl_register_fns_trait(object: &impl CommonObject) -> darling::Result<TokenS
     Ok(q)
 }
 
+fn impl_suppress_clippy_error(expand_object: &ExpandObject) -> TokenStream {
+    impl_suppress_tupple_clippy_error(&expand_object.ident, &expand_object.generics, 1)
+}
+
 impl ToTokens for ExpandObject {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let impl_expand_object = impl_expand_object(self).into_token_stream();
@@ -127,12 +133,14 @@ impl ToTokens for ExpandObject {
         let impl_from = impl_from(self).into_token_stream();
         let impl_register_fns_trait = impl_register_fns_trait(self).into_token_stream();
         let impl_registers_fn = impl_registers_fn(self).into_token_stream();
+        let impl_suppress = impl_suppress_clippy_error(self);
         tokens.extend(quote! {
             #impl_registers_fn
             #impl_expand_object
             #impl_from
             // #impl_parent
             #impl_register_fns_trait
+            #impl_suppress
         });
     }
 }

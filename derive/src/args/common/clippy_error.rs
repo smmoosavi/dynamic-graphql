@@ -13,7 +13,7 @@ pub fn impl_suppress_tupple_clippy_error(
         .map(|index| {
             let index = syn::Index::from(index);
             quote! {
-                suppress(&self.#index);
+                let _ = self.#index;
             }
         })
         .collect();
@@ -22,7 +22,6 @@ pub fn impl_suppress_tupple_clippy_error(
              #[allow(dead_code)]
              #[doc(hidden)]
              fn _suppress_clippy_error(&self) {
-                 fn suppress<T>(_r: &T) where T: std::any::Any + ?Sized {}
                  #accesses
              }
          }
