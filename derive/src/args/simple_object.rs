@@ -136,9 +136,6 @@ impl CommonObject for SimpleObject {
     fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
     }
-    fn get_fields_rename_rule(&self) -> Option<&RenameRule> {
-        self.attrs.rename_fields.as_ref()
-    }
 }
 
 impl CommonField for SimpleObjectField {

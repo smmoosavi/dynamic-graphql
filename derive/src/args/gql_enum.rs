@@ -106,10 +106,6 @@ impl CommonObject for Enum {
     fn get_doc(&self) -> darling::Result<Option<String>> {
         Ok(self.attrs.doc.clone())
     }
-
-    fn get_fields_rename_rule(&self) -> Option<&RenameRule> {
-        self.attrs.rename_items.as_ref()
-    }
 }
 
 impl CommonField for EnumVariant {
