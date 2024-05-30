@@ -20,6 +20,8 @@ use crate::utils::register_attr::RegisterAttr;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
 
+use super::common::impl_suppress_tupple_clippy_error;
+
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]
 pub struct ScalarAttrs {
@@ -188,6 +190,10 @@ fn impl_register(scalar: &Scalar) -> darling::Result<TokenStream> {
     })
 }
 
+fn impl_suppress_clippy_error(scalar: &Scalar) -> TokenStream {
+    impl_suppress_tupple_clippy_error(&scalar.ident, &scalar.generics, 1)
+}
+
 impl ToTokens for Scalar {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let impl_scalar = impl_scalar(self).into_token_stream();
@@ -195,12 +201,14 @@ impl ToTokens for Scalar {
         let impl_resolve_ref = impl_resolve_ref(self).into_token_stream();
         let impl_from_value = impl_from_value(self).into_token_stream();
         let impl_register = impl_register(self).into_token_stream();
+        let impl_suppress = impl_suppress_clippy_error(self);
         tokens.extend(quote! {
             #impl_scalar
             #impl_resolved_own
             #impl_resolve_ref
             #impl_from_value
             #impl_register
+            #impl_suppress
         })
     }
 }
