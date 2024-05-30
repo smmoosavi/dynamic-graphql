@@ -80,6 +80,10 @@ type Query {
   foo: Foo!
 }
 
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
 schema {
   query: Query
 }
@@ -117,6 +121,10 @@ type RootQuery {
   hello_world: String!
   MyField: String!
 }
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 schema {
   query: RootQuery
@@ -169,6 +177,10 @@ type Query {
   """
   myField: String!
 }
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 schema {
   query: Query
