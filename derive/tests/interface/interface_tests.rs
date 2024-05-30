@@ -295,6 +295,7 @@ fn test_schema_with_skip() {
     #[Interface]
     trait Node {
         fn the_id(&self) -> String;
+        #[allow(dead_code)]
         #[graphql(skip)]
         fn old(&self) -> String;
     }

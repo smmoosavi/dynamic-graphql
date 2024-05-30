@@ -7,7 +7,13 @@ use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::BaseStruct;
 use crate::utils::derive_types::TupleField;
 
+use super::common::impl_suppress_tupple_clippy_error;
+
 pub type App = BaseStruct<TupleField, Generics>;
+
+fn impl_suppress_clippy_error(app: &App) -> TokenStream {
+    impl_suppress_tupple_clippy_error(&app.ident, &app.generics, app.data.fields.len())
+}
 
 fn impl_create_schema(app: &App) -> TokenStream {
     let crate_name = get_crate_name();
@@ -54,9 +60,11 @@ impl ToTokens for App {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let impl_register = impl_register(self);
         let impl_create_schema = impl_create_schema(self);
+        let impl_suppress_clippy_error = impl_suppress_clippy_error(self);
         tokens.extend(quote! {
             #impl_register
             #impl_create_schema
+            #impl_suppress_clippy_error
         });
     }
 }
