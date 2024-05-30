@@ -113,6 +113,10 @@ type Query {
   foo: Foo!
 }
 
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
 schema {
   query: Query
 }
@@ -173,6 +177,10 @@ type RootQuery {
   third_field(theArg: Int!, OtherArg: Int!): Int!
   fourth_field(theArg: Int!, other_arg: Int!): Int!
 }
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 schema {
   query: RootQuery
@@ -238,6 +246,10 @@ type Query {
   """
   fourthField: Int!
 }
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 schema {
   query: Query
@@ -308,6 +320,10 @@ type Query {
   withContext(ctx: Int!): Int!
   withSelf(arg: Int!): Int!
 }
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 schema {
   query: Query

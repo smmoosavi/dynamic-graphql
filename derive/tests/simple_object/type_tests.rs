@@ -55,6 +55,10 @@ async fn test_types() {
       bool: Boolean!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -158,6 +162,10 @@ async fn test_optional_types() {
       f64: Float
       bool: Boolean
     }
+
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
@@ -284,6 +292,10 @@ async fn test_object_output() {
     type Query {
       foo: Foo!
     }
+
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query

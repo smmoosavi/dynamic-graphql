@@ -44,6 +44,10 @@ async fn test_list() {
       refItems: [String!]!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -133,6 +137,10 @@ async fn test_list_object() {
       refItems: [Item!]!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -208,6 +216,10 @@ async fn test_optional_list() {
       newMaybeListOfStrings: [String!]
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -280,6 +292,10 @@ async fn test_list_of_optional() {
       listOfMaybeStringsRef: [String]!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -340,6 +356,10 @@ async fn test_optional_list_of_optional() {
       maybeListOfMaybeStrings: [String]
       newMaybeListOfMaybeStrings: [String]
     }
+
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query

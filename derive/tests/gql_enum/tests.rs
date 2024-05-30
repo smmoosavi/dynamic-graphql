@@ -87,6 +87,10 @@ async fn test_schema() {
       byExample(example: Example!): Example!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -175,6 +179,10 @@ async fn test_rename() {
       example: Other!
       byExample(example: Other!): Other!
     }
+
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
@@ -269,6 +277,10 @@ async fn test_type_name() {
       byExample(example: Other!): Other!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -357,6 +369,10 @@ async fn test_deprecation() {
       byExample(example: Example!): Example!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -410,6 +426,10 @@ async fn test_doc() {
       example: Example!
       byExample(example: Example!): Example!
     }
+
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
@@ -482,6 +502,10 @@ mod in_mod {
           example: Example!
           byExample(example: Example!): Example!
         }
+
+        directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+        directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
         schema {
           query: Query

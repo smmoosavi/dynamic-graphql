@@ -60,6 +60,10 @@ async fn interface_as_output_value_for_simple_object_with_implement() {
       node: Node!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -138,6 +142,10 @@ async fn interface_as_output_value_for_simple_object_with_mark_with() {
     type Query {
       node: Node!
     }
+
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
@@ -225,6 +233,10 @@ async fn interface_as_output_value_for_resolved_object_with_implement() {
       node: Node!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -307,6 +319,10 @@ async fn interface_as_output_value_for_resolved_object_with_mark_with() {
     type Query {
       node: Node!
     }
+
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query

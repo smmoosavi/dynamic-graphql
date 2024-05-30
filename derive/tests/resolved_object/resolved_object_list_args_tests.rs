@@ -34,6 +34,10 @@ async fn test_schema() {
       helloWithRef(names: [String!]!): String!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -97,6 +101,10 @@ async fn test_schema_optional_arg() {
       helloWithOptionalArg(names: [String!]): String!
       helloWithOptionalArgRef(names: [String!]): String!
     }
+
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
@@ -179,6 +187,10 @@ async fn test_schema_optional_item() {
       helloWithOptionalItemRef(names: [String]!): String!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
     schema {
       query: Query
     }
@@ -249,6 +261,10 @@ async fn test_schema_optional_item_and_arg() {
       helloWithOptionalItemAndArg(names: [String]): String!
       helloWithOptionalItemAndArgRef(names: [String]): String!
     }
+
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
