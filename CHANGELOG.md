@@ -9,6 +9,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] - ReleaseDate
 
+### Changed
+
+- use async-graphql 7
+
+### Fixed
+
+- fix clippy errors in generated codes
+
 ## [0.8.1] - 2023-11-06
 
 ### Changed
