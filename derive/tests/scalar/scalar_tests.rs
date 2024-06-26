@@ -337,6 +337,12 @@ fn test_schema_with_specified_by_url() {
       value: MyString!
     }
 
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @specifiedBy(url: String!) on SCALAR
+
     schema {
       query: Query
     }

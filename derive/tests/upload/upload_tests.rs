@@ -79,6 +79,8 @@ async fn test_arg() {
 
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    directive @specifiedBy(url: String!) on SCALAR
+
     schema {
       query: Query
       mutation: MutationRoot
@@ -164,6 +166,8 @@ async fn test_input_object() {
 
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    directive @specifiedBy(url: String!) on SCALAR
+
     schema {
       query: Query
       mutation: MutationRoot
@@ -242,6 +246,8 @@ async fn test_arg_optional() {
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @specifiedBy(url: String!) on SCALAR
 
     schema {
       query: Query
@@ -339,6 +345,8 @@ async fn test_input_object_optional() {
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    directive @specifiedBy(url: String!) on SCALAR
 
     schema {
       query: Query

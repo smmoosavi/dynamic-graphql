@@ -6,7 +6,9 @@ pub trait FromFnArg: Sized {
 
 #[derive(Debug, Clone)]
 pub struct SelfArg {
+    #[allow(dead_code)]
     pub is_mut: bool,
+    #[allow(dead_code)]
     pub is_ref: bool,
     pub span: proc_macro2::Span,
 }

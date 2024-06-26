@@ -4,6 +4,7 @@ use std::ops::Deref;
 use crate::utils::meta_match::MatchNestedMeta;
 use crate::utils::meta_match::MatchString;
 
+#[allow(dead_code)]
 pub struct MatchLitStr<S: MatchString = String>(pub S, pub proc_macro2::Span);
 
 impl<S: MatchString> Deref for MatchLitStr<S> {

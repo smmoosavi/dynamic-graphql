@@ -9,6 +9,7 @@ use crate::FromItemImpl;
 
 #[derive(Debug, Clone)]
 pub struct BaseItemImpl<Method = BaseMethod, Generics = ()> {
+    #[allow(dead_code)]
     pub trait_: Option<syn::Path>,
     pub ty: syn::Type,
     pub methods: Methods<Method>,
