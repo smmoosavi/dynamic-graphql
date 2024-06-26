@@ -1,0 +1,48 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+struct ExampleInput {
+    pub string: String,
+}
+
+impl dynamic_graphql::internal::TypeName for ExampleInput {
+    fn get_type_name() -> std::borrow::Cow<'static, str> {
+        "ExampleInput".into()
+    }
+}
+impl dynamic_graphql::internal::InputTypeName for ExampleInput {}
+impl dynamic_graphql::internal::InputObject for ExampleInput {}
+impl dynamic_graphql::internal::Register for ExampleInput {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry.register::<String>();
+        let object = dynamic_graphql::dynamic::InputObject::new(
+            <Self as dynamic_graphql::internal::InputObject>::get_input_object_type_name()
+                .as_ref(),
+        );
+        let field = dynamic_graphql::dynamic::InputValue::new(
+            "string",
+            <String as dynamic_graphql::internal::GetInputTypeRef>::get_input_type_ref(),
+        );
+        let object = object.field(field);
+        registry.register_type(object)
+    }
+}
+impl dynamic_graphql::internal::FromValue for ExampleInput {
+    fn from_value(
+        __value: dynamic_graphql::Result<dynamic_graphql::dynamic::ValueAccessor>,
+    ) -> dynamic_graphql::internal::InputValueResult<Self> {
+        let __value = __value?;
+        let __object = __value.object()?;
+        let field0 = dynamic_graphql::internal::FromValue::from_value(
+                __object.try_get("string"),
+            )
+            .map_err(|e| e.into_field_error("string"))?;
+        Ok(Self { string: field0 })
+    }
+}
+
+```

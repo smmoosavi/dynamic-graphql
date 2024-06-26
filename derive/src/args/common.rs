@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 pub use args::*;
 pub use clippy_error::impl_suppress_tupple_clippy_error;
 pub use fields::*;
@@ -274,7 +272,7 @@ where
     A: CommonArg,
 {
     let mut errors = Vec::new();
-    let mut types = HashSet::new();
+    let mut types = Vec::new();
 
     let fields = object.get_fields()?;
     fields
@@ -293,13 +291,17 @@ where
                     if is_arg_ctx(arg) {
                         return;
                     }
-                    types.insert(&ty.ty);
+                    if !types.contains(&&ty.ty) {
+                        types.push(&ty.ty);
+                    }
                 }
             });
             let ty = field.get_type();
             match ty {
                 Ok(ty) => {
-                    types.insert(ty);
+                    if !types.contains(&ty) {
+                        types.push(ty);
+                    }
                 }
                 Err(err) => errors.push(err),
             };

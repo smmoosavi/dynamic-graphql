@@ -1,0 +1,124 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+struct MutationRoot;
+
+impl dynamic_graphql::internal::ParentType for MutationRoot {
+    type Type = MutationRoot;
+}
+impl dynamic_graphql::internal::TypeName for MutationRoot {
+    fn get_type_name() -> std::borrow::Cow<'static, str> {
+        "MutationRoot".into()
+    }
+}
+impl dynamic_graphql::internal::OutputTypeName for MutationRoot {}
+impl dynamic_graphql::internal::Object for MutationRoot {}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveOwned<'__dynamic_graphql_lifetime> for MutationRoot {
+    fn resolve_owned(
+        self,
+        _ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        Ok(Some(dynamic_graphql::FieldValue::owned_any(self)))
+    }
+}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveRef<'__dynamic_graphql_lifetime> for MutationRoot {
+    fn resolve_ref(
+        &'__dynamic_graphql_lifetime self,
+        _ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        Ok(Some(dynamic_graphql::FieldValue::borrowed_any(self)))
+    }
+}
+impl MutationRoot {}
+impl dynamic_graphql::internal::Register for MutationRoot {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry
+            .set_mutation(
+                <Self as dynamic_graphql::internal::Object>::get_object_type_name()
+                    .as_ref(),
+            );
+        let object = dynamic_graphql::dynamic::Object::new(
+            <Self as dynamic_graphql::internal::Object>::get_object_type_name().as_ref(),
+        );
+        registry.register_type(object)
+    }
+}
+
+
+struct MyMutation(MutationRoot);
+
+impl MyMutation {
+    fn __registers(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        registry
+    }
+}
+impl dynamic_graphql::internal::ParentType for MyMutation {
+    type Type = MutationRoot;
+}
+impl dynamic_graphql::internal::ExpandObject for MyMutation {
+    fn get_expand_object_name() -> std::borrow::Cow<'static, str> {
+        "MyMutation".into()
+    }
+}
+impl dynamic_graphql::internal::Mutation for MyMutation {}
+impl dynamic_graphql::internal::RegisterFns for MyMutation {
+    const REGISTER_FNS: &'static [fn(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry] = &[MyMutation::__registers];
+}
+
+
+impl MyMutation {
+    fn the_example() -> String {
+        "field".to_string()
+    }
+}
+
+impl dynamic_graphql::internal::Register for MyMutation {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry.register::<String>();
+        let registry = <Self as dynamic_graphql::internal::RegisterFns>::REGISTER_FNS
+            .iter()
+            .fold(registry, |registry, f| f(registry));
+        let field = dynamic_graphql::dynamic::Field::new(
+            "theExample",
+            <String as dynamic_graphql::internal::GetOutputTypeRef>::get_output_type_ref(),
+            |ctx| {
+                dynamic_graphql::dynamic::FieldFuture::new(async move {
+                    let value = MyMutation::the_example();
+                    dynamic_graphql::internal::Resolve::resolve(value, &ctx)
+                })
+            },
+        );
+        let __field_0 = field;
+        registry
+            .update_object(
+                <<Self as dynamic_graphql::internal::ParentType>::Type as dynamic_graphql::internal::Object>::get_object_type_name()
+                    .as_ref(),
+                <Self as dynamic_graphql::internal::ExpandObject>::get_expand_object_name()
+                    .as_ref(),
+                |object| {
+                    let object = object.field(__field_0);
+                    object
+                },
+            )
+    }
+}
+
+```

@@ -1,0 +1,33 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+struct App(QueryRoot, PostApp);
+
+impl dynamic_graphql::internal::Register for App {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry.register::<QueryRoot>();
+        let registry = registry.register::<PostApp>();
+        registry
+    }
+}
+impl App {
+    pub fn create_schema() -> dynamic_graphql::dynamic::SchemaBuilder {
+        let registry = dynamic_graphql::internal::Registry::new();
+        let registry = registry.register::<Self>();
+        registry.create_schema()
+    }
+}
+impl App {
+    #[allow(dead_code)]
+    #[doc(hidden)]
+    fn __suppress_clippy_error(&self) {
+        let _ = self.0;
+        let _ = self.1;
+    }
+}
+
+```

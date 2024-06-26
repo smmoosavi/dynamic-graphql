@@ -1,0 +1,73 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+struct Example {
+    pub field: String,
+}
+
+impl dynamic_graphql::internal::ParentType for Example {
+    type Type = Example;
+}
+impl dynamic_graphql::internal::TypeName for Example {
+    fn get_type_name() -> std::borrow::Cow<'static, str> {
+        "Example".into()
+    }
+}
+impl dynamic_graphql::internal::OutputTypeName for Example {}
+impl dynamic_graphql::internal::Object for Example {}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveOwned<'__dynamic_graphql_lifetime> for Example {
+    fn resolve_owned(
+        self,
+        _ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        Ok(Some(dynamic_graphql::FieldValue::owned_any(self)))
+    }
+}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveRef<'__dynamic_graphql_lifetime> for Example {
+    fn resolve_ref(
+        &'__dynamic_graphql_lifetime self,
+        _ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        Ok(Some(dynamic_graphql::FieldValue::borrowed_any(self)))
+    }
+}
+impl Example {
+    fn __resolve_field(&self) -> &String {
+        &self.field
+    }
+}
+impl dynamic_graphql::internal::Register for Example {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry.register::<String>();
+        let object = dynamic_graphql::dynamic::Object::new(
+            <Self as dynamic_graphql::internal::Object>::get_object_type_name().as_ref(),
+        );
+        let field = dynamic_graphql::dynamic::Field::new(
+            "field",
+            <String as dynamic_graphql::internal::GetOutputTypeRef>::get_output_type_ref(),
+            |ctx| {
+                dynamic_graphql::dynamic::FieldFuture::new(async move {
+                    let parent = ctx.parent_value.try_downcast_ref::<Self>()?;
+                    let value = Self::__resolve_field(parent);
+                    dynamic_graphql::internal::Resolve::resolve(value, &ctx)
+                })
+            },
+        );
+        let object = object.field(field);
+        registry.register_type(object)
+    }
+}
+
+```

@@ -21,7 +21,7 @@ pub fn impl_suppress_tupple_clippy_error(
          impl #impl_generics #ident #ty_generics #where_clause {
              #[allow(dead_code)]
              #[doc(hidden)]
-             fn _suppress_clippy_error(&self) {
+             fn __suppress_clippy_error(&self) {
                  #accesses
              }
          }

@@ -1,0 +1,75 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+trait Node {
+    fn id(&self) -> String;
+}
+
+
+impl dynamic_graphql::internal::TypeName for dyn Node {
+    fn get_type_name() -> std::borrow::Cow<'static, str> {
+        "Node".into()
+    }
+}
+impl dynamic_graphql::internal::OutputTypeName for dyn Node {}
+impl dynamic_graphql::internal::Interface for dyn Node {}
+impl dynamic_graphql::internal::Register for dyn Node {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry.register::<String>();
+        let object = dynamic_graphql::dynamic::Interface::new(
+            <Self as dynamic_graphql::internal::Interface>::get_interface_type_name()
+                .as_ref(),
+        );
+        let field = dynamic_graphql::dynamic::InterfaceField::new(
+            "id",
+            <String as dynamic_graphql::internal::GetOutputTypeRef>::get_output_type_ref(),
+        );
+        let object = object.field(field);
+        registry.register_type(object)
+    }
+}
+impl<T> dynamic_graphql::internal::RegisterInstance<dyn Node, T> for dyn Node
+where
+    T: Node + dynamic_graphql::internal::Object + 'static,
+    T: Send + Sync,
+{
+    fn register_instance(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let field = dynamic_graphql::dynamic::Field::new(
+            "id",
+            <String as dynamic_graphql::internal::GetOutputTypeRef>::get_output_type_ref(),
+            |ctx| {
+                dynamic_graphql::dynamic::FieldFuture::new(async move {
+                    let parent = ctx.parent_value.try_downcast_ref::<T>()?;
+                    let arg0 = parent;
+                    let value = T::id(arg0);
+                    dynamic_graphql::internal::Resolve::resolve(value, &ctx)
+                })
+            },
+        );
+        let __field_0 = field;
+        registry
+            .update_object(
+                <T as dynamic_graphql::internal::Object>::get_object_type_name()
+                    .as_ref(),
+                <dyn Node as dynamic_graphql::internal::Interface>::get_interface_type_name()
+                    .as_ref(),
+                |object| {
+                    let object = object.field(__field_0);
+                    let object = object
+                        .implement(
+                            <dyn Node as dynamic_graphql::internal::Interface>::get_interface_type_name()
+                                .as_ref(),
+                        );
+                    object
+                },
+            )
+    }
+}
+
+```
