@@ -1,0 +1,115 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+enum Animal {
+    Dog(Dog),
+    Cat(Cat),
+}
+
+impl dynamic_graphql::internal::TypeName for Animal {
+    fn get_type_name() -> std::borrow::Cow<'static, str> {
+        "Animal".into()
+    }
+}
+impl dynamic_graphql::internal::OutputTypeName for Animal {}
+impl dynamic_graphql::internal::Union for Animal {}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveOwned<'__dynamic_graphql_lifetime> for Animal {
+    fn resolve_owned(
+        self,
+        ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        match self {
+            Animal::Dog(value) => {
+                dynamic_graphql::internal::Resolve::resolve(value, ctx)
+                    .map(|value| {
+                        value
+                            .map(|value| {
+                                value
+                                    .with_type(
+                                        <Dog as dynamic_graphql::internal::Object>::get_object_type_name(),
+                                    )
+                            })
+                    })
+            }
+            Animal::Cat(value) => {
+                dynamic_graphql::internal::Resolve::resolve(value, ctx)
+                    .map(|value| {
+                        value
+                            .map(|value| {
+                                value
+                                    .with_type(
+                                        <Cat as dynamic_graphql::internal::Object>::get_object_type_name(),
+                                    )
+                            })
+                    })
+            }
+        }
+    }
+}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveRef<'__dynamic_graphql_lifetime> for Animal {
+    fn resolve_ref(
+        &'__dynamic_graphql_lifetime self,
+        ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        match self {
+            Animal::Dog(value) => {
+                dynamic_graphql::internal::Resolve::resolve(value, ctx)
+                    .map(|value| {
+                        value
+                            .map(|value| {
+                                value
+                                    .with_type(
+                                        <Dog as dynamic_graphql::internal::Object>::get_object_type_name(),
+                                    )
+                            })
+                    })
+            }
+            Animal::Cat(value) => {
+                dynamic_graphql::internal::Resolve::resolve(value, ctx)
+                    .map(|value| {
+                        value
+                            .map(|value| {
+                                value
+                                    .with_type(
+                                        <Cat as dynamic_graphql::internal::Object>::get_object_type_name(),
+                                    )
+                            })
+                    })
+            }
+        }
+    }
+}
+impl dynamic_graphql::internal::Register for Animal {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry.register::<Dog>();
+        let registry = registry.register::<Cat>();
+        let object = dynamic_graphql::dynamic::Union::new(
+            <Self as dynamic_graphql::internal::Union>::get_union_type_name().as_ref(),
+        );
+        let object = object
+            .possible_type(
+                <Dog as dynamic_graphql::internal::Object>::get_object_type_name()
+                    .as_ref(),
+            );
+        let object = object
+            .possible_type(
+                <Cat as dynamic_graphql::internal::Object>::get_object_type_name()
+                    .as_ref(),
+            );
+        registry.register_type(object)
+    }
+}
+
+```

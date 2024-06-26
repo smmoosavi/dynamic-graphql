@@ -1,0 +1,68 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+struct Example;
+
+impl dynamic_graphql::internal::TypeName for Example {
+    fn get_type_name() -> std::borrow::Cow<'static, str> {
+        "Example".into()
+    }
+}
+impl dynamic_graphql::internal::OutputTypeName for Example {}
+impl dynamic_graphql::internal::InputTypeName for Example {}
+impl dynamic_graphql::internal::Scalar for Example {}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveOwned<'__dynamic_graphql_lifetime> for Example {
+    fn resolve_owned(
+        self,
+        _ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        let value = dynamic_graphql::ScalarValue::to_value(&self);
+        Ok(Some(dynamic_graphql::FieldValue::value(value)))
+    }
+}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveRef<'__dynamic_graphql_lifetime> for Example {
+    fn resolve_ref(
+        &'__dynamic_graphql_lifetime self,
+        _ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        let value = dynamic_graphql::ScalarValue::to_value(self);
+        Ok(Some(dynamic_graphql::FieldValue::value(value)))
+    }
+}
+impl dynamic_graphql::internal::FromValue for Example {
+    fn from_value(
+        value: dynamic_graphql::Result<dynamic_graphql::dynamic::ValueAccessor>,
+    ) -> dynamic_graphql::internal::InputValueResult<Self> {
+        let value = value?.as_value().clone();
+        Ok(dynamic_graphql::ScalarValue::from_value(value)?)
+    }
+}
+impl dynamic_graphql::internal::Register for Example {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let object = dynamic_graphql::dynamic::Scalar::new(
+            <Self as dynamic_graphql::internal::Scalar>::get_scalar_type_name().as_ref(),
+        );
+        registry.register_type(object)
+    }
+}
+impl Example {
+    #[allow(dead_code)]
+    #[doc(hidden)]
+    fn __suppress_clippy_error(&self) {
+        let _ = self.0;
+    }
+}
+
+```

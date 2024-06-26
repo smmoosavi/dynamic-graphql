@@ -1,0 +1,93 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+enum Example {
+    Foo,
+    Bar,
+}
+
+impl dynamic_graphql::internal::TypeName for Example {
+    fn get_type_name() -> std::borrow::Cow<'static, str> {
+        "Example".into()
+    }
+}
+impl dynamic_graphql::internal::InputTypeName for Example {}
+impl dynamic_graphql::internal::OutputTypeName for Example {}
+impl dynamic_graphql::internal::Enum for Example {}
+impl From<&Example> for dynamic_graphql::Value {
+    fn from(value: &Example) -> Self {
+        match value {
+            Example::Foo => {
+                dynamic_graphql::Value::Enum(dynamic_graphql::Name::new("FOO"))
+            }
+            Example::Bar => {
+                dynamic_graphql::Value::Enum(dynamic_graphql::Name::new("BAR"))
+            }
+        }
+    }
+}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveOwned<'__dynamic_graphql_lifetime> for Example {
+    fn resolve_owned(
+        self,
+        _ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        Ok(Some(dynamic_graphql::FieldValue::value(&self)))
+    }
+}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveRef<'__dynamic_graphql_lifetime> for Example {
+    fn resolve_ref(
+        &'__dynamic_graphql_lifetime self,
+        _ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        Ok(Some(dynamic_graphql::FieldValue::value(self)))
+    }
+}
+impl dynamic_graphql::internal::FromValue for Example {
+    fn from_value(
+        __value: dynamic_graphql::Result<dynamic_graphql::dynamic::ValueAccessor>,
+    ) -> dynamic_graphql::internal::InputValueResult<Self> {
+        let __value = __value?;
+        let string_value = __value.enum_name()?;
+        match string_value {
+            "FOO" => Ok(Example::Foo),
+            "BAR" => Ok(Example::Bar),
+            _ => {
+                Err(
+                    dynamic_graphql::internal::InputValueError::custom(
+                        format!(
+                            "Unknown variant `{}` for enum `{}`", string_value, < Example
+                            as dynamic_graphql::internal::Enum > ::get_enum_type_name()
+                            .as_ref()
+                        ),
+                    ),
+                )
+            }
+        }
+    }
+}
+impl dynamic_graphql::internal::Register for Example {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let object = dynamic_graphql::dynamic::Enum::new(
+            <Example as dynamic_graphql::internal::Enum>::get_enum_type_name().as_ref(),
+        );
+        let field = dynamic_graphql::dynamic::EnumItem::new("FOO");
+        let object = object.item(field);
+        let field = dynamic_graphql::dynamic::EnumItem::new("BAR");
+        let object = object.item(field);
+        registry.register_type(object)
+    }
+}
+
+```

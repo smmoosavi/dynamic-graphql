@@ -1,0 +1,90 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+struct ExampleQuery<'a>(&'a Query);
+
+impl<'a> ExampleQuery<'a> {
+    fn __registers(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        registry
+    }
+}
+impl<'a> dynamic_graphql::internal::ParentType for ExampleQuery<'a> {
+    type Type = Query;
+}
+impl<'a> dynamic_graphql::internal::ExpandObject for ExampleQuery<'a> {
+    fn get_expand_object_name() -> std::borrow::Cow<'static, str> {
+        "ExampleQuery".into()
+    }
+}
+impl<'a> From<&'a Query> for ExampleQuery<'a> {
+    fn from(target: &'a Query) -> Self {
+        Self(target)
+    }
+}
+impl<'a> dynamic_graphql::internal::RegisterFns for ExampleQuery<'a> {
+    const REGISTER_FNS: &'static [fn(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry] = &[ExampleQuery::<'a>::__registers];
+}
+impl<'a> ExampleQuery<'a> {
+    #[allow(dead_code)]
+    #[doc(hidden)]
+    fn __suppress_clippy_error(&self) {
+        let _ = self.0;
+    }
+}
+
+
+impl ExampleQuery<'_> {
+    fn the_example(&self) -> Example {
+        Example {
+            field: "field".to_string(),
+        }
+    }
+}
+
+impl dynamic_graphql::internal::Register for ExampleQuery<'_> {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry.register::<Example>();
+        let registry = <Self as dynamic_graphql::internal::RegisterFns>::REGISTER_FNS
+            .iter()
+            .fold(registry, |registry, f| f(registry));
+        let field = dynamic_graphql::dynamic::Field::new(
+            "theExample",
+            <Example as dynamic_graphql::internal::GetOutputTypeRef>::get_output_type_ref(),
+            |ctx| {
+                dynamic_graphql::dynamic::FieldFuture::new(async move {
+                    let parent = ctx
+                        .parent_value
+                        .try_downcast_ref::<
+                            <Self as dynamic_graphql::internal::ParentType>::Type,
+                        >()?
+                        .into();
+                    let arg0 = &parent;
+                    let value = ExampleQuery::the_example(arg0);
+                    dynamic_graphql::internal::Resolve::resolve(value, &ctx)
+                })
+            },
+        );
+        let __field_0 = field;
+        registry
+            .update_object(
+                <<Self as dynamic_graphql::internal::ParentType>::Type as dynamic_graphql::internal::Object>::get_object_type_name()
+                    .as_ref(),
+                <Self as dynamic_graphql::internal::ExpandObject>::get_expand_object_name()
+                    .as_ref(),
+                |object| {
+                    let object = object.field(__field_0);
+                    object
+                },
+            )
+    }
+}
+
+```

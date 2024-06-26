@@ -28,6 +28,8 @@ tempfile = "3"
 async-stream = "0.3"
 futures-util = "0.3"
 insta={version="1",features=["json"]}
+prettier-please="0.2"
+unindent = "0.2"
 
 [lib]
 proc-macro = true

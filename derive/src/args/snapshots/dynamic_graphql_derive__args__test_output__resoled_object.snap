@@ -1,0 +1,131 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+struct Example {
+    pub field: String,
+}
+
+impl Example {
+    fn __registers(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        registry
+    }
+}
+impl dynamic_graphql::internal::ParentType for Example {
+    type Type = Example;
+}
+impl dynamic_graphql::internal::TypeName for Example {
+    fn get_type_name() -> std::borrow::Cow<'static, str> {
+        "Example".into()
+    }
+}
+impl dynamic_graphql::internal::OutputTypeName for Example {}
+impl dynamic_graphql::internal::Object for Example {}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveOwned<'__dynamic_graphql_lifetime> for Example {
+    fn resolve_owned(
+        self,
+        _ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        Ok(Some(dynamic_graphql::FieldValue::owned_any(self)))
+    }
+}
+impl<
+    '__dynamic_graphql_lifetime,
+> dynamic_graphql::internal::ResolveRef<'__dynamic_graphql_lifetime> for Example {
+    fn resolve_ref(
+        &'__dynamic_graphql_lifetime self,
+        _ctx: &dynamic_graphql::Context,
+    ) -> dynamic_graphql::Result<
+        Option<dynamic_graphql::FieldValue<'__dynamic_graphql_lifetime>>,
+    > {
+        Ok(Some(dynamic_graphql::FieldValue::borrowed_any(self)))
+    }
+}
+impl Example {
+    fn __register_doc(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        registry
+    }
+}
+impl Example {
+    fn __register_interface(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry
+            .update_object(
+                <Self as dynamic_graphql::internal::Object>::get_object_type_name()
+                    .as_ref(),
+                <Self as dynamic_graphql::internal::Object>::get_object_type_name()
+                    .as_ref(),
+                |object| { object },
+            );
+        registry
+    }
+}
+impl Example {
+    fn __register_root(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        registry
+    }
+}
+impl dynamic_graphql::internal::RegisterFns for Example {
+    const REGISTER_FNS: &'static [fn(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry] = &[
+        Example::__register_interface,
+        Example::__register_root,
+        Example::__register_doc,
+        Example::__registers,
+    ];
+}
+
+
+impl Example {
+    fn field(&self) -> &str {
+        &self.field
+    }
+}
+
+impl dynamic_graphql::internal::Register for Example {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry.register::<&str>();
+        let object = dynamic_graphql::dynamic::Object::new(
+            <Self as dynamic_graphql::internal::Object>::get_object_type_name().as_ref(),
+        );
+        let field = dynamic_graphql::dynamic::Field::new(
+            "field",
+            <&str as dynamic_graphql::internal::GetOutputTypeRef>::get_output_type_ref(),
+            |ctx| {
+                dynamic_graphql::dynamic::FieldFuture::new(async move {
+                    let parent = ctx
+                        .parent_value
+                        .try_downcast_ref::<
+                            <Self as dynamic_graphql::internal::ParentType>::Type,
+                        >()?
+                        .into();
+                    let arg0 = parent;
+                    let value = Self::field(arg0);
+                    dynamic_graphql::internal::Resolve::resolve(value, &ctx)
+                })
+            },
+        );
+        let object = object.field(field);
+        let registry = <Self as dynamic_graphql::internal::RegisterFns>::REGISTER_FNS
+            .iter()
+            .fold(registry, |registry, f| f(registry));
+        registry.register_type(object)
+    }
+}
+
+```

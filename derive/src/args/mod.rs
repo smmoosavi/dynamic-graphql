@@ -27,4 +27,6 @@ mod resolved_object;
 mod resolved_object_fields;
 mod scalar;
 mod simple_object;
+#[cfg(test)]
+mod test_output;
 mod union;
