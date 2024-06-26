@@ -39,6 +39,7 @@ mod root;
 
 #[derive(Debug, Clone)]
 pub struct InterfaceArg {
+    #[allow(dead_code)]
     pub ident: syn::Ident,
 }
 

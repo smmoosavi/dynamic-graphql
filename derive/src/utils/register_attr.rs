@@ -11,6 +11,7 @@ use crate::utils::meta_match::MatchNestedMetaList;
 #[derive(Debug, Clone)]
 pub struct RegisterAttr {
     pub path: syn::Path,
+    #[allow(dead_code)]
     pub span: Span,
 }
 

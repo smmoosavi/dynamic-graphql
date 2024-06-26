@@ -1,3 +1,4 @@
+#![allow(clippy::manual_unwrap_or_default)]
 extern crate core;
 extern crate proc_macro;
 

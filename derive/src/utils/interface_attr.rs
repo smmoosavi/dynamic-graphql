@@ -9,12 +9,14 @@ use crate::utils::meta_match::MatchNestedMetaList;
 #[derive(Debug, Clone)]
 pub struct InterfaceMarkAttr {
     pub path: syn::Path,
+    #[allow(dead_code)]
     pub span: Span,
 }
 
 #[derive(Debug, Clone)]
 pub struct InterfaceImplAttr {
     pub path: syn::Path,
+    #[allow(dead_code)]
     pub span: Span,
 }
 
