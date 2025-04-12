@@ -246,14 +246,10 @@ fn test_schema_description() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
-    """
-      the interface
-    """
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
+    "the interface"
     interface Node {
-      """
-        the id
-      """
+      "the id"
       theId: String!
     }
 
@@ -268,7 +264,7 @@ fn test_schema_description() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 #[test]

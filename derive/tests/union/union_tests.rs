@@ -284,7 +284,7 @@ fn test_schema_with_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Cat {
       name: String!
       life: Int!
@@ -295,9 +295,7 @@ fn test_schema_with_doc() {
       power: Int!
     }
 
-    """
-      Some animal
-    """
+    "Some animal"
     union Other = Dog | Cat
 
     type Query {
@@ -311,7 +309,7 @@ fn test_schema_with_doc() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 #[tokio::test]

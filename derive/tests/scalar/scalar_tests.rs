@@ -279,10 +279,8 @@ fn test_schema_with_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
-    """
-      this is my special string
-    """
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
+    "this is my special string"
     scalar MyString
 
     type Query {
@@ -296,7 +294,7 @@ fn test_schema_with_doc() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 #[test]

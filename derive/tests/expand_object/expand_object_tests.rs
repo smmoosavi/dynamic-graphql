@@ -310,16 +310,14 @@ fn test_schema_with_description() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Example {
       field: String!
     }
 
     type Query {
       foo: String!
-      """
-        this is the example
-      """
+      "this is the example"
       theExample: Example!
     }
 
@@ -330,7 +328,7 @@ fn test_schema_with_description() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 #[tokio::test]

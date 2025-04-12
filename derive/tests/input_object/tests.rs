@@ -304,14 +304,10 @@ fn test_schema_with_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
-    """
-      the example input object
-    """
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
+    "the example input object"
     input ExampleInput {
-      """
-        the string input field
-      """ string: String!
+      "the string input field" string: String!
     }
 
     type Query {
@@ -325,7 +321,7 @@ fn test_schema_with_doc() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 #[tokio::test]

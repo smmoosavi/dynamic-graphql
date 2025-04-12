@@ -235,15 +235,11 @@ let schema = App::create_schema().finish().unwrap();
 assert_eq!(
     normalize_schema(&schema.sdl()),
     r#"
-"""
-  the query
-"""
+"the query"
 type Query {
   secondField: Int! @deprecated
   thirdField: Int! @deprecated(reason: "the old one")
-  """
-    the fourth field
-  """
+  "the fourth field"
   fourthField: Int!
 }
 

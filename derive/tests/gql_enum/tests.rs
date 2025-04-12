@@ -413,14 +413,10 @@ async fn test_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
-    """
-      the example enum
-    """
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
+    "the example enum"
     enum Example {
-      """
-        the foo item
-      """ FOO
+      "the foo item" FOO
       BAR
     }
 
@@ -436,7 +432,7 @@ async fn test_doc() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 mod in_mod {

@@ -230,10 +230,8 @@ fn test_schema_with_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
-    """
-      The Root of all Mutations
-    """
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
+    "The Root of all Mutations"
     type MutationRoot {
       theExample: String!
     }
@@ -250,7 +248,7 @@ fn test_schema_with_doc() {
       query: Query
       mutation: MutationRoot
     }
-    "###);
+    "#);
 }
 
 #[tokio::test]
