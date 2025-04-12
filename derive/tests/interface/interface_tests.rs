@@ -51,7 +51,7 @@ fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     interface Node {
       theId: String!
     }
@@ -67,7 +67,7 @@ fn test_schema() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -91,7 +91,7 @@ fn test_schema_with_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     interface Other {
       id: String!
     }
@@ -107,7 +107,7 @@ fn test_schema_with_name() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -155,7 +155,7 @@ fn test_schema_with_type_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type BarNode implements Other {
       theId: String!
     }
@@ -179,7 +179,7 @@ fn test_schema_with_type_name() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -205,7 +205,7 @@ fn test_schema_with_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     interface Node {
       id: String!
       the_id: String!
@@ -222,7 +222,7 @@ fn test_schema_with_rename() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -290,7 +290,7 @@ fn test_schema_with_deprecation() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     interface Node {
       theId: String! @deprecated
       old: String! @deprecated(reason: "deprecated")
@@ -307,7 +307,7 @@ fn test_schema_with_deprecation() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 #[test]
@@ -332,7 +332,7 @@ fn test_schema_with_skip() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     interface Node {
       theId: String!
     }
@@ -348,7 +348,7 @@ fn test_schema_with_skip() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[tokio::test]
@@ -386,7 +386,7 @@ async fn test_auto_register() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Bar {
       id: String!
     }
@@ -410,7 +410,7 @@ async fn test_auto_register() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[tokio::test]
@@ -467,7 +467,7 @@ async fn test_auto_register_instance() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Foo {
       id: String!
     }
@@ -488,7 +488,7 @@ async fn test_auto_register_instance() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 mod in_mod {
@@ -557,7 +557,7 @@ mod in_mod {
             let schema = App::create_schema().finish().unwrap();
 
             let sdl = schema.sdl();
-            insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+            insta::assert_snapshot!(normalize_schema(&sdl), @r"
             type Bar implements Node {
               id: String!
               other: String!
@@ -584,7 +584,7 @@ mod in_mod {
             schema {
               query: Query
             }
-            "###);
+            ");
 
             let query = r#"
                 query {

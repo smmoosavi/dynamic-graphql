@@ -28,7 +28,7 @@ async fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       hello(names: [String!]!): String!
       helloWithRef(names: [String!]!): String!
@@ -41,7 +41,7 @@ async fn test_schema() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {
@@ -96,7 +96,7 @@ async fn test_schema_optional_arg() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       helloWithOptionalArg(names: [String!]): String!
       helloWithOptionalArgRef(names: [String!]): String!
@@ -109,7 +109,7 @@ async fn test_schema_optional_arg() {
     schema {
       query: Query
     }
-    "###);
+    ");
     let query = r#"
         query($names: [String!]) {
             helloWithOptionalArg(names: $names)
@@ -181,7 +181,7 @@ async fn test_schema_optional_item() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       helloWithOptionalItem(names: [String]!): String!
       helloWithOptionalItemRef(names: [String]!): String!
@@ -194,7 +194,7 @@ async fn test_schema_optional_item() {
     schema {
       query: Query
     }
-    "###);
+    ");
     let query = r#"
         query {
             helloWithOptionalItem(names: ["world", null, "rust"])
@@ -256,7 +256,7 @@ async fn test_schema_optional_item_and_arg() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       helloWithOptionalItemAndArg(names: [String]): String!
       helloWithOptionalItemAndArgRef(names: [String]): String!
@@ -269,7 +269,7 @@ async fn test_schema_optional_item_and_arg() {
     schema {
       query: Query
     }
-    "###);
+    ");
     let query = r#"
         query($names: [String]) {
             helloWithOptionalItemAndArg(names: $names)

@@ -88,7 +88,7 @@ async fn test_base_list() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Foo {
       value: String!
     }
@@ -108,7 +108,7 @@ async fn test_base_list() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {

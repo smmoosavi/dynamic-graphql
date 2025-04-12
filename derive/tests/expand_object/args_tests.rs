@@ -46,7 +46,7 @@ fn test_schema() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       foo: String!
       withoutSelf: String!
@@ -63,7 +63,7 @@ fn test_schema() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -108,7 +108,7 @@ fn test_schema_with_ctx() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       foo: String!
       withoutUnderline: String!
@@ -126,7 +126,7 @@ fn test_schema_with_ctx() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -160,7 +160,7 @@ fn test_schema_rename_args() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       foo: String!
       withArg(THE_NAME: String!, foo: String!): String!
@@ -174,7 +174,7 @@ fn test_schema_rename_args() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -206,7 +206,7 @@ fn test_schema_with_arg_ref() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       foo: String!
       withoutStringRef(name: String!): String!
@@ -220,7 +220,7 @@ fn test_schema_with_arg_ref() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -255,7 +255,7 @@ fn test_schema_with_arg_option() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       foo: String!
       withoutOption(name: String!): String!
@@ -270,7 +270,7 @@ fn test_schema_with_arg_option() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[tokio::test]

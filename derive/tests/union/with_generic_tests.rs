@@ -92,7 +92,7 @@ async fn test_query_simple_generic() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Bar {
       bar: String!
     }
@@ -122,7 +122,7 @@ async fn test_query_simple_generic() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {

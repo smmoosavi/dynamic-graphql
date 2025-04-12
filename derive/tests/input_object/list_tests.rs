@@ -37,7 +37,7 @@ async fn test_maybe_undefined() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     input ExampleInput {
       theString: String
     }
@@ -53,7 +53,7 @@ async fn test_maybe_undefined() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query($input: ExampleInput) {
@@ -125,7 +125,7 @@ async fn test_option() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     input ExampleInput {
       theString: String
     }
@@ -141,7 +141,7 @@ async fn test_option() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query($input: ExampleInput) {
@@ -207,7 +207,7 @@ async fn test_unset() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     input ExampleInput {
       theString: String
     }
@@ -223,7 +223,7 @@ async fn test_unset() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query($input: ExampleInput) {
@@ -293,7 +293,7 @@ async fn test_list() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     input ExampleInput {
       names: [String!]!
     }
@@ -309,7 +309,7 @@ async fn test_list() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query($input: ExampleInput) {
@@ -373,7 +373,7 @@ async fn test_optional_list() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     input ExampleInput {
       names: [String!]
     }
@@ -389,7 +389,7 @@ async fn test_optional_list() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query($input: ExampleInput!) {
@@ -464,7 +464,7 @@ async fn test_optional_items() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     input ExampleInput {
       names: [String]!
     }
@@ -480,7 +480,7 @@ async fn test_optional_items() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query($input: ExampleInput!) {
@@ -548,7 +548,7 @@ async fn test_optional_items_and_value() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     input ExampleInput {
       names: [String]
     }
@@ -564,7 +564,7 @@ async fn test_optional_items_and_value() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query($input: ExampleInput!) {

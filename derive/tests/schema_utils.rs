@@ -24,7 +24,7 @@ mod tests {
 
             schema { query: Query }
         ";
-        insta::assert_snapshot!(normalize_schema(sdl), @r###"
+        insta::assert_snapshot!(normalize_schema(sdl), @r"
         type Query {
           hello: String!
           nice: String!
@@ -34,6 +34,6 @@ mod tests {
         schema {
           query: Query
         }
-        "###);
+        ");
     }
 }

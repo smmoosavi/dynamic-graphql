@@ -36,7 +36,7 @@ async fn test_list() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       strings: [String!]!
       newStrings: [String!]!
@@ -51,7 +51,7 @@ async fn test_list() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {
@@ -125,7 +125,7 @@ async fn test_list_object() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Item {
       name: String!
     }
@@ -144,7 +144,7 @@ async fn test_list_object() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {
@@ -210,7 +210,7 @@ async fn test_optional_list() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       maybeListOfStrings: [String!]
       newMaybeListOfStrings: [String!]
@@ -223,7 +223,7 @@ async fn test_optional_list() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {
@@ -285,7 +285,7 @@ async fn test_list_of_optional() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       listOfMaybeStrings: [String]!
       newListOfMaybeStrings: [String]!
@@ -299,7 +299,7 @@ async fn test_list_of_optional() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {
@@ -351,7 +351,7 @@ async fn test_optional_list_of_optional() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       maybeListOfMaybeStrings: [String]
       newMaybeListOfMaybeStrings: [String]
@@ -364,7 +364,7 @@ async fn test_optional_list_of_optional() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {

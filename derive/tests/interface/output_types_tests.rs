@@ -62,7 +62,7 @@ async fn interface_string_ref_types() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type FooNode implements Node {
       otherField: String!
       idRef: String!
@@ -89,7 +89,7 @@ async fn interface_string_ref_types() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
 
@@ -184,7 +184,7 @@ async fn interface_object_ref_types() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Bar {
       value: String!
     }
@@ -215,7 +215,7 @@ async fn interface_object_ref_types() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
 

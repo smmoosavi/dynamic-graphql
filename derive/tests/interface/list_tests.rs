@@ -47,7 +47,7 @@ async fn test_interface_as_optional_value() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type FooNode implements Node {
       otherField: String!
       theId: String!
@@ -68,7 +68,7 @@ async fn test_interface_as_optional_value() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
 
@@ -152,7 +152,7 @@ async fn test_interface_as_list_value() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type BarNode implements Node {
       anotherField: String!
       theId: String!
@@ -178,7 +178,7 @@ async fn test_interface_as_list_value() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
 
