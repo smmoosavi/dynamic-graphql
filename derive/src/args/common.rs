@@ -233,11 +233,30 @@ pub fn get_input_type_ref_code(field: &impl CommonField) -> darling::Result<Toke
     })
 }
 
+pub fn get_optional_input_type_ref_code(field: &impl CommonField) -> darling::Result<TokenStream> {
+    let crate_name = get_crate_name();
+    let field_type = get_owned_type(field.get_type()?);
+    Ok(quote! {
+        <#field_type as #crate_name::internal::GetInputTypeRef>::get_input_type_ref().optional()
+    })
+}
+
 pub fn get_new_input_value_code(field: &impl CommonField) -> darling::Result<TokenStream> {
     // todo get "field" from input
     let crate_name = get_crate_name();
     let field_name = get_input_field_name(field)?;
     let get_input_type_ref_code = get_input_type_ref_code(field)?;
+
+    Ok(quote! {
+        let field = #crate_name::dynamic::InputValue::new(#field_name, #get_input_type_ref_code);
+    })
+}
+
+pub fn get_new_optional_input_value_code(field: &impl CommonField) -> darling::Result<TokenStream> {
+    // todo get "field" from input
+    let crate_name = get_crate_name();
+    let field_name = get_input_field_name(field)?;
+    let get_input_type_ref_code = get_optional_input_type_ref_code(field)?;
 
     Ok(quote! {
         let field = #crate_name::dynamic::InputValue::new(#field_name, #get_input_type_ref_code);

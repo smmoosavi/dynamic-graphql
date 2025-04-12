@@ -4,6 +4,7 @@ use unindent::Unindent;
 
 use super::*;
 use crate::FromItemTrait;
+use crate::args::one_of_input::OneOfInput;
 use crate::utils::impl_block::FromItemImpl;
 
 fn pretty_expand(tokens: impl quote::ToTokens) -> String {
@@ -108,6 +109,20 @@ fn test_input_object() {
     "#;
 
     let pretty = pretty_derive::<InputObject>(input);
+    let output = md(&[&pretty]);
+    insta::assert_snapshot!(output);
+}
+
+#[test]
+fn test_one_of_input() {
+    let input = r#"
+        enum ExampleInput {
+            Str(String),
+            Int(u16),
+        }
+    "#;
+
+    let pretty = pretty_derive::<OneOfInput>(input);
     let output = md(&[&pretty]);
     insta::assert_snapshot!(output);
 }

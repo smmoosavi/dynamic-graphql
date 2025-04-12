@@ -1,0 +1,68 @@
+---
+source: derive/src/args/test_output.rs
+expression: output
+---
+```rust
+enum ExampleInput {
+    Str(String),
+    Int(u16),
+}
+
+impl dynamic_graphql::internal::TypeName for ExampleInput {
+    fn get_type_name() -> std::borrow::Cow<'static, str> {
+        "ExampleInput".into()
+    }
+}
+impl dynamic_graphql::internal::InputTypeName for ExampleInput {}
+impl dynamic_graphql::internal::InputObject for ExampleInput {}
+impl dynamic_graphql::internal::Register for ExampleInput {
+    fn register(
+        registry: dynamic_graphql::internal::Registry,
+    ) -> dynamic_graphql::internal::Registry {
+        let registry = registry.register::<String>();
+        let registry = registry.register::<u16>();
+        let object = dynamic_graphql::dynamic::InputObject::new(
+            <Self as dynamic_graphql::internal::InputObject>::get_input_object_type_name()
+                .as_ref(),
+        );
+        let object = object.oneof();
+        let field = dynamic_graphql::dynamic::InputValue::new(
+            "str",
+            <String as dynamic_graphql::internal::GetInputTypeRef>::get_input_type_ref()
+                .optional(),
+        );
+        let object = object.field(field);
+        let field = dynamic_graphql::dynamic::InputValue::new(
+            "int",
+            <u16 as dynamic_graphql::internal::GetInputTypeRef>::get_input_type_ref()
+                .optional(),
+        );
+        let object = object.field(field);
+        registry.register_type(object)
+    }
+}
+impl dynamic_graphql::internal::FromValue for ExampleInput {
+    fn from_value(
+        __value: dynamic_graphql::Result<dynamic_graphql::dynamic::ValueAccessor>,
+    ) -> dynamic_graphql::internal::InputValueResult<Self> {
+        let __value = __value?;
+        let __object = __value.object()?;
+        if let Some(__field) = __object.get("str") {
+            let field0 = dynamic_graphql::internal::FromValue::from_value(Ok(__field))
+                .map_err(|e| e.into_field_error("str"))?;
+            return Ok(Self::Str(field0));
+        }
+        if let Some(__field) = __object.get("int") {
+            let field1 = dynamic_graphql::internal::FromValue::from_value(Ok(__field))
+                .map_err(|e| e.into_field_error("int"))?;
+            return Ok(Self::Int(field1));
+        }
+        Err(
+            dynamic_graphql::internal::InputValueError::custom(
+                "Oneof input objects requires have exactly one field",
+            ),
+        )
+    }
+}
+
+```
