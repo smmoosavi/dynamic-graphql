@@ -32,7 +32,6 @@ mod prepare {
 }
 
 mod example {
-    use dynamic_graphql::experimental::GetSchemaData;
     use dynamic_graphql::App;
     use dynamic_graphql::Context;
     use dynamic_graphql::Data;
@@ -40,6 +39,7 @@ mod example {
     use dynamic_graphql::ExpandObjectFields;
     use dynamic_graphql::ResolvedObject;
     use dynamic_graphql::ResolvedObjectFields;
+    use dynamic_graphql::experimental::GetSchemaData;
 
     use super::root;
     use crate::schema_data::prepare_data::prepare::PrepareFn;
@@ -89,11 +89,11 @@ mod example {
 }
 
 mod expand_example {
-    use dynamic_graphql::internal::Register;
-    use dynamic_graphql::internal::Registry;
     use dynamic_graphql::App;
     use dynamic_graphql::ExpandObject;
     use dynamic_graphql::ExpandObjectFields;
+    use dynamic_graphql::internal::Register;
+    use dynamic_graphql::internal::Registry;
 
     use super::example::Example;
     use super::example::ExamplePrepares;

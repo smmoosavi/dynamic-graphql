@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
-use async_graphql::dynamic;
 use async_graphql::MaybeUndefined;
+use async_graphql::dynamic;
 
 use crate::registry::Registry;
 use crate::type_ref_builder::TypeRefBuilder;

@@ -1,13 +1,13 @@
-use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::value;
 use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::Scalar;
 use dynamic_graphql::ScalarValue;
 use dynamic_graphql::SimpleObject;
+use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::value;
 
-use crate::scalar::common::MyString;
 use crate::scalar::common::IP;
+use crate::scalar::common::MyString;
 
 #[tokio::test]
 async fn test_query() {

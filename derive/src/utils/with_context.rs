@@ -1,18 +1,18 @@
 use std::ops::Deref;
 use std::ops::DerefMut;
 
-use darling::ast::Data;
-use darling::util::Ignored;
 use darling::FromDeriveInput;
 use darling::FromField;
 use darling::FromVariant;
+use darling::ast::Data;
+use darling::util::Ignored;
 
+use crate::FromItemImpl;
 use crate::utils::impl_block::FromFnArg;
 use crate::utils::impl_block::FromImplItemFn;
 use crate::utils::impl_block::FromItemTrait;
 use crate::utils::impl_block::FromTraitItemFn;
 use crate::utils::with_index::SetIndex;
-use crate::FromItemImpl;
 
 pub trait MakeContext<C: Clone> {
     fn make_context(&self) -> C;
@@ -49,7 +49,7 @@ impl<T: SetContext, E> SetContext for Result<T, E> {
     type Context = T::Context;
 
     fn set_context(&mut self, context: Self::Context) {
-        if let Ok(ref mut inner) = self {
+        if let Ok(inner) = self {
             inner.set_context(context);
         }
     }
@@ -59,7 +59,7 @@ impl<T: SetContext> SetContext for Option<T> {
     type Context = T::Context;
 
     fn set_context(&mut self, context: Self::Context) {
-        if let Some(ref mut inner) = self {
+        if let Some(inner) = self {
             inner.set_context(context);
         }
     }

@@ -1,9 +1,10 @@
 use darling::FromAttributes;
 use proc_macro2::TokenStream;
-use quote::quote;
 use quote::ToTokens;
+use quote::quote;
 use syn::Generics;
 
+use super::common::impl_suppress_tupple_clippy_error;
 use crate::utils::common::CommonObject;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::NewtypeStruct;
@@ -13,8 +14,6 @@ use crate::utils::macros::*;
 use crate::utils::register_attr::RegisterAttr;
 use crate::utils::type_utils::get_owned_type;
 use crate::utils::with_attributes::WithAttributes;
-
-use super::common::impl_suppress_tupple_clippy_error;
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]

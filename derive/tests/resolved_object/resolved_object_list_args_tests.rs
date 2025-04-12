@@ -1,8 +1,8 @@
-use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::ResolvedObject;
 use dynamic_graphql::ResolvedObjectFields;
+use dynamic_graphql::dynamic::DynamicRequestExt;
 
 use crate::schema_utils::normalize_schema;
 

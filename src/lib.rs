@@ -10,17 +10,13 @@ mod types;
 mod upload;
 
 #[doc(no_inline)]
-pub use async_graphql::dynamic;
-#[doc(no_inline)]
-pub use async_graphql::dynamic::FieldValue;
-#[doc(no_inline)]
-pub use async_graphql::value;
-#[doc(no_inline)]
 pub use async_graphql::Context;
 #[doc(no_inline)]
 pub use async_graphql::Data;
 #[doc(no_inline)]
 pub use async_graphql::Error;
+#[doc(no_inline)]
+pub use async_graphql::ID;
 #[doc(no_inline)]
 pub use async_graphql::Lookahead;
 #[doc(no_inline)]
@@ -40,7 +36,11 @@ pub use async_graphql::Value;
 #[doc(no_inline)]
 pub use async_graphql::Variables;
 #[doc(no_inline)]
-pub use async_graphql::ID;
+pub use async_graphql::dynamic;
+#[doc(no_inline)]
+pub use async_graphql::dynamic::FieldValue;
+#[doc(no_inline)]
+pub use async_graphql::value;
 
 pub mod internal {
     pub use crate::any_box::AnyBox;

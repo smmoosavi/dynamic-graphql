@@ -1,12 +1,13 @@
-use darling::util::Ignored;
 use darling::FromAttributes;
+use darling::util::Ignored;
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;
-use quote::quote;
 use quote::ToTokens;
+use quote::quote;
 use syn::Generics;
 use syn::Path;
 
+use super::common::impl_suppress_tupple_clippy_error;
 use crate::args::common;
 use crate::args::common::add_new_lifetime_to_generics;
 use crate::args::common::get_type_name;
@@ -19,8 +20,6 @@ use crate::utils::path_attr::PathAttr;
 use crate::utils::register_attr::RegisterAttr;
 use crate::utils::with_attributes::WithAttributes;
 use crate::utils::with_doc::WithDoc;
-
-use super::common::impl_suppress_tupple_clippy_error;
 
 #[derive(FromAttributes, Debug, Clone)]
 #[darling(attributes(graphql))]

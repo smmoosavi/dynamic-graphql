@@ -1,4 +1,8 @@
-use crate::schema_utils::normalize_schema;
+use std::borrow::Cow;
+
+use dynamic_graphql::App;
+use dynamic_graphql::Context;
+use dynamic_graphql::SimpleObject;
 use dynamic_graphql::dynamic;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::internal::OutputTypeName;
@@ -8,10 +12,8 @@ use dynamic_graphql::internal::ResolveOwned;
 use dynamic_graphql::internal::ResolveRef;
 use dynamic_graphql::internal::TypeName;
 use dynamic_graphql::value;
-use dynamic_graphql::App;
-use dynamic_graphql::Context;
-use dynamic_graphql::SimpleObject;
-use std::borrow::Cow;
+
+use crate::schema_utils::normalize_schema;
 
 mod schema_utils;
 

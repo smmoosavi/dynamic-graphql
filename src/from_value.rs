@@ -1,9 +1,9 @@
+use crate::MaybeUndefined;
+use crate::Result;
 use crate::dynamic;
 use crate::errors::InputValueError;
 use crate::errors::InputValueResult;
 use crate::types::GetInputTypeRef;
-use crate::MaybeUndefined;
-use crate::Result;
 
 pub trait FromValue: Sized {
     fn from_value(value: Result<dynamic::ValueAccessor>) -> InputValueResult<Self>;

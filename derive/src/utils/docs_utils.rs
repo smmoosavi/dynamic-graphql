@@ -1,7 +1,9 @@
 use std::ops::Deref;
 
 use darling::FromAttributes;
-use syn::{Expr, Lit, Meta};
+use syn::Expr;
+use syn::Lit;
+use syn::Meta;
 
 pub fn get_rustdoc(attrs: &[syn::Attribute]) -> Result<Option<String>, darling::Error> {
     let mut full_docs = String::new();

@@ -1,6 +1,5 @@
-use quote::quote;
-
 use proc_macro2::TokenStream;
+use quote::quote;
 use syn::Generics;
 
 pub fn impl_suppress_tupple_clippy_error(

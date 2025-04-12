@@ -1,13 +1,13 @@
 use std::borrow::Cow;
 
-use dynamic_graphql::internal::Scalar;
-use dynamic_graphql::internal::TypeName;
 use dynamic_graphql::App;
 use dynamic_graphql::ResolvedObject;
 use dynamic_graphql::ResolvedObjectFields;
 use dynamic_graphql::Scalar;
 use dynamic_graphql::ScalarValue;
 use dynamic_graphql::SimpleObject;
+use dynamic_graphql::internal::Scalar;
+use dynamic_graphql::internal::TypeName;
 
 use crate::schema_utils::normalize_schema;
 

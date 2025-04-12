@@ -1,7 +1,7 @@
 [package]
 name = "dynamic-graphql"
 version = "0.9.0"
-edition = "2021"
+edition = "2024"
 license = "MIT"
 description = "Dynamic GraphQL schema"
 homepage = "https://github.com/smmoosavi/dynamic-graphql"

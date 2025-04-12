@@ -1,5 +1,5 @@
-use darling::ast::NestedMeta;
 use darling::FromMeta;
+use darling::ast::NestedMeta;
 use proc_macro2::Span;
 use syn::spanned::Spanned;
 
@@ -52,7 +52,7 @@ impl FromMeta for InterfaceMarkAttr {
             return r.map(|mark| {
                 let span = mark.0.span();
                 InterfaceMarkAttr {
-                    path: mark.0 .0,
+                    path: mark.0.0,
                     span,
                 }
             });
@@ -68,7 +68,7 @@ impl FromMeta for InterfaceImplAttr {
         if let Some(r) = implements {
             return r.map(|r| {
                 let span = r.0.span();
-                InterfaceImplAttr { path: r.0 .0, span }
+                InterfaceImplAttr { path: r.0.0, span }
             });
         }
 

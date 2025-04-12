@@ -1,14 +1,14 @@
 use std::borrow::Cow;
 
-use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::internal::TypeName;
-use dynamic_graphql::internal::Union;
 use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::ResolvedObject;
 use dynamic_graphql::ResolvedObjectFields;
 use dynamic_graphql::SimpleObject;
 use dynamic_graphql::Union;
+use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::internal::TypeName;
+use dynamic_graphql::internal::Union;
 
 use crate::schema_utils::normalize_schema;
 
@@ -519,11 +519,11 @@ async fn test_auto_register() {
 
 mod in_mod {
     use dog::Dog;
-    use dynamic_graphql::dynamic::DynamicRequestExt;
     use dynamic_graphql::App;
     use dynamic_graphql::FieldValue;
     use dynamic_graphql::SimpleObject;
     use dynamic_graphql::Union;
+    use dynamic_graphql::dynamic::DynamicRequestExt;
 
     use crate::schema_utils::normalize_schema;
 

@@ -1,6 +1,11 @@
-use crate::scalar::json::{JsonObject, JsonValue, KeyValue};
+use dynamic_graphql_derive::App;
+use dynamic_graphql_derive::ResolvedObject;
+use dynamic_graphql_derive::ResolvedObjectFields;
+
+use crate::scalar::json::JsonObject;
+use crate::scalar::json::JsonValue;
+use crate::scalar::json::KeyValue;
 use crate::schema_utils::normalize_schema;
-use dynamic_graphql_derive::{App, ResolvedObject, ResolvedObjectFields};
 
 #[tokio::test]
 async fn json_input_output() {

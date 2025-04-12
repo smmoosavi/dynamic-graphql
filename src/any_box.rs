@@ -1,7 +1,7 @@
 use std::any::Any;
 
-use async_graphql::dynamic::FieldValue;
 use async_graphql::Context;
+use async_graphql::dynamic::FieldValue;
 
 use crate::resolve::ResolveOwned;
 

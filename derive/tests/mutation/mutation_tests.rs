@@ -1,10 +1,5 @@
 use std::borrow::Cow;
 
-use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::internal::ExpandObject;
-use dynamic_graphql::internal::Object;
-use dynamic_graphql::internal::ParentType;
-use dynamic_graphql::internal::TypeName;
 use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::InputObject;
@@ -12,6 +7,11 @@ use dynamic_graphql::Mutation;
 use dynamic_graphql::MutationFields;
 use dynamic_graphql::MutationRoot;
 use dynamic_graphql::SimpleObject;
+use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::internal::ExpandObject;
+use dynamic_graphql::internal::Object;
+use dynamic_graphql::internal::ParentType;
+use dynamic_graphql::internal::TypeName;
 
 use crate::schema_utils::normalize_schema;
 
@@ -413,12 +413,12 @@ async fn test_auto_register() {
 }
 
 mod in_mod {
-    use dynamic_graphql::dynamic::DynamicRequestExt;
     use dynamic_graphql::App;
     use dynamic_graphql::FieldValue;
     use dynamic_graphql::Mutation;
     use dynamic_graphql::MutationFields;
     use dynamic_graphql::SimpleObject;
+    use dynamic_graphql::dynamic::DynamicRequestExt;
 
     mod root {
         use dynamic_graphql::MutationRoot;

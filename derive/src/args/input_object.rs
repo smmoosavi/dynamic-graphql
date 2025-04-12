@@ -1,16 +1,16 @@
 use darling::FromAttributes;
 use proc_macro2::TokenStream;
-use quote::quote;
 use quote::ToTokens;
+use quote::quote;
 use syn::Generics;
 use syn::Path;
 
 use crate::args::common;
 use crate::utils::common::CommonField;
 use crate::utils::common::CommonObject;
+use crate::utils::common::EMPTY_ARGS;
 use crate::utils::common::GetArgs;
 use crate::utils::common::GetFields;
-use crate::utils::common::EMPTY_ARGS;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::BaseStruct;
 use crate::utils::derive_types::NamedField;
