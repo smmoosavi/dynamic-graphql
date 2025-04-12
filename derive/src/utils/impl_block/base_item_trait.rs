@@ -1,9 +1,9 @@
 use darling::FromGenerics;
 
-use crate::utils::impl_block::from_item_trait::FromItemTrait;
-use crate::utils::impl_block::from_trait_item_method::FromTraitItemFn;
 use crate::utils::impl_block::BaseMethod;
 use crate::utils::impl_block::Methods;
+use crate::utils::impl_block::from_item_trait::FromItemTrait;
+use crate::utils::impl_block::from_trait_item_method::FromTraitItemFn;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
 

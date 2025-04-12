@@ -1,7 +1,7 @@
-use dynamic_graphql::internal::Register;
-use dynamic_graphql::internal::Registry;
 use dynamic_graphql::App;
 use dynamic_graphql::SimpleObject;
+use dynamic_graphql::internal::Register;
+use dynamic_graphql::internal::Registry;
 
 use crate::schema_utils::normalize_schema;
 

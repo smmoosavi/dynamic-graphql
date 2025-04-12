@@ -1,8 +1,8 @@
 use darling::FromAttributes;
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;
-use quote::quote;
 use quote::ToTokens;
+use quote::quote;
 use syn::Generics;
 
 use crate::args::common;

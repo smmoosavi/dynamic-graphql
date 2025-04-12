@@ -7,6 +7,7 @@ use darling::FromField;
 use darling::FromVariant;
 use syn::FnArg;
 
+use crate::FromItemImpl;
 use crate::utils::attributes::Attributes;
 use crate::utils::attributes::CleanAttributes;
 use crate::utils::impl_block::BaseFnArg;
@@ -16,7 +17,6 @@ use crate::utils::impl_block::FromItemTrait;
 use crate::utils::impl_block::FromTraitItemFn;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
-use crate::FromItemImpl;
 
 #[derive(Clone, Debug)]
 pub struct WithAttributes<A: FromAttributes, D> {

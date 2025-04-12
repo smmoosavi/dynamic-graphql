@@ -1,11 +1,11 @@
 use darling::FromGenerics;
 
+use crate::FromItemImpl;
 use crate::utils::impl_block::BaseMethod;
 use crate::utils::impl_block::FromImplItemFn;
 use crate::utils::impl_block::Methods;
 use crate::utils::with_context::SetContext;
 use crate::utils::with_index::SetIndex;
-use crate::FromItemImpl;
 
 #[derive(Debug, Clone)]
 pub struct BaseItemImpl<Method = BaseMethod, Generics = ()> {

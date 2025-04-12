@@ -1,9 +1,10 @@
-use super::*;
-use crate::utils::impl_block::FromItemImpl;
-use crate::FromItemTrait;
 use darling::FromDeriveInput;
 use prettier_please::unparse;
 use unindent::Unindent;
+
+use super::*;
+use crate::FromItemTrait;
+use crate::utils::impl_block::FromItemImpl;
 
 fn pretty_expand(tokens: impl quote::ToTokens) -> String {
     let tokens = tokens.into_token_stream();

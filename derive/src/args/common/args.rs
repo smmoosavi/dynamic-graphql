@@ -16,7 +16,7 @@ pub fn get_arg_ident(arg: &impl CommonArg) -> syn::Ident {
 
 pub fn is_arg_ctx(arg: &impl CommonArg) -> bool {
     arg.is_marked_as_ctx()
-        || matches!(arg.get_arg(), BaseFnArg::Typed(TypedArg{ref ident, ..}) if ident == "ctx" || ident == "_ctx")
+        || matches!(arg.get_arg(), BaseFnArg::Typed(TypedArg{ident, ..}) if ident == "ctx" || ident == "_ctx")
 }
 
 pub fn get_self_arg_usage(arg: &impl CommonArg) -> darling::Result<TokenStream> {

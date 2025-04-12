@@ -1,13 +1,13 @@
+use darling::FromAttributes;
 use darling::ast::Fields;
 use darling::ast::Style;
-use darling::FromAttributes;
 use proc_macro2::TokenStream;
-use quote::quote;
 use quote::ToTokens;
+use quote::quote;
 use syn::Generics;
 
-use crate::args::simple_object::SimpleObjectAttrs;
 use crate::args::SimpleObject;
+use crate::args::simple_object::SimpleObjectAttrs;
 use crate::utils::derive_types::BaseStruct;
 use crate::utils::derive_types::UnitStruct;
 use crate::utils::macros::*;

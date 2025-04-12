@@ -3,10 +3,10 @@ extern crate core;
 extern crate proc_macro;
 
 use darling::FromDeriveInput;
-use quote::quote;
 use quote::ToTokens;
-use syn::parse_macro_input;
+use quote::quote;
 use syn::DeriveInput;
+use syn::parse_macro_input;
 
 use crate::utils::impl_block::FromItemImpl;
 use crate::utils::impl_block::FromItemTrait;

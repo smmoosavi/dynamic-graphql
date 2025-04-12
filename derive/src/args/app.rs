@@ -1,13 +1,12 @@
 use proc_macro2::TokenStream;
-use quote::quote;
 use quote::ToTokens;
+use quote::quote;
 use syn::Generics;
 
+use super::common::impl_suppress_tupple_clippy_error;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::derive_types::BaseStruct;
 use crate::utils::derive_types::TupleField;
-
-use super::common::impl_suppress_tupple_clippy_error;
 
 pub type App = BaseStruct<TupleField, Generics>;
 

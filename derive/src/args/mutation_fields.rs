@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
-use quote::quote;
 use quote::ToTokens;
+use quote::quote;
 
 use crate::args::ExpandObjectFields;
 use crate::utils::common::CommonArg;

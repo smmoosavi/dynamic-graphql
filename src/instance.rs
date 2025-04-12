@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
-use async_graphql::dynamic::FieldValue;
 use async_graphql::Context;
+use async_graphql::dynamic::FieldValue;
 
 use crate::any_box::AnyBox;
 use crate::registry::Registry;
@@ -63,7 +63,6 @@ where
 pub trait RegisterInstance<I, T>
 where
     I: ?Sized,
-
     T: Object + 'static,
     T: Send + Sync,
 {

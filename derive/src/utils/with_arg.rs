@@ -1,9 +1,9 @@
 use std::ops::Deref;
 
-use darling::util::Ignored;
 use darling::FromDeriveInput;
 use darling::FromField;
 use darling::FromVariant;
+use darling::util::Ignored;
 use syn::DeriveInput;
 
 use crate::utils::impl_block::FromFnArg;

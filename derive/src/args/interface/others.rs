@@ -1,15 +1,15 @@
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::parse_quote;
 use syn::Type;
+use syn::parse_quote;
 
+use crate::args::Interface;
 use crate::args::common;
 use crate::args::common::ArgImplementor;
 use crate::args::common::FieldImplementor;
 use crate::args::interface::InterfaceMethod;
 use crate::args::interface::InterfaceMethodArg;
-use crate::args::Interface;
 use crate::utils::common::CommonArg;
 use crate::utils::common::CommonField;
 use crate::utils::common::CommonMethod;

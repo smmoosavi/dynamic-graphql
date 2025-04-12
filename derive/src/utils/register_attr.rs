@@ -1,8 +1,8 @@
-use darling::ast::NestedMeta;
 use darling::FromMeta;
+use darling::ast::NestedMeta;
 use proc_macro2::Span;
-use quote::quote;
 use quote::ToTokens;
+use quote::quote;
 use syn::spanned::Spanned;
 
 use crate::utils::meta_match::MatchMetaPath;
@@ -33,7 +33,7 @@ impl FromMeta for RegisterAttr {
         if let Some(r) = implements {
             return r.map(|r| {
                 let span = r.0.span();
-                RegisterAttr { path: r.0 .0, span }
+                RegisterAttr { path: r.0.0, span }
             });
         }
 

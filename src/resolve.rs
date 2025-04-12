@@ -3,8 +3,8 @@ use std::borrow::Cow;
 use crate::Context;
 use crate::Error;
 use crate::FieldValue;
-use crate::Result;
 use crate::ID;
+use crate::Result;
 
 pub trait ResolveRef<'a> {
     fn resolve_ref(&'a self, ctx: &Context) -> Result<Option<FieldValue<'a>>>;
@@ -201,4 +201,6 @@ macro_rules! resolves {
     };
 }
 
-resolves!(String, i8, i16, i32, i64, isize, u8, u16, u32, u64, usize, bool, f32, f64);
+resolves!(
+    String, i8, i16, i32, i64, isize, u8, u16, u32, u64, usize, bool, f32, f64
+);

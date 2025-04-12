@@ -1,7 +1,11 @@
-use dynamic_graphql::dynamic::{FieldValue, SubscriptionFieldFuture, TypeRef};
-use dynamic_graphql::internal::{Register, Registry};
+use dynamic_graphql::App;
 use dynamic_graphql::SimpleObject;
-use dynamic_graphql::{value, App};
+use dynamic_graphql::dynamic::FieldValue;
+use dynamic_graphql::dynamic::SubscriptionFieldFuture;
+use dynamic_graphql::dynamic::TypeRef;
+use dynamic_graphql::internal::Register;
+use dynamic_graphql::internal::Registry;
+use dynamic_graphql::value;
 use futures_util::StreamExt;
 
 use crate::schema_utils::normalize_schema;

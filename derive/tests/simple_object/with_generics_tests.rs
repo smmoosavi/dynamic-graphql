@@ -1,12 +1,12 @@
 use std::borrow::Cow;
 
+use dynamic_graphql::App;
+use dynamic_graphql::FieldValue;
+use dynamic_graphql::SimpleObject;
 use dynamic_graphql::dynamic::DynamicRequestExt;
 use dynamic_graphql::internal::OutputTypeName;
 use dynamic_graphql::internal::ResolveRef;
 use dynamic_graphql::internal::TypeName;
-use dynamic_graphql::App;
-use dynamic_graphql::FieldValue;
-use dynamic_graphql::SimpleObject;
 
 use crate::schema_utils::normalize_schema;
 

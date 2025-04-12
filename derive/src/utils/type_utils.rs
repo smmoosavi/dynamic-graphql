@@ -9,7 +9,7 @@ pub fn is_type_ref(ty: &syn::Type) -> bool {
 #[allow(dead_code)]
 pub fn is_type_mut_ref(ty: &syn::Type) -> bool {
     match ty {
-        syn::Type::Reference(ref r) => r.mutability.is_some(),
+        syn::Type::Reference(r) => r.mutability.is_some(),
         _ => false,
     }
 }
@@ -17,7 +17,7 @@ pub fn is_type_mut_ref(ty: &syn::Type) -> bool {
 #[allow(dead_code)]
 pub fn is_type_str(ty: &syn::Type) -> bool {
     match ty {
-        syn::Type::Reference(ref r) => {
+        syn::Type::Reference(r) => {
             if let syn::Type::Path(ref p) = *r.elem {
                 p.path.segments.len() == 1 && p.path.segments[0].ident == "str"
             } else {
@@ -31,7 +31,7 @@ pub fn is_type_str(ty: &syn::Type) -> bool {
 /// check if the type is a `&[SomeType]`
 pub fn is_type_slice(ty: &syn::Type) -> bool {
     match ty {
-        syn::Type::Reference(ref r) => {
+        syn::Type::Reference(r) => {
             matches!(*r.elem, syn::Type::Slice(_))
         }
         _ => false,
@@ -46,15 +46,15 @@ pub fn get_owned_type(ty: &syn::Type) -> &syn::Type {
         return ty;
     }
     match ty {
-        syn::Type::Reference(ref r) => &r.elem,
+        syn::Type::Reference(r) => &r.elem,
         _ => ty,
     }
 }
 
 pub fn get_type_path(ty: &syn::Type) -> darling::Result<&syn::Path> {
     match ty {
-        syn::Type::Reference(ref r) => get_type_path(&r.elem),
-        syn::Type::Path(ref p) => Ok(&p.path),
+        syn::Type::Reference(r) => get_type_path(&r.elem),
+        syn::Type::Path(p) => Ok(&p.path),
         _ => Err(darling::Error::custom("Unsupported type").with_span(ty)),
     }
 }

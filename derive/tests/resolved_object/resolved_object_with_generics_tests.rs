@@ -1,13 +1,13 @@
 use std::marker::PhantomData;
 
-use dynamic_graphql::dynamic::DynamicRequestExt;
-use dynamic_graphql::internal::OutputTypeName;
-use dynamic_graphql::internal::ResolveRef;
 use dynamic_graphql::App;
 use dynamic_graphql::FieldValue;
 use dynamic_graphql::ResolvedObject;
 use dynamic_graphql::ResolvedObjectFields;
 use dynamic_graphql::SimpleObject;
+use dynamic_graphql::dynamic::DynamicRequestExt;
+use dynamic_graphql::internal::OutputTypeName;
+use dynamic_graphql::internal::ResolveRef;
 
 use crate::schema_utils::normalize_schema;
 

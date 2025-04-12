@@ -1,8 +1,9 @@
+use std::collections::HashMap;
+
 use dynamic_graphql::Name;
 use dynamic_graphql::Scalar;
 use dynamic_graphql::ScalarValue;
 use dynamic_graphql::Value;
-use std::collections::HashMap;
 
 #[derive(Scalar)]
 pub struct JsonValue(pub Value);
@@ -72,7 +73,7 @@ impl ScalarValue for KeyValue {
                         _ => {
                             return Err(dynamic_graphql::Error::new(
                                 "Expected a string value".to_string(),
-                            ))
+                            ));
                         }
                     }
                 }
