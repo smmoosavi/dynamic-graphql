@@ -13,10 +13,10 @@ repository = "https://github.com/smmoosavi/dynamic-graphql"
 Inflector = "0.11"
 darling = "0.20"
 proc-macro2 = "1"
-proc-macro-crate = "1"
+proc-macro-crate = "3"
 quote = "1"
 syn = { version = "2", features = ["full"] }
-thiserror = "1"
+thiserror = "2"
 
 [dev-dependencies]
 dynamic-graphql = { path = ".." }
@@ -28,7 +28,7 @@ tempfile = "3"
 async-stream = "0.3"
 futures-util = "0.3"
 insta={version="1",features=["json"]}
-prettier-please="0.2"
+prettier-please="0.3"
 unindent = "0.2"
 
 [lib]

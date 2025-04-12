@@ -35,7 +35,7 @@ fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       string: String!
       maybeString: String
@@ -48,7 +48,7 @@ fn test_schema() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[tokio::test]

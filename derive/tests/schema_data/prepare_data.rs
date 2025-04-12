@@ -135,7 +135,7 @@ mod expand_example {
 async fn test() {
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Example {
       value: Int!
       anotherValue: Int!
@@ -152,7 +152,7 @@ async fn test() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {

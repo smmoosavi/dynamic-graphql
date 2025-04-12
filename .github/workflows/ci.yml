@@ -13,7 +13,7 @@ concurrency:
 
 env:
   RUST_BACKTRACE: 1
-  NIGHTLY_VERSION: nightly-2024-05-28
+  NIGHTLY_VERSION: nightly-2025-03-16
 
 
 jobs:

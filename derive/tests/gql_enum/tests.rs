@@ -76,7 +76,7 @@ async fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     enum Example {
       FOO
       BAR
@@ -94,7 +94,7 @@ async fn test_schema() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {
@@ -169,7 +169,7 @@ async fn test_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     enum Other {
       foo
       Other
@@ -187,7 +187,7 @@ async fn test_rename() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {
@@ -266,7 +266,7 @@ async fn test_type_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     enum Other {
       FOO
       BAR
@@ -284,7 +284,7 @@ async fn test_type_name() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {
@@ -358,7 +358,7 @@ async fn test_deprecation() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     enum Example {
       FOO @deprecated
       BAR @deprecated(reason: "This is old")
@@ -378,7 +378,7 @@ async fn test_deprecation() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 #[tokio::test]
@@ -413,14 +413,10 @@ async fn test_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
-    """
-      the example enum
-    """
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
+    "the example enum"
     enum Example {
-      """
-        the foo item
-      """ FOO
+      "the foo item" FOO
       BAR
     }
 
@@ -436,7 +432,7 @@ async fn test_doc() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 mod in_mod {
@@ -494,7 +490,7 @@ mod in_mod {
         let schema = App::create_schema().finish().unwrap();
 
         let sdl = schema.sdl();
-        insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+        insta::assert_snapshot!(normalize_schema(&sdl), @r"
         enum Example {
           FOO
           BAR
@@ -512,7 +508,7 @@ mod in_mod {
         schema {
           query: Query
         }
-        "###);
+        ");
 
         let query = r#"
         query {

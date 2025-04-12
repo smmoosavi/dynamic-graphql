@@ -52,7 +52,7 @@ fn test_schema() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       theString: String!
     }
@@ -64,7 +64,7 @@ fn test_schema() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -88,7 +88,7 @@ fn test_schema_with_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Other {
       other: String!
     }
@@ -100,7 +100,7 @@ fn test_schema_with_rename() {
     schema {
       query: Other
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -128,7 +128,7 @@ fn test_schema_with_type_name() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Other {
       theString: String!
     }
@@ -140,7 +140,7 @@ fn test_schema_with_type_name() {
     schema {
       query: Other
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -167,7 +167,7 @@ fn test_schema_with_skip() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       string: String!
     }
@@ -179,7 +179,7 @@ fn test_schema_with_skip() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[tokio::test]
@@ -209,7 +209,7 @@ async fn test_query() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       string: String!
       value: String!
@@ -223,7 +223,7 @@ async fn test_query() {
     schema {
       query: Query
     }
-    "###);
+    ");
     let query = r#"
     query {
       string
@@ -273,14 +273,10 @@ fn test_schema_with_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
-    """
-      this is the query object
-    """
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
+    "this is the query object"
     type Query {
-      """
-        this is the string field
-      """
+      "this is the string field"
       string: String!
     }
 
@@ -291,7 +287,7 @@ fn test_schema_with_doc() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 #[test]
@@ -318,7 +314,7 @@ fn test_schema_with_deprecation() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Query {
       deprecated: String! @deprecated
       withReason: String! @deprecated(reason: "this is the old one")
@@ -333,7 +329,7 @@ fn test_schema_with_deprecation() {
     schema {
       query: Query
     }
-    "###);
+    "#);
 }
 
 #[test]
@@ -357,7 +353,7 @@ fn test_rename_fields() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type TheQuery {
       the_string: String!
     }
@@ -369,7 +365,7 @@ fn test_rename_fields() {
     schema {
       query: TheQuery
     }
-    "###);
+    ");
 }
 
 #[tokio::test]
@@ -399,7 +395,7 @@ async fn test_async_query() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Query {
       string: String!
       value: String!
@@ -413,7 +409,7 @@ async fn test_async_query() {
     schema {
       query: Query
     }
-    "###);
+    ");
     let query = r#"
     query {
       string
@@ -476,7 +472,7 @@ async fn test_auto_register() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Example {
       value: String!
     }
@@ -500,7 +496,7 @@ async fn test_auto_register() {
     schema {
       query: Query
     }
-    "###);
+    ");
     let query = r#"
     query {
         example(input: {value: "Hello"}) {
@@ -556,7 +552,7 @@ mod in_mod {
         let schema = App::create_schema().finish().unwrap();
 
         let sdl = schema.sdl();
-        insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+        insta::assert_snapshot!(normalize_schema(&sdl), @r"
         type Query {
           theString: String!
         }
@@ -568,6 +564,6 @@ mod in_mod {
         schema {
           query: Query
         }
-        "###);
+        ");
     }
 }

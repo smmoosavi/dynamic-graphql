@@ -53,7 +53,7 @@ async fn test_query() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     union Animal = Dog | Cat | Snake
 
     type Cat implements Named {
@@ -85,7 +85,7 @@ async fn test_query() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {

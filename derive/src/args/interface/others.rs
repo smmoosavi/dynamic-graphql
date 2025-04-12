@@ -28,13 +28,13 @@ impl GetArgs<InterfaceMethodArg> for OthersMethod<'_> {
     }
 }
 
-impl<'a> CommonMethod for OthersMethod<'a> {
+impl CommonMethod for OthersMethod<'_> {
     fn is_async(&self) -> bool {
         self.0.asyncness
     }
 }
 
-impl<'a> CommonField for OthersMethod<'a> {
+impl CommonField for OthersMethod<'_> {
     fn get_name(&self) -> Option<&str> {
         self.0.get_name()
     }
@@ -68,7 +68,7 @@ impl<'a> CommonField for OthersMethod<'a> {
     }
 }
 
-impl<'a> FieldImplementor for OthersMethod<'a> {
+impl FieldImplementor for OthersMethod<'_> {
     fn define_field(&self) -> darling::Result<TokenStream> {
         common::define_field(self)
     }

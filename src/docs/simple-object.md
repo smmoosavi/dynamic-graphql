@@ -166,15 +166,11 @@ let schema = App::create_schema().finish().unwrap();
 assert_eq!(
     normalize_schema(&schema.sdl()),
     r#"
-"""
-  This is my object
-"""
+"This is my object"
 type Query {
   deprecatedField: String! @deprecated
   withReason: String! @deprecated(reason: "this is the old one")
-  """
-    This is my field
-  """
+  "This is my field"
   myField: String!
 }
 

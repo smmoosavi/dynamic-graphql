@@ -80,7 +80,7 @@ fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type MutationRoot {
       theExample: String!
     }
@@ -97,7 +97,7 @@ fn test_schema() {
       query: Query
       mutation: MutationRoot
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -128,7 +128,7 @@ fn test_schema_with_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Mutation {
       theExample: String!
     }
@@ -145,7 +145,7 @@ fn test_schema_with_rename() {
       query: Query
       mutation: Mutation
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -182,7 +182,7 @@ fn test_schema_with_type_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Mutation {
       theExample: String!
     }
@@ -199,7 +199,7 @@ fn test_schema_with_type_name() {
       query: Query
       mutation: Mutation
     }
-    "###);
+    ");
 }
 
 #[test]
@@ -230,10 +230,8 @@ fn test_schema_with_doc() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
-    """
-      The Root of all Mutations
-    """
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
+    "The Root of all Mutations"
     type MutationRoot {
       theExample: String!
     }
@@ -250,7 +248,7 @@ fn test_schema_with_doc() {
       query: Query
       mutation: MutationRoot
     }
-    "###);
+    "#);
 }
 
 #[tokio::test]
@@ -351,7 +349,7 @@ async fn test_auto_register() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Bar {
       bar: String!
     }
@@ -384,7 +382,7 @@ async fn test_auto_register() {
       query: Query
       mutation: MutationRoot
     }
-    "###);
+    ");
 
     let query = r#"
         mutation {

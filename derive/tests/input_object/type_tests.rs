@@ -47,7 +47,7 @@ async fn test_types() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     input ExampleInput {
       byString: String!
       byId: ID!
@@ -77,7 +77,7 @@ async fn test_types() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query($input: ExampleInput!) {
@@ -164,7 +164,7 @@ async fn test_object_type() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     input ExampleInput {
       foo: FooInput!
     }
@@ -184,7 +184,7 @@ async fn test_object_type() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {
@@ -225,7 +225,7 @@ async fn test_number() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     input ExampleInput {
       value: Int!
     }
@@ -241,7 +241,7 @@ async fn test_number() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {

@@ -28,7 +28,7 @@ async fn test_base_list() {
         T::Item: for<'r> ResolveOwned<'r>;
 
     #[ExpandObjectFields]
-    impl<'a, T> BaseList<'a, T>
+    impl<T> BaseList<'_, T>
     where
         T: Pageable + 'static,
         T: Send + Sync,
@@ -67,7 +67,7 @@ async fn test_base_list() {
     struct FooQuery<'a>(&'a Query);
 
     #[ExpandObjectFields]
-    impl<'a> FooQuery<'a> {
+    impl FooQuery<'_> {
         fn foo_list(&self) -> FooList {
             FooList
         }
@@ -88,7 +88,7 @@ async fn test_base_list() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Foo {
       value: String!
     }
@@ -108,7 +108,7 @@ async fn test_base_list() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     let query = r#"
         query {

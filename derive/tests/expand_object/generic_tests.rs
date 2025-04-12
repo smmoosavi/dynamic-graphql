@@ -122,7 +122,7 @@ fn test_schema_with_generic() {
         T: GetName + Object + 'static;
 
     #[ExpandObjectFields]
-    impl<'a, T> WithName<'a, T>
+    impl<T> WithName<'_, T>
     where
         T: GetName + Object + 'static,
     {
@@ -143,7 +143,7 @@ fn test_schema_with_generic() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Bar {
       field: String!
     }
@@ -164,7 +164,7 @@ fn test_schema_with_generic() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     #[derive(App)]
     struct AppWithName(Query, Bar, Foo, WithName<'static, Foo>);
@@ -172,7 +172,7 @@ fn test_schema_with_generic() {
     let schema = AppWithName::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Bar {
       field: String!
     }
@@ -194,7 +194,7 @@ fn test_schema_with_generic() {
     schema {
       query: Query
     }
-    "###);
+    ");
 
     #[derive(App)]
     struct AppBothWithName(
@@ -208,7 +208,7 @@ fn test_schema_with_generic() {
     let schema = AppBothWithName::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r###"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r"
     type Bar {
       field: String!
       name: String!
@@ -231,7 +231,7 @@ fn test_schema_with_generic() {
     schema {
       query: Query
     }
-    "###);
+    ");
 }
 
 #[tokio::test]
@@ -257,7 +257,7 @@ async fn test_query_with_generic() {
         T: GetName + Object + 'static;
 
     #[ExpandObjectFields]
-    impl<'a, T> WithName<'a, T>
+    impl<T> WithName<'_, T>
     where
         T: GetName + Object + 'static,
     {
@@ -334,7 +334,7 @@ async fn test_query_with_generic_and_args() {
         T: GetGreeting + Object + 'static;
 
     #[ExpandObjectFields]
-    impl<'a, T> WithGreeting<'a, T>
+    impl<T> WithGreeting<'_, T>
     where
         T: GetGreeting + Object + 'static,
     {
