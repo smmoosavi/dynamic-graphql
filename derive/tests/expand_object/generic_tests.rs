@@ -122,7 +122,7 @@ fn test_schema_with_generic() {
         T: GetName + Object + 'static;
 
     #[ExpandObjectFields]
-    impl<'a, T> WithName<'a, T>
+    impl<T> WithName<'_, T>
     where
         T: GetName + Object + 'static,
     {
@@ -257,7 +257,7 @@ async fn test_query_with_generic() {
         T: GetName + Object + 'static;
 
     #[ExpandObjectFields]
-    impl<'a, T> WithName<'a, T>
+    impl<T> WithName<'_, T>
     where
         T: GetName + Object + 'static,
     {
@@ -334,7 +334,7 @@ async fn test_query_with_generic_and_args() {
         T: GetGreeting + Object + 'static;
 
     #[ExpandObjectFields]
-    impl<'a, T> WithGreeting<'a, T>
+    impl<T> WithGreeting<'_, T>
     where
         T: GetGreeting + Object + 'static,
     {

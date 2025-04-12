@@ -424,7 +424,7 @@ async fn test_auto_register_instance() {
     where
         T: GetFoo + Object + 'static;
     #[ExpandObjectFields]
-    impl<'a, T> WithName<'a, T>
+    impl<T> WithName<'_, T>
     where
         T: GetFoo + Object + 'static,
     {

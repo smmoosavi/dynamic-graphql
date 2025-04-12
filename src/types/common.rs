@@ -21,7 +21,7 @@ where
     }
 }
 
-impl<'a, T> TypeName for &'a T
+impl<T> TypeName for &'_ T
 where
     T: TypeName + 'static,
 {

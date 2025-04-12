@@ -116,7 +116,7 @@ fn test_app_with_lifetime() {
 
     #[allow(dead_code)]
     struct Other<'a>(&'a Foo);
-    impl<'a> Register for Other<'a> {
+    impl Register for Other<'_> {
         fn register(registry: Registry) -> Registry {
             registry
         }
@@ -177,7 +177,7 @@ fn test_app_with_generic_and_lifetime() {
     struct Other<'a, T>(&'a T)
     where
         T: GetFoo;
-    impl<'a, T: GetFoo> Register for Other<'a, T> {
+    impl<T: GetFoo> Register for Other<'_, T> {
         fn register(registry: Registry) -> Registry {
             registry
         }
