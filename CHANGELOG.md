@@ -9,6 +9,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] - ReleaseDate
 
+- add OneOfInput macro
+
 ## [0.9.0] - 2024-05-31
 
 ### Changed
