@@ -9,6 +9,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] - ReleaseDate
 
+- fix FromValue for signed integers. [#40] by [@louisch]
+
+[#40]: https://github.com/smmoosavi/dynamic-graphql/pull/40
+[@louisch]: https://github.com/louisch
+
 ## [0.10.0] - 2025-04-13
 
 - add OneOfInput macro
