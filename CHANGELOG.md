@@ -9,6 +9,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] - ReleaseDate
 
+## [0.10.1] - 2025-04-15
+
 - fix FromValue for signed integers. [#40] by [@louisch]
 
 [#40]: https://github.com/smmoosavi/dynamic-graphql/pull/40
@@ -427,7 +429,8 @@ struct AnotherType {}
 - add `Output` associated type to `GetOutputTypeRef` and `GetInputTypeRef`
 
 <!-- next-url -->
-[Unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.10.1...HEAD
+[0.10.1]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.8.0...v0.8.1
