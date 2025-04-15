@@ -62,7 +62,7 @@ macro_rules! int_from_value {
         $(
             impl FromValue for $t {
                 fn from_value(value: Result<dynamic::ValueAccessor>) -> InputValueResult<Self> {
-                    Self::try_from(value?.u64()?).map_err(|_| {
+                    Self::try_from(value?.i64()?).map_err(|_| {
                         InputValueError::custom(format!(
                             "Only integers from {} to {} are accepted for {}.",
                             Self::MIN,
