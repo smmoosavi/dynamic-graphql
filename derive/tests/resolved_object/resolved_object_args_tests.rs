@@ -709,3 +709,71 @@ async fn test_query_numbers() {
         r#"Invalid value for argument "name": Failed to parse "Int": Only integers from 0 to 255 are accepted for u8."#,
     );
 }
+
+#[test]
+fn test_arg_descriptions_via_attr_and_doc_comment() {
+    #[derive(ResolvedObject)]
+    #[graphql(root)]
+    struct Query;
+
+    #[ResolvedObjectFields]
+    impl Query {
+        /// Greeter.
+        ///
+        /// * `name` — the name of the person to greet.
+        /// * `times` — how many times to repeat.
+        fn greet_via_doc(
+            &self,
+            #[graphql(desc = "the name of the person to greet")] name: String,
+            #[graphql(desc = "how many times to repeat")] times: i32,
+        ) -> String {
+            name.repeat(times as usize)
+        }
+
+        /// `desc` attribute wins over a generic doc comment when both are
+        /// present (only the `desc` attribute is set here so we can verify
+        /// it lands in the schema).
+        fn greet_via_attr(
+            &self,
+            #[graphql(desc = "the salutation, e.g. 'hi' or 'hello'")] greeting: String,
+        ) -> String {
+            greeting
+        }
+    }
+
+    #[derive(App)]
+    struct App(Query);
+
+    let sdl = App::create_schema().finish().unwrap().sdl();
+
+    // Each arg description appears as a `"""…"""` block immediately above
+    // the arg in the SDL, separate from the field's own description.
+    fn has_arg_desc(sdl: &str, arg_name: &str, expected_desc: &str) -> bool {
+        sdl.lines()
+            .collect::<Vec<_>>()
+            .windows(4)
+            .any(|w| {
+                w[0].trim() == "\"\"\""
+                    && w[1].trim() == expected_desc
+                    && w[2].trim() == "\"\"\""
+                    && w[3].trim().starts_with(arg_name)
+            })
+    }
+
+    assert!(
+        has_arg_desc(&sdl, "name", "the name of the person to greet"),
+        "expected name arg description in SDL:\n{sdl}"
+    );
+    assert!(
+        has_arg_desc(&sdl, "times", "how many times to repeat"),
+        "expected times arg description in SDL:\n{sdl}"
+    );
+    assert!(
+        has_arg_desc(
+            &sdl,
+            "greeting",
+            "the salutation, e.g. 'hi' or 'hello'"
+        ),
+        "expected greeting arg description in SDL:\n{sdl}"
+    );
+}

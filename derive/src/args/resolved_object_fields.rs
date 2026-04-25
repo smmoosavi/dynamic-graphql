@@ -39,6 +39,11 @@ pub struct ResolvedObjectFieldsArgAttrs {
 
     #[darling(default)]
     pub ctx: bool,
+
+    /// Description for this argument exposed in the GraphQL schema. Takes
+    /// precedence over any `#[doc = "..."]` comment on the argument.
+    #[darling(default)]
+    pub desc: Option<String>,
 }
 
 impl Attributes for ResolvedObjectFieldsArgAttrs {
@@ -52,7 +57,7 @@ pub struct ResolvedObjectFieldsArgContext {
 
 from_fn_arg!(ResolvedObjectFieldsArg,
     WithAttributes<
-        ResolvedObjectFieldsArgAttrs,
+        WithDoc<ResolvedObjectFieldsArgAttrs>,
         WithIndex<WithContext<ResolvedObjectFieldsArgContext, BaseFnArg>>,
     >,
 );
@@ -213,6 +218,17 @@ impl CommonArg for ResolvedObjectFieldsArg {
 
     fn is_marked_as_ctx(&self) -> bool {
         self.attrs.ctx
+    }
+
+    fn get_doc(&self) -> darling::Result<Option<String>> {
+        // `desc = "..."` on `#[graphql(...)]` wins; otherwise fall back to the
+        // doc comment captured by `WithDoc`.
+        Ok(self
+            .attrs
+            .inner
+            .desc
+            .clone()
+            .or_else(|| self.attrs.doc.clone()))
     }
 }
 
