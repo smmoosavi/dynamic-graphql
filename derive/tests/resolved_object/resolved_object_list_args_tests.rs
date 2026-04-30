@@ -28,20 +28,22 @@ async fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Query {
       hello(names: [String!]!): String!
       helloWithRef(names: [String!]!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {
@@ -96,20 +98,22 @@ async fn test_schema_optional_arg() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Query {
       helloWithOptionalArg(names: [String!]): String!
       helloWithOptionalArgRef(names: [String!]): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
     let query = r#"
         query($names: [String!]) {
             helloWithOptionalArg(names: $names)
@@ -181,20 +185,22 @@ async fn test_schema_optional_item() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Query {
       helloWithOptionalItem(names: [String]!): String!
       helloWithOptionalItemRef(names: [String]!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
     let query = r#"
         query {
             helloWithOptionalItem(names: ["world", null, "rust"])
@@ -256,20 +262,22 @@ async fn test_schema_optional_item_and_arg() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Query {
       helloWithOptionalItemAndArg(names: [String]): String!
       helloWithOptionalItemAndArgRef(names: [String]): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
     let query = r#"
         query($names: [String]) {
             helloWithOptionalItemAndArg(names: $names)

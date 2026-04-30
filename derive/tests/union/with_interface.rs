@@ -53,7 +53,7 @@ async fn test_query() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     union Animal = Dog | Cat | Snake
 
     type Cat implements Named {
@@ -78,14 +78,16 @@ async fn test_query() {
       length: Int!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {
@@ -135,5 +137,5 @@ async fn test_query() {
     let res = schema.execute(req).await;
     let data = res.data.into_json().unwrap();
 
-    assert_eq!(data, serde_json::json!({ "pet": {}}));
+    assert_eq!(data, serde_json::json!({ "pet": null}));
 }

@@ -51,7 +51,7 @@ fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     interface Node {
       theId: String!
     }
@@ -60,14 +60,16 @@ fn test_schema() {
       foo: String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 }
 
 #[test]
@@ -91,7 +93,7 @@ fn test_schema_with_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     interface Other {
       id: String!
     }
@@ -100,14 +102,16 @@ fn test_schema_with_name() {
       foo: String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 }
 
 #[test]
@@ -155,7 +159,7 @@ fn test_schema_with_type_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type BarNode implements Other {
       theId: String!
     }
@@ -172,14 +176,16 @@ fn test_schema_with_type_name() {
       foo: String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 }
 
 #[test]
@@ -205,7 +211,7 @@ fn test_schema_with_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     interface Node {
       id: String!
       the_id: String!
@@ -215,14 +221,16 @@ fn test_schema_with_rename() {
       foo: String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 }
 
 #[test]
@@ -257,8 +265,10 @@ fn test_schema_description() {
       foo: String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
@@ -300,8 +310,10 @@ fn test_schema_with_deprecation() {
       foo: String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
@@ -332,7 +344,7 @@ fn test_schema_with_skip() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     interface Node {
       theId: String!
     }
@@ -341,14 +353,16 @@ fn test_schema_with_skip() {
       foo: String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 }
 
 #[tokio::test]
@@ -386,7 +400,7 @@ async fn test_auto_register() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Bar {
       id: String!
     }
@@ -403,14 +417,16 @@ async fn test_auto_register() {
       getFoo: Foo!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 }
 
 #[tokio::test]
@@ -467,7 +483,7 @@ async fn test_auto_register_instance() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Foo {
       id: String!
     }
@@ -481,14 +497,16 @@ async fn test_auto_register_instance() {
       getFoo: Foo!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 }
 
 mod in_mod {
@@ -557,7 +575,7 @@ mod in_mod {
             let schema = App::create_schema().finish().unwrap();
 
             let sdl = schema.sdl();
-            insta::assert_snapshot!(normalize_schema(&sdl), @r"
+            insta::assert_snapshot!(normalize_schema(&sdl), @r#"
             type Bar implements Node {
               id: String!
               other: String!
@@ -577,14 +595,16 @@ mod in_mod {
               bar: Node!
             }
 
+            "Directs the executor to include this field or fragment only when the `if` argument is true."
             directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+            "Directs the executor to skip this field or fragment when the `if` argument is true."
             directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
             schema {
               query: Query
             }
-            ");
+            "#);
 
             let query = r#"
                 query {

@@ -41,19 +41,21 @@ async fn test_query_static_generic() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Query {
       greet(name: String!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {
@@ -100,19 +102,21 @@ async fn test_query_generic_with_self() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Query {
       greet(name: String!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {
@@ -162,7 +166,7 @@ async fn test_query_graphql_generic() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Foo {
       value: String!
     }
@@ -171,14 +175,16 @@ async fn test_query_graphql_generic() {
       theG: Foo!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {

@@ -35,20 +35,22 @@ fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type Query {
       string: String!
       maybeString: String
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 }
 
 #[tokio::test]
@@ -103,8 +105,9 @@ async fn test_query() {
     let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
     let res = schema.execute(req).await;
     assert_eq!(res.data.into_json().unwrap(), serde_json::json!(null));
-    assert_eq!(res.errors.len(), 1);
+    assert_eq!(res.errors.len(), 2);
     assert_eq!(res.errors[0].message, "Not found");
+    assert_eq!(res.errors[1].message, "Not found");
 }
 
 #[tokio::test]
@@ -166,8 +169,9 @@ async fn test_ref_query() {
     let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
     let res = schema.execute(req).await;
     assert_eq!(res.data.into_json().unwrap(), serde_json::json!(null));
-    assert_eq!(res.errors.len(), 1);
+    assert_eq!(res.errors.len(), 2);
     assert_eq!(res.errors[0].message, "Not found");
+    assert_eq!(res.errors[1].message, "Not found");
 }
 
 #[tokio::test]
@@ -237,7 +241,9 @@ async fn test_ref_object_query() {
     };
     let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
     let res = schema.execute(req).await;
+
     assert_eq!(res.data.into_json().unwrap(), serde_json::json!(null));
-    assert_eq!(res.errors.len(), 1);
+    assert_eq!(res.errors.len(), 2);
     assert_eq!(res.errors[0].message, "Not found");
+    assert_eq!(res.errors[1].message, "Not found");
 }

@@ -43,7 +43,7 @@ async fn test_maybe_undefined() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     input ExampleInput @oneOf {
       str: String
       int: Int
@@ -53,16 +53,19 @@ async fn test_maybe_undefined() {
       example(input: ExampleInput!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its field be provided)"
     directive @oneOf on INPUT_OBJECT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query($input: ExampleInput) {
@@ -160,7 +163,7 @@ async fn test_option() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     input ExampleInput @oneOf {
       str: String
       int: Int
@@ -170,16 +173,19 @@ async fn test_option() {
       example(input: ExampleInput!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its field be provided)"
     directive @oneOf on INPUT_OBJECT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query($input: ExampleInput) {

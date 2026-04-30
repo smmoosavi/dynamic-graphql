@@ -74,7 +74,7 @@ async fn test_schema() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     input ExampleInput @oneOf {
       str: String
       int: Int
@@ -84,16 +84,19 @@ async fn test_schema() {
       example(input: ExampleInput!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its field be provided)"
     directive @oneOf on INPUT_OBJECT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {
@@ -144,7 +147,7 @@ async fn test_schema_with_rename() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     input OtherInput @oneOf {
       str: String
       number: Int
@@ -154,16 +157,19 @@ async fn test_schema_with_rename() {
       example(input: OtherInput!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its field be provided)"
     directive @oneOf on INPUT_OBJECT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {
@@ -219,7 +225,7 @@ async fn test_schema_with_type_name() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     input OtherInput @oneOf {
       str: String
       int: Int
@@ -229,16 +235,19 @@ async fn test_schema_with_type_name() {
       example(input: OtherInput!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its field be provided)"
     directive @oneOf on INPUT_OBJECT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {
@@ -292,7 +301,7 @@ async fn test_schema_with_skip() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     input ExampleInput @oneOf {
       str: String
       int: Int
@@ -302,16 +311,19 @@ async fn test_schema_with_skip() {
       example(input: ExampleInput!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its field be provided)"
     directive @oneOf on INPUT_OBJECT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {
@@ -373,10 +385,13 @@ async fn test_schema_with_doc() {
       example(input: ExampleInput!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its field be provided)"
     directive @oneOf on INPUT_OBJECT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
@@ -432,7 +447,7 @@ async fn test_rename_fields() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     input ExampleInput @oneOf {
       STR: String
       INT: Int
@@ -442,16 +457,19 @@ async fn test_rename_fields() {
       example(input: ExampleInput!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its field be provided)"
     directive @oneOf on INPUT_OBJECT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {
@@ -507,7 +525,7 @@ async fn test_auto_register() {
     let schema = App::create_schema().finish().unwrap();
 
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     input ExampleInput @oneOf {
       foo: FooInput
       str: String
@@ -525,16 +543,19 @@ async fn test_auto_register() {
       example(input: ExampleInput!): String!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its field be provided)"
     directive @oneOf on INPUT_OBJECT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
     schema {
       query: Query
     }
-    ");
+    "#);
 
     let query = r#"
         query {
@@ -601,7 +622,7 @@ mod in_mod {
 
         let sdl = schema.sdl();
 
-        insta::assert_snapshot!(normalize_schema(&sdl), @r"
+        insta::assert_snapshot!(normalize_schema(&sdl), @r#"
         input ExampleInput @oneOf {
           foo: FooInput
           str: String
@@ -615,16 +636,19 @@ mod in_mod {
           example(input: ExampleInput!): String!
         }
 
+        "Directs the executor to include this field or fragment only when the `if` argument is true."
         directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+        "Indicates that an Input Object is a OneOf Input Object (and thus requires exactly one of its field be provided)"
         directive @oneOf on INPUT_OBJECT
 
+        "Directs the executor to skip this field or fragment when the `if` argument is true."
         directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
         schema {
           query: Query
         }
-        ");
+        "#);
 
         let query = r#"
             query {
