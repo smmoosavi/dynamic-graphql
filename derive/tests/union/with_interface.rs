@@ -137,5 +137,5 @@ async fn test_query() {
     let res = schema.execute(req).await;
     let data = res.data.into_json().unwrap();
 
-    assert_eq!(data, serde_json::json!({ "pet": {}}));
+    assert_eq!(data, serde_json::json!({ "pet": null}));
 }

@@ -105,8 +105,9 @@ async fn test_query() {
     let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
     let res = schema.execute(req).await;
     assert_eq!(res.data.into_json().unwrap(), serde_json::json!(null));
-    assert_eq!(res.errors.len(), 1);
+    assert_eq!(res.errors.len(), 2);
     assert_eq!(res.errors[0].message, "Not found");
+    assert_eq!(res.errors[1].message, "Not found");
 }
 
 #[tokio::test]
@@ -168,8 +169,9 @@ async fn test_ref_query() {
     let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
     let res = schema.execute(req).await;
     assert_eq!(res.data.into_json().unwrap(), serde_json::json!(null));
-    assert_eq!(res.errors.len(), 1);
+    assert_eq!(res.errors.len(), 2);
     assert_eq!(res.errors[0].message, "Not found");
+    assert_eq!(res.errors[1].message, "Not found");
 }
 
 #[tokio::test]
@@ -239,7 +241,9 @@ async fn test_ref_object_query() {
     };
     let req = dynamic_graphql::Request::new(query).root_value(FieldValue::owned_any(root));
     let res = schema.execute(req).await;
+
     assert_eq!(res.data.into_json().unwrap(), serde_json::json!(null));
-    assert_eq!(res.errors.len(), 1);
+    assert_eq!(res.errors.len(), 2);
     assert_eq!(res.errors[0].message, "Not found");
+    assert_eq!(res.errors[1].message, "Not found");
 }

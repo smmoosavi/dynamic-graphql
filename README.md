@@ -61,20 +61,23 @@ async fn test() {
 
     assert_eq!(
         &sdl,
-        r#"
-
-type Foo {
+        r#"type Foo {
 	id: String!
 	name: String!
 }
-
-
 
 type Query {
 	foo(id: String!): Foo!
 }
 
-
+"""
+Directs the executor to include this field or fragment only when the `if` argument is true.
+"""
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+"""
+Directs the executor to skip this field or fragment when the `if` argument is true.
+"""
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 schema {
 	query: Query
 }
