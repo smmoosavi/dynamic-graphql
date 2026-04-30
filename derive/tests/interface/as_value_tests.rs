@@ -34,7 +34,7 @@ async fn interface_as_output_value_for_simple_object_with_implement() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> Instance<dyn Node> {
+        async fn node(&self) -> Instance<'static, dyn Node> {
             Instance::new_owned(FooNode {
                 other_field: "foo".to_string(),
             })
@@ -118,7 +118,7 @@ async fn interface_as_output_value_for_simple_object_with_mark_with() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> Instance<dyn Node> {
+        async fn node(&self) -> Instance<'static, dyn Node> {
             Instance::new_owned(FooNode {
                 the_id: "foo".to_string(),
                 other_field: "foo".to_string(),
@@ -213,7 +213,7 @@ async fn interface_as_output_value_for_resolved_object_with_implement() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> Instance<dyn Node> {
+        async fn node(&self) -> Instance<'static, dyn Node> {
             Instance::new_owned(FooNode)
         }
     }
@@ -302,7 +302,7 @@ async fn interface_as_output_value_for_resolved_object_with_mark_with() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> Instance<dyn Node> {
+        async fn node(&self) -> Instance<'static, dyn Node> {
             Instance::new_owned(FooNode)
         }
     }

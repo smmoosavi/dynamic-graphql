@@ -27,6 +27,7 @@ pub trait CommonField {
     fn get_field_rename_rule(&self) -> Option<&RenameRule> {
         None
     }
+    #[allow(dead_code)]
     fn get_args_rename_rule(&self) -> Option<&RenameRule> {
         None
     }

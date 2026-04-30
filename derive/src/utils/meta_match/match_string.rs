@@ -1,4 +1,5 @@
 pub trait MatchString: Sized {
+    #[allow(dead_code)]
     fn match_string(str: &str) -> Option<darling::Result<Self>>;
 }
 

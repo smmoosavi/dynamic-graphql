@@ -34,7 +34,7 @@ async fn test_interface_as_optional_value() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> Option<Instance<dyn Node>> {
+        async fn node(&self) -> Option<Instance<'static, dyn Node>> {
             Some(Instance::new_owned(FooNode {
                 other_field: "foo".to_string(),
             }))
@@ -136,7 +136,7 @@ async fn test_interface_as_list_value() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn nodes(&self) -> Vec<Instance<dyn Node>> {
+        async fn nodes(&self) -> Vec<Instance<'static, dyn Node>> {
             vec![
                 Instance::new_owned(FooNode {
                     other_field: "foo".to_string(),

@@ -40,7 +40,7 @@ async fn test_async_trait() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn foo(&self) -> Instance<dyn Foo> {
+        async fn foo(&self) -> Instance<'static, dyn Foo> {
             Instance::new_owned(FooValue)
         }
     }

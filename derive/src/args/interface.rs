@@ -37,6 +37,7 @@ use crate::utils::with_index::WithIndex;
 mod others;
 mod root;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct InterfaceArg {
     #[allow(dead_code)]
