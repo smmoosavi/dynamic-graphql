@@ -39,7 +39,7 @@ where
         }
     }
     #[inline]
-    pub fn new_borrowed<T>(value: &T) -> Instance<I>
+    pub fn new_borrowed<T>(value: &T) -> Instance<'_, I>
     where
         T: InterfaceMark<I> + Object + Send + Sync + 'static,
     {

@@ -4,7 +4,6 @@ use quote::quote;
 use crate::utils::common::CommonArg;
 use crate::utils::crate_name::get_crate_name;
 use crate::utils::impl_block::BaseFnArg;
-use crate::utils::impl_block::TypedArg;
 use crate::utils::rename_rule::calc_arg_name;
 use crate::utils::type_utils::get_owned_type;
 use crate::utils::type_utils::get_value_type;
@@ -16,7 +15,7 @@ pub fn get_arg_ident(arg: &impl CommonArg) -> syn::Ident {
 
 pub fn is_arg_ctx(arg: &impl CommonArg) -> bool {
     arg.is_marked_as_ctx()
-        || matches!(arg.get_arg(), BaseFnArg::Typed(TypedArg{ident, ..}) if ident == "ctx" || ident == "_ctx")
+        || matches!(arg.get_arg(), BaseFnArg::Typed(typed) if typed.ident == "ctx" || typed.ident == "_ctx")
 }
 
 pub fn get_self_arg_usage(arg: &impl CommonArg) -> darling::Result<TokenStream> {

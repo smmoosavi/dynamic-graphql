@@ -367,6 +367,7 @@ fn test_schema_with_skip() {
 
 #[tokio::test]
 async fn test_auto_register() {
+    #[allow(dead_code)]
     #[derive(SimpleObject)]
     struct Bar {
         id: String,
@@ -445,6 +446,7 @@ async fn test_auto_register_instance() {
         }
     }
 
+    #[allow(dead_code)]
     #[derive(SimpleObject)]
     struct Bar {
         id: String,
@@ -554,12 +556,12 @@ mod in_mod {
 
         #[ResolvedObjectFields]
         impl Query {
-            async fn foo(&self) -> Instance<dyn super::node::Node> {
+            async fn foo(&self) -> Instance<'static, dyn super::node::Node> {
                 Instance::new_owned(Foo {
                     other: "foo".to_string(),
                 })
             }
-            async fn bar(&self) -> Instance<dyn super::node::Node> {
+            async fn bar(&self) -> Instance<'static, dyn super::node::Node> {
                 Instance::new_owned(Bar {
                     id: "bar".to_string(),
                     other: "bar".to_string(),

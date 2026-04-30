@@ -10,7 +10,7 @@ use crate::utils::with_index::SetIndex;
 #[derive(Debug, Clone)]
 pub enum BaseFnArg {
     Receiver(SelfArg),
-    Typed(TypedArg),
+    Typed(Box<TypedArg>),
 }
 
 impl BaseFnArg {
@@ -66,10 +66,10 @@ impl FromFnArg for BaseFnArg {
                             .with_span(&typed.pat));
                     }
                 };
-                Self::Typed(TypedArg {
+                Self::Typed(Box::new(TypedArg {
                     ident,
                     ty: typed.ty.as_ref().clone(),
-                })
+                }))
             }),
         }
     }

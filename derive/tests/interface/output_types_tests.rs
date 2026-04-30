@@ -10,6 +10,7 @@ use dynamic_graphql::dynamic::DynamicRequestExt;
 use crate::schema_utils::normalize_schema;
 
 #[tokio::test]
+#[allow(clippy::owned_cow)]
 async fn interface_string_ref_types() {
     #[Interface]
     trait Node {
@@ -48,7 +49,7 @@ async fn interface_string_ref_types() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn node(&self) -> Instance<dyn Node> {
+        async fn node(&self) -> Instance<'static, dyn Node> {
             Instance::new_owned(FooNode {
                 other_field: "foo".to_string(),
                 id: "foo id".to_string(),
@@ -171,7 +172,7 @@ async fn interface_object_ref_types() {
 
     #[ResolvedObjectFields]
     impl Query {
-        async fn baz(&self) -> Instance<dyn Baz> {
+        async fn baz(&self) -> Instance<'static, dyn Baz> {
             Instance::new_owned(FooNode {
                 other_field: "foo".to_string(),
                 bar: Bar {
