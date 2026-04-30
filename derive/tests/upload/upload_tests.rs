@@ -64,7 +64,7 @@ async fn test_arg() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type MutationRoot {
       test(file: Upload!): String!
     }
@@ -73,19 +73,23 @@ async fn test_arg() {
       foo: String!
     }
 
+    "A multipart file upload"
     scalar Upload
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Provides a scalar specification URL for specifying the behavior of custom scalar types."
     directive @specifiedBy(url: String!) on SCALAR
 
     schema {
       query: Query
       mutation: MutationRoot
     }
-    ");
+    "#);
 
     let query = r##"
         mutation($file: Upload!) {
@@ -147,7 +151,7 @@ async fn test_input_object() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type MutationRoot {
       test(input: UploadInput!): String!
     }
@@ -156,23 +160,27 @@ async fn test_input_object() {
       foo: String!
     }
 
+    "A multipart file upload"
     scalar Upload
 
     input UploadInput {
       file: Upload!
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Provides a scalar specification URL for specifying the behavior of custom scalar types."
     directive @specifiedBy(url: String!) on SCALAR
 
     schema {
       query: Query
       mutation: MutationRoot
     }
-    ");
+    "#);
 
     let query = r##"
         mutation($input: UploadInput!) {
@@ -232,7 +240,7 @@ async fn test_arg_optional() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type MutationRoot {
       test(file: Upload): String!
     }
@@ -241,19 +249,23 @@ async fn test_arg_optional() {
       foo: String!
     }
 
+    "A multipart file upload"
     scalar Upload
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Provides a scalar specification URL for specifying the behavior of custom scalar types."
     directive @specifiedBy(url: String!) on SCALAR
 
     schema {
       query: Query
       mutation: MutationRoot
     }
-    ");
+    "#);
 
     let query = r##"
         mutation($file: Upload!) {
@@ -327,7 +339,7 @@ async fn test_input_object_optional() {
 
     let schema = App::create_schema().finish().unwrap();
     let sdl = schema.sdl();
-    insta::assert_snapshot!(normalize_schema(&sdl), @r"
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
     type MutationRoot {
       test(input: UploadInput!): String!
     }
@@ -336,23 +348,27 @@ async fn test_input_object_optional() {
       foo: String!
     }
 
+    "A multipart file upload"
     scalar Upload
 
     input UploadInput {
       file: Upload
     }
 
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
     directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
     directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+    "Provides a scalar specification URL for specifying the behavior of custom scalar types."
     directive @specifiedBy(url: String!) on SCALAR
 
     schema {
       query: Query
       mutation: MutationRoot
     }
-    ");
+    "#);
 
     let query = r##"
         mutation($input: UploadInput!) {
