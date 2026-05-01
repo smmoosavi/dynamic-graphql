@@ -746,6 +746,34 @@ fn test_arg_descriptions_via_attr_and_doc_comment() {
 
     let sdl = App::create_schema().finish().unwrap().sdl();
 
+    insta::assert_snapshot!(normalize_schema(&sdl), @r#"
+    type Query {
+      """
+        Greeter.
+
+        * `name` — the name of the person to greet.
+        * `times` — how many times to repeat.
+      """
+      greetViaDoc("the name of the person to greet" name: String!, "how many times to repeat" times: Int!): String!
+      """
+        `desc` attribute wins over a generic doc comment when both are
+        present (only the `desc` attribute is set here so we can verify
+        it lands in the schema).
+      """
+      greetViaAttr("the salutation, e.g. 'hi' or 'hello'" greeting: String!): String!
+    }
+
+    "Directs the executor to include this field or fragment only when the `if` argument is true."
+    directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    "Directs the executor to skip this field or fragment when the `if` argument is true."
+    directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+    schema {
+      query: Query
+    }
+    "#);
+
     // Each arg description appears as a `"""…"""` block immediately above
     // the arg in the SDL, separate from the field's own description.
     fn has_arg_desc(sdl: &str, arg_name: &str, expected_desc: &str) -> bool {
