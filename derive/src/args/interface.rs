@@ -83,8 +83,9 @@ pub struct InterfaceMethodArgContext {
     pub rename_args: Option<RenameRule>,
 }
 
-from_fn_arg!(InterfaceMethodArg,
-   WithAttributes<
+from_fn_arg!(
+    InterfaceMethodArg,
+    WithAttributes<
         WithDoc<InterfaceMethodArgAttrs>,
         WithIndex<WithContext<InterfaceMethodArgContext, BaseFnArg>>,
     >,

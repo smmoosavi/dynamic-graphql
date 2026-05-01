@@ -55,7 +55,8 @@ pub struct ExpandObjectFieldsArgContext {
     pub rename_args: Option<RenameRule>,
 }
 
-from_fn_arg!(ExpandObjectFieldsArg,
+from_fn_arg!(
+    ExpandObjectFieldsArg,
     WithAttributes<
         WithDoc<ExpandObjectFieldsArgAttrs>,
         WithIndex<WithContext<ExpandObjectFieldsArgContext, BaseFnArg>>,

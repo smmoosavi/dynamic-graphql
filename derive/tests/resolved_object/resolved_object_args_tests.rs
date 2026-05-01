@@ -749,15 +749,12 @@ fn test_arg_descriptions_via_attr_and_doc_comment() {
     // Each arg description appears as a `"""…"""` block immediately above
     // the arg in the SDL, separate from the field's own description.
     fn has_arg_desc(sdl: &str, arg_name: &str, expected_desc: &str) -> bool {
-        sdl.lines()
-            .collect::<Vec<_>>()
-            .windows(4)
-            .any(|w| {
-                w[0].trim() == "\"\"\""
-                    && w[1].trim() == expected_desc
-                    && w[2].trim() == "\"\"\""
-                    && w[3].trim().starts_with(arg_name)
-            })
+        sdl.lines().collect::<Vec<_>>().windows(4).any(|w| {
+            w[0].trim() == "\"\"\""
+                && w[1].trim() == expected_desc
+                && w[2].trim() == "\"\"\""
+                && w[3].trim().starts_with(arg_name)
+        })
     }
 
     assert!(
@@ -769,11 +766,7 @@ fn test_arg_descriptions_via_attr_and_doc_comment() {
         "expected times arg description in SDL:\n{sdl}"
     );
     assert!(
-        has_arg_desc(
-            &sdl,
-            "greeting",
-            "the salutation, e.g. 'hi' or 'hello'"
-        ),
+        has_arg_desc(&sdl, "greeting", "the salutation, e.g. 'hi' or 'hello'"),
         "expected greeting arg description in SDL:\n{sdl}"
     );
 }

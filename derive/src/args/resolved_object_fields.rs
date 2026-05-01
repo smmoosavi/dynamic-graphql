@@ -55,7 +55,8 @@ pub struct ResolvedObjectFieldsArgContext {
     pub rename_args: Option<RenameRule>,
 }
 
-from_fn_arg!(ResolvedObjectFieldsArg,
+from_fn_arg!(
+    ResolvedObjectFieldsArg,
     WithAttributes<
         WithDoc<ResolvedObjectFieldsArgAttrs>,
         WithIndex<WithContext<ResolvedObjectFieldsArgContext, BaseFnArg>>,
