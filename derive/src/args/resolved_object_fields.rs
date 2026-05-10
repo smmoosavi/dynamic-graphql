@@ -39,6 +39,10 @@ pub struct ResolvedObjectFieldsArgAttrs {
 
     #[darling(default)]
     pub ctx: bool,
+
+    /// Description for this argument exposed in the GraphQL schema. Takes
+    #[darling(default)]
+    pub desc: Option<String>,
 }
 
 impl Attributes for ResolvedObjectFieldsArgAttrs {
@@ -50,7 +54,8 @@ pub struct ResolvedObjectFieldsArgContext {
     pub rename_args: Option<RenameRule>,
 }
 
-from_fn_arg!(ResolvedObjectFieldsArg,
+from_fn_arg!(
+    ResolvedObjectFieldsArg,
     WithAttributes<
         ResolvedObjectFieldsArgAttrs,
         WithIndex<WithContext<ResolvedObjectFieldsArgContext, BaseFnArg>>,
@@ -213,6 +218,10 @@ impl CommonArg for ResolvedObjectFieldsArg {
 
     fn is_marked_as_ctx(&self) -> bool {
         self.attrs.ctx
+    }
+
+    fn get_doc(&self) -> darling::Result<Option<String>> {
+        Ok(self.attrs.desc.clone())
     }
 }
 

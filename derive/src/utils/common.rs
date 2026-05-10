@@ -51,6 +51,12 @@ pub trait CommonArg {
         None
     }
     fn is_marked_as_ctx(&self) -> bool;
+    /// Optional description rendered into the GraphQL schema for this
+    /// argument. Source:
+    /// `#[graphql(desc = "...")]` attribute on the argument
+    fn get_doc(&self) -> darling::Result<Option<String>> {
+        Ok(None)
+    }
 }
 
 pub trait GetFields<F> {
@@ -76,6 +82,10 @@ impl CommonArg for () {
 
     fn is_marked_as_ctx(&self) -> bool {
         unreachable!("() doesn't have an arg")
+    }
+
+    fn get_doc(&self) -> darling::Result<Option<String>> {
+        unreachable!("() doesn't have a doc")
     }
 }
 

@@ -39,6 +39,10 @@ pub struct ExpandObjectFieldsArgAttrs {
 
     #[darling(default)]
     pub ctx: bool,
+
+    /// Description for this argument exposed in the GraphQL schema. Takes
+    #[darling(default)]
+    pub desc: Option<String>,
 }
 
 impl Attributes for ExpandObjectFieldsArgAttrs {
@@ -50,7 +54,8 @@ pub struct ExpandObjectFieldsArgContext {
     pub rename_args: Option<RenameRule>,
 }
 
-from_fn_arg!(ExpandObjectFieldsArg,
+from_fn_arg!(
+    ExpandObjectFieldsArg,
     WithAttributes<
         ExpandObjectFieldsArgAttrs,
         WithIndex<WithContext<ExpandObjectFieldsArgContext, BaseFnArg>>,
@@ -215,6 +220,10 @@ impl CommonArg for ExpandObjectFieldsArg {
 
     fn is_marked_as_ctx(&self) -> bool {
         self.attrs.ctx
+    }
+
+    fn get_doc(&self) -> darling::Result<Option<String>> {
+        Ok(self.attrs.desc.clone())
     }
 }
 

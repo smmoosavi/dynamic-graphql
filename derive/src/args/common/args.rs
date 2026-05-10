@@ -37,12 +37,12 @@ pub fn get_typed_arg_usage(arg: &impl CommonArg) -> darling::Result<TokenStream>
     }
 }
 
-pub fn get_argument_definition(arg: &impl CommonArg) -> TokenStream {
+pub fn get_argument_definition(arg: &impl CommonArg) -> darling::Result<TokenStream> {
     if is_arg_ctx(arg) {
-        return quote!();
+        return Ok(quote!());
     }
     let BaseFnArg::Typed(typed) = arg.get_arg() else {
-        return quote!();
+        return Ok(quote!());
     };
     let crate_name = get_crate_name();
     let arg_name = calc_arg_name(
@@ -52,14 +52,22 @@ pub fn get_argument_definition(arg: &impl CommonArg) -> TokenStream {
     );
     let arg_type = get_owned_type(&typed.ty);
 
-    quote! {
+    let description = match arg.get_doc()? {
+        Some(doc) if !doc.is_empty() => quote! {
+            let arg = arg.description(#doc);
+        },
+        _ => quote!(),
+    };
+
+    Ok(quote! {
         let arg = #crate_name::dynamic::InputValue::new(#arg_name, <#arg_type as #crate_name::internal::GetInputTypeRef>::get_input_type_ref());
+        #description
         let field = field.argument(arg);
-    }
+    })
 }
 
 pub fn get_argument_definitions(args: &[impl CommonArg]) -> darling::Result<TokenStream> {
-    Ok(args.iter().map(get_argument_definition).collect())
+    args.iter().map(get_argument_definition).collect()
 }
 
 pub fn get_typed_arg_definition(arg: &impl CommonArg) -> darling::Result<TokenStream> {
