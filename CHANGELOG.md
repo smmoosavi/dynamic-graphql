@@ -9,6 +9,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] - ReleaseDate
 
+## [0.10.2] - 2026-05-10
+
 - add `#[graphql(desc = "...")]` attribute to arguments
 
 ## [0.10.1] - 2025-04-15
@@ -431,7 +433,8 @@ struct AnotherType {}
 - add `Output` associated type to `GetOutputTypeRef` and `GetInputTypeRef`
 
 <!-- next-url -->
-[Unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.10.1...HEAD
+[Unreleased]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.10.2...HEAD
+[0.10.2]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/smmoosavi/dynamic-graphql/compare/v0.8.1...v0.9.0

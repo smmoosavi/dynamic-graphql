@@ -377,7 +377,7 @@ dependencies = [
 
 [[package]]
 name = "dynamic-graphql"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "async-graphql",
  "dynamic-graphql-derive",
@@ -388,7 +388,7 @@ dependencies = [
 
 [[package]]
 name = "dynamic-graphql-derive"
-version = "0.10.1"
+version = "0.10.2"
 dependencies = [
  "Inflector",
  "async-stream",
