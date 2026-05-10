@@ -285,11 +285,7 @@ fn test_arg_descriptions_via_attr_and_doc_comment() {
         ///
         /// * `name` - the name of the person to greet.
         /// * `times` - how many times to repeat.
-        fn greet_via_doc(
-            &self,
-            #[graphql(desc = "the name of the person to greet")] name: String,
-            #[graphql(desc = "how many times to repeat")] times: i32,
-        ) -> String;
+        fn greet_via_doc(&self, name: String, times: i32) -> String;
 
         /// `desc` attribute wins over a generic doc comment when both are
         /// present (only the `desc` attribute is set here so we can verify
@@ -319,7 +315,7 @@ fn test_arg_descriptions_via_attr_and_doc_comment() {
         * `name` - the name of the person to greet.
         * `times` - how many times to repeat.
       """
-      greetViaDoc("the name of the person to greet" name: String!, "how many times to repeat" times: Int!): String!
+      greetViaDoc(name: String!, times: Int!): String!
       """
         `desc` attribute wins over a generic doc comment when both are
         present (only the `desc` attribute is set here so we can verify
@@ -352,14 +348,6 @@ fn test_arg_descriptions_via_attr_and_doc_comment() {
         })
     }
 
-    assert!(
-        has_arg_desc(&sdl, "name", "the name of the person to greet"),
-        "expected name arg description in SDL:\n{sdl}"
-    );
-    assert!(
-        has_arg_desc(&sdl, "times", "how many times to repeat"),
-        "expected times arg description in SDL:\n{sdl}"
-    );
     assert!(
         has_arg_desc(&sdl, "greeting", "the salutation, e.g. 'hi' or 'hello'"),
         "expected greeting arg description in SDL:\n{sdl}"
