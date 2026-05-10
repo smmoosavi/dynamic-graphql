@@ -69,7 +69,6 @@ pub struct InterfaceMethodArgAttrs {
     pub ctx: bool,
 
     /// Description for this argument exposed in the GraphQL schema. Takes
-    /// precedence over any `#[doc = "..."]` comment on the argument.
     #[darling(default)]
     pub desc: Option<String>,
 }
@@ -86,7 +85,7 @@ pub struct InterfaceMethodArgContext {
 from_fn_arg!(
     InterfaceMethodArg,
     WithAttributes<
-        WithDoc<InterfaceMethodArgAttrs>,
+        InterfaceMethodArgAttrs,
         WithIndex<WithContext<InterfaceMethodArgContext, BaseFnArg>>,
     >,
 );
@@ -165,12 +164,7 @@ impl CommonArg for InterfaceMethodArg {
     }
 
     fn get_doc(&self) -> darling::Result<Option<String>> {
-        Ok(self
-            .attrs
-            .inner
-            .desc
-            .clone()
-            .or_else(|| self.attrs.doc.clone()))
+        Ok(self.attrs.desc.clone())
     }
 }
 

@@ -41,7 +41,6 @@ pub struct ExpandObjectFieldsArgAttrs {
     pub ctx: bool,
 
     /// Description for this argument exposed in the GraphQL schema. Takes
-    /// precedence over any `#[doc = "..."]` comment on the argument.
     #[darling(default)]
     pub desc: Option<String>,
 }
@@ -58,7 +57,7 @@ pub struct ExpandObjectFieldsArgContext {
 from_fn_arg!(
     ExpandObjectFieldsArg,
     WithAttributes<
-        WithDoc<ExpandObjectFieldsArgAttrs>,
+        ExpandObjectFieldsArgAttrs,
         WithIndex<WithContext<ExpandObjectFieldsArgContext, BaseFnArg>>,
     >,
 );
@@ -224,12 +223,7 @@ impl CommonArg for ExpandObjectFieldsArg {
     }
 
     fn get_doc(&self) -> darling::Result<Option<String>> {
-        Ok(self
-            .attrs
-            .inner
-            .desc
-            .clone()
-            .or_else(|| self.attrs.doc.clone()))
+        Ok(self.attrs.desc.clone())
     }
 }
 
